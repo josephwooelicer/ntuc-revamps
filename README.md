@@ -263,6 +263,51 @@ Read run status and raw traceability:
 curl -s http://127.0.0.1:4000/api/v1/ingestion/runs/<runId>
 ```
 
+## Epic 3 Entity Resolution Service
+
+The repository now includes Epic 3 entity resolution capabilities:
+- Matching pipeline with `exact`, `alias`, and `fuzzy` strategies
+- Config-driven auto-resolve threshold (`entity_auto_resolve_threshold`, default `0.85`)
+- Manual review queue for uncertain/unmatched mappings
+- Manual approve/reject workflow with audit logging
+- Alias persistence/learning from manual approvals
+
+### Epic 3 API examples
+
+Resolve entities for an ingestion run:
+```bash
+curl -s -X POST http://127.0.0.1:4000/api/v1/entity-resolution/resolve \
+  -H "Content-Type: application/json" \
+  -d '{"ingestionRunId":"<runId>","actorUserId":"user-officer-001"}'
+```
+
+List manual review queue:
+```bash
+curl -s "http://127.0.0.1:4000/api/v1/entity-resolution/review-queue?limit=20&offset=0"
+```
+
+Approve a queued mapping (and learn alias):
+```bash
+curl -s -X POST http://127.0.0.1:4000/api/v1/entity-resolution/<resolutionId>/approve \
+  -H "Content-Type: application/json" \
+  -d '{"companyId":"co-hanbaobao","alias":"F&B operators","actorUserId":"user-officer-001"}'
+```
+
+Reject a queued mapping:
+```bash
+curl -s -X POST http://127.0.0.1:4000/api/v1/entity-resolution/<resolutionId>/reject \
+  -H "Content-Type: application/json" \
+  -d '{"reason":"Insufficient evidence to map","actorUserId":"user-officer-001"}'
+```
+
+Manage company aliases:
+```bash
+curl -s http://127.0.0.1:4000/api/v1/companies/co-hanbaobao/aliases
+curl -s -X POST http://127.0.0.1:4000/api/v1/companies/co-hanbaobao/aliases \
+  -H "Content-Type: application/json" \
+  -d '{"alias":"Hanbaobao","source":"analyst_override","actorUserId":"user-officer-001"}'
+```
+
 ### Prerequisites
 - Node.js 22+
 - npm 10+

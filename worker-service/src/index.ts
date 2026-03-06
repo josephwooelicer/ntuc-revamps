@@ -7,6 +7,14 @@ import { insertAuditLog } from "./db/audit.js";
 import { resolveRepoPath } from "./lib/paths.js";
 import { createSource, listSources } from "./ingestion/sourceRegistry.js";
 import { fetchIngestionRun, runBackfillNews, runIngestion } from "./ingestion/service.js";
+import {
+  addCompanyAlias,
+  approveEntityResolution,
+  listCompanyAliases,
+  listReviewQueue,
+  rejectEntityResolution,
+  resolveEntities
+} from "./entity-resolution/service.js";
 
 const host = process.env.HOST || "127.0.0.1";
 const port = Number(process.env.PORT_WORKER || 4000);
@@ -225,52 +233,6 @@ function decideModelRecommendation(recommendationId, body) {
   });
 }
 
-function reviewEntityResolution(resolutionId, body) {
-  const { status, matchedCompanyId, actorUserId, method } = body;
-  if (!status || !["approved", "rejected"].includes(status)) {
-    throw new Error("status must be one of: approved, rejected");
-  }
-
-  return withDb((db) => {
-    const before = db.prepare("SELECT * FROM entity_resolution WHERE id = ?").get(resolutionId);
-    if (!before) {
-      throw new Error("entity_resolution not found");
-    }
-
-    db.exec("BEGIN;");
-    try {
-      db
-        .prepare(
-          `UPDATE entity_resolution
-           SET status = ?,
-               matched_company_id = COALESCE(?, matched_company_id),
-               method = COALESCE(?, method),
-               reviewed_by = ?,
-               reviewed_at = current_timestamp
-           WHERE id = ?`
-        )
-        .run(status, matchedCompanyId || null, method || null, actorUserId || null, resolutionId);
-
-      const after = db.prepare("SELECT * FROM entity_resolution WHERE id = ?").get(resolutionId);
-
-      insertAuditLog(db, {
-        actorUserId,
-        action: "entity_resolution.reviewed",
-        entityType: "entity_resolution",
-        entityId: resolutionId,
-        beforeState: before,
-        afterState: after
-      });
-
-      db.exec("COMMIT;");
-      return after;
-    } catch (error) {
-      db.exec("ROLLBACK;");
-      throw error;
-    }
-  });
-}
-
 runMigrations();
 
 const server = http.createServer(async (req, res) => {
@@ -374,7 +336,89 @@ const server = http.createServer(async (req, res) => {
     const entityReviewMatch = pathname.match(/^\/api\/v1\/entity-resolution\/([^/]+)\/review$/);
     if (req.method === "POST" && entityReviewMatch) {
       const body = await readJsonBody(req);
-      const result = reviewEntityResolution(entityReviewMatch[1], body);
+      const result = withDb((db) =>
+        body.status === "approved"
+          ? approveEntityResolution(db, entityReviewMatch[1], {
+              companyId: body.companyId || body.matchedCompanyId,
+              alias: body.alias,
+              actorUserId: body.actorUserId
+            })
+          : rejectEntityResolution(db, entityReviewMatch[1], {
+              reason: body.reason || "manual rejection",
+              actorUserId: body.actorUserId
+            })
+      );
+      sendJson(res, 200, result);
+      return;
+    }
+
+    if (req.method === "POST" && pathname === "/api/v1/entity-resolution/resolve") {
+      const body = await readJsonBody(req);
+      const result = withDb((db) =>
+        resolveEntities(db, {
+          rawDocumentId: body.rawDocumentId,
+          ingestionRunId: body.ingestionRunId,
+          actorUserId: body.actorUserId
+        })
+      );
+      sendJson(res, 201, result);
+      return;
+    }
+
+    if (req.method === "GET" && pathname === "/api/v1/entity-resolution/review-queue") {
+      const result = withDb((db) =>
+        listReviewQueue(db, {
+          limit: route.searchParams.get("limit"),
+          offset: route.searchParams.get("offset")
+        })
+      );
+      sendJson(res, 200, result);
+      return;
+    }
+
+    const entityApproveMatch = pathname.match(/^\/api\/v1\/entity-resolution\/([^/]+)\/approve$/);
+    if (req.method === "POST" && entityApproveMatch) {
+      const body = await readJsonBody(req);
+      const result = withDb((db) =>
+        approveEntityResolution(db, entityApproveMatch[1], {
+          companyId: body.companyId,
+          alias: body.alias,
+          actorUserId: body.actorUserId
+        })
+      );
+      sendJson(res, 200, result);
+      return;
+    }
+
+    const entityRejectMatch = pathname.match(/^\/api\/v1\/entity-resolution\/([^/]+)\/reject$/);
+    if (req.method === "POST" && entityRejectMatch) {
+      const body = await readJsonBody(req);
+      const result = withDb((db) =>
+        rejectEntityResolution(db, entityRejectMatch[1], {
+          reason: body.reason,
+          actorUserId: body.actorUserId
+        })
+      );
+      sendJson(res, 200, result);
+      return;
+    }
+
+    const companyAliasesMatch = pathname.match(/^\/api\/v1\/companies\/([^/]+)\/aliases$/);
+    if (companyAliasesMatch && req.method === "GET") {
+      const result = withDb((db) => listCompanyAliases(db, companyAliasesMatch[1]));
+      sendJson(res, 200, result);
+      return;
+    }
+
+    if (companyAliasesMatch && req.method === "POST") {
+      const body = await readJsonBody(req);
+      const result = withDb((db) =>
+        addCompanyAlias(db, companyAliasesMatch[1], {
+          alias: body.alias,
+          source: body.source,
+          actorUserId: body.actorUserId
+        })
+      );
       sendJson(res, 200, result);
       return;
     }
