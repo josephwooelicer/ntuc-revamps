@@ -12,6 +12,6 @@
     "dev:web": "npm --workspace web-platform run dev",
     "dev:worker": "npm --workspace worker-service run dev",
     "health": "bash ./scripts/health-check.sh",
-    "deps:down": "pkill -f \"next dev\" || true; pkill -f \"worker-service/src/index.js\" || true"
+    "deps:down": "bash ./scripts/stop-local.sh"
   }
 }

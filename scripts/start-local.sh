@@ -21,6 +21,7 @@ fi
 
 cleanup() {
   kill "$WEB_PID" "$WORKER_PID" 2>/dev/null || true
+  bash ./scripts/stop-local.sh >/dev/null 2>&1 || true
 }
 
 trap cleanup EXIT INT TERM
