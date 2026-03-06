@@ -8,6 +8,16 @@ import { resolveRepoPath } from "./lib/paths.js";
 import { createSource, listSources } from "./ingestion/sourceRegistry.js";
 import { fetchIngestionRun, runBackfillNews, runIngestion } from "./ingestion/service.js";
 import {
+  generateMorningBrief,
+  getDailyBriefReadyByConfig,
+  getLatestMorningBrief,
+  getMorningBriefByDate,
+  hasBriefForDate,
+  isAfterReadyTimeSgt,
+  listMorningBriefs,
+  resolveScheduledBriefDateSgt
+} from "./briefing/service.js";
+import {
   addCompanyAlias,
   approveEntityResolution,
   listCompanyAliases,
@@ -28,6 +38,16 @@ import {
 const host = process.env.HOST || "127.0.0.1";
 const port = Number(process.env.PORT_WORKER || 4000);
 const rawPath = process.env.DATA_LAKE_RAW_PATH || "./data-lake/raw";
+const briefSchedulerIntervalMs = Number(process.env.BRIEF_SCHEDULER_INTERVAL_MS || 60_000);
+const briefSchedulerEnabled = String(process.env.BRIEF_SCHEDULER_ENABLED || "true").toLowerCase() !== "false";
+const schedulerState = {
+  enabled: briefSchedulerEnabled,
+  intervalMs: briefSchedulerIntervalMs,
+  lastRunAt: null,
+  lastBriefDate: null,
+  lastStatus: "idle",
+  lastError: null
+};
 
 function readJsonBody(req) {
   return new Promise<any>((resolve, reject) => {
@@ -82,7 +102,7 @@ function checkHealth() {
     db_file_exists: fs.existsSync(resolvedDbPath),
     db_schema_ready: hasCoreTables(),
     storage: fs.existsSync(resolvedRawPath),
-    scheduler: "idle",
+    scheduler: schedulerState,
     timestamp: new Date().toISOString()
   };
 }
@@ -240,6 +260,51 @@ function decideModelRecommendation(recommendationId, body) {
       throw error;
     }
   });
+}
+
+function runDailyBriefSchedulerTick() {
+  if (!schedulerState.enabled) return;
+
+  try {
+    const briefDate = resolveScheduledBriefDateSgt();
+    withDb((db) => {
+      const readyBy = getDailyBriefReadyByConfig(db);
+      if (!isAfterReadyTimeSgt(readyBy)) {
+        schedulerState.lastStatus = "waiting_for_ready_time";
+        return;
+      }
+      if (hasBriefForDate(db, briefDate)) {
+        schedulerState.lastStatus = "already_generated";
+        schedulerState.lastBriefDate = briefDate;
+        return;
+      }
+
+      db.exec("BEGIN;");
+      try {
+        const brief = generateMorningBrief(db, { briefDate });
+        insertAuditLog(db, {
+          actorUserId: null,
+          action: "morning_brief.generated",
+          entityType: "morning_brief",
+          entityId: brief.id,
+          beforeState: null,
+          afterState: { briefDate: brief.briefDate, mode: "scheduled" }
+        });
+        db.exec("COMMIT;");
+        schedulerState.lastStatus = "generated";
+        schedulerState.lastBriefDate = briefDate;
+      } catch (error) {
+        db.exec("ROLLBACK;");
+        throw error;
+      }
+    });
+    schedulerState.lastRunAt = new Date().toISOString();
+    schedulerState.lastError = null;
+  } catch (error) {
+    schedulerState.lastRunAt = new Date().toISOString();
+    schedulerState.lastStatus = "error";
+    schedulerState.lastError = error.message;
+  }
 }
 
 runMigrations();
@@ -423,6 +488,55 @@ const server = http.createServer(async (req, res) => {
       return;
     }
 
+    if (req.method === "POST" && pathname === "/api/v1/briefs/generate") {
+      const body = await readJsonBody(req);
+      const result = withDb((db) => {
+        db.exec("BEGIN;");
+        try {
+          const brief = generateMorningBrief(db, { briefDate: body.briefDate });
+          insertAuditLog(db, {
+            actorUserId: body.actorUserId || null,
+            action: "morning_brief.generated",
+            entityType: "morning_brief",
+            entityId: brief.id,
+            beforeState: null,
+            afterState: { briefDate: brief.briefDate, mode: "manual" }
+          });
+          db.exec("COMMIT;");
+          return brief;
+        } catch (error) {
+          db.exec("ROLLBACK;");
+          throw error;
+        }
+      });
+      sendJson(res, 201, result);
+      return;
+    }
+
+    if (req.method === "GET" && pathname === "/api/v1/briefs") {
+      const result = withDb((db) =>
+        listMorningBriefs(db, {
+          limit: route.searchParams.get("limit"),
+          offset: route.searchParams.get("offset")
+        })
+      );
+      sendJson(res, 200, result);
+      return;
+    }
+
+    if (req.method === "GET" && pathname === "/api/v1/briefs/latest") {
+      const result = withDb((db) => getLatestMorningBrief(db));
+      sendJson(res, 200, result);
+      return;
+    }
+
+    const briefDateMatch = pathname.match(/^\/api\/v1\/briefs\/(\d{4}-\d{2}-\d{2})$/);
+    if (req.method === "GET" && briefDateMatch) {
+      const result = withDb((db) => getMorningBriefByDate(db, briefDateMatch[1]));
+      sendJson(res, 200, result);
+      return;
+    }
+
     if (req.method === "GET" && pathname === "/api/v1/entity-resolution/review-queue") {
       const result = withDb((db) =>
         listReviewQueue(db, {
@@ -547,4 +661,8 @@ const server = http.createServer(async (req, res) => {
 
 server.listen(port, host, () => {
   console.log(`worker-service listening on http://${host}:${port}`);
+  if (schedulerState.enabled) {
+    runDailyBriefSchedulerTick();
+    setInterval(runDailyBriefSchedulerTick, schedulerState.intervalMs);
+  }
 });

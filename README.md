@@ -308,6 +308,42 @@ curl -s -X POST http://127.0.0.1:4000/api/v1/companies/co-hanbaobao/aliases \
   -d '{"alias":"Hanbaobao","source":"analyst_override","actorUserId":"user-officer-001"}'
 ```
 
+## Epic 6 Briefing + Alerting
+
+The repository now includes Epic 6 briefing capabilities:
+- Daily morning brief generation persisted in `morning_brief`
+- Required sections:
+  - high-risk companies
+  - industries under stress
+  - major events detected
+  - emerging risk watchlist
+- Industry stress cluster detection in each brief payload
+- Local scheduler that auto-generates one brief per SGT day once ready time is reached (default `06:00` from config)
+
+### Epic 6 API examples
+
+Generate (or regenerate) a brief for a date:
+```bash
+curl -s -X POST http://127.0.0.1:4000/api/v1/briefs/generate \
+  -H "Content-Type: application/json" \
+  -d '{"briefDate":"2026-03-06","actorUserId":"user-analyst-001"}'
+```
+
+List briefs:
+```bash
+curl -s "http://127.0.0.1:4000/api/v1/briefs?limit=20&offset=0"
+```
+
+Get latest brief:
+```bash
+curl -s http://127.0.0.1:4000/api/v1/briefs/latest
+```
+
+Get brief by date:
+```bash
+curl -s http://127.0.0.1:4000/api/v1/briefs/2026-03-06
+```
+
 ### Prerequisites
 - Node.js 22+
 - npm 10+
