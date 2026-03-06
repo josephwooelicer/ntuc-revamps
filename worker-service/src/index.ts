@@ -15,6 +15,7 @@ import {
   rejectEntityResolution,
   resolveEntities
 } from "./entity-resolution/service.js";
+import { listCompanySignals, listIndustrySignals, processSignals } from "./signal-processing/service.js";
 
 const host = process.env.HOST || "127.0.0.1";
 const port = Number(process.env.PORT_WORKER || 4000);
@@ -365,6 +366,17 @@ const server = http.createServer(async (req, res) => {
       return;
     }
 
+    if (req.method === "POST" && pathname === "/api/v1/signals/process") {
+      const body = await readJsonBody(req);
+      const result = withDb((db) =>
+        processSignals(db, {
+          ingestionRunId: body.ingestionRunId
+        })
+      );
+      sendJson(res, 201, result);
+      return;
+    }
+
     if (req.method === "GET" && pathname === "/api/v1/entity-resolution/review-queue") {
       const result = withDb((db) =>
         listReviewQueue(db, {
@@ -417,6 +429,32 @@ const server = http.createServer(async (req, res) => {
           alias: body.alias,
           source: body.source,
           actorUserId: body.actorUserId
+        })
+      );
+      sendJson(res, 200, result);
+      return;
+    }
+
+    const companySignalsMatch = pathname.match(/^\/api\/v1\/companies\/([^/]+)\/signals$/);
+    if (companySignalsMatch && req.method === "GET") {
+      const result = withDb((db) =>
+        listCompanySignals(db, companySignalsMatch[1], {
+          start: route.searchParams.get("start"),
+          end: route.searchParams.get("end"),
+          category: route.searchParams.get("category"),
+          type: route.searchParams.get("type")
+        })
+      );
+      sendJson(res, 200, result);
+      return;
+    }
+
+    const industrySignalsMatch = pathname.match(/^\/api\/v1\/industries\/([^/]+)\/signals$/);
+    if (industrySignalsMatch && req.method === "GET") {
+      const result = withDb((db) =>
+        listIndustrySignals(db, industrySignalsMatch[1], {
+          start: route.searchParams.get("start"),
+          end: route.searchParams.get("end")
         })
       );
       sendJson(res, 200, result);
