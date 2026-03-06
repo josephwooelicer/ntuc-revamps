@@ -205,3 +205,39 @@ If the POC succeeds, NTUC will have:
 
 ## Executive Summary
 The proposed EWS gives NTUC a practical, explainable, and auditable way to detect retrenchment risk early. It combines industry and company signals, supports daily action through briefings and watchlists, and keeps humans in control through overrides and approvals. The POC is intentionally local and focused, so NTUC can validate real-world usefulness quickly before wider deployment.
+
+## Epic 0 Local Bootstrap
+
+This repository now includes the Epic 0 baseline for a reproducible local runtime:
+- `web-platform/`: Next.js scaffold with `/api/health`
+- `worker-service/`: worker scaffold with `/health` (SQLite + filesystem checks)
+- `.env.example`: shared local configuration
+- `scripts/start-local.sh`: one-command startup
+- `scripts/health-check.sh`: health verification
+
+### Prerequisites
+- Node.js 22+
+- npm 10+
+- Docker Desktop (daemon running)
+
+### Run
+```bash
+cp .env.example .env
+npm run dev
+```
+
+### Health checks
+In another terminal:
+```bash
+npm run health
+```
+
+Expected checks:
+- web: `http://localhost:3000/api/health`
+- worker: `http://localhost:4000/health`
+- data-lake path exists: `./data-lake/raw`
+
+### Stop dependencies
+```bash
+npm run deps:down
+```

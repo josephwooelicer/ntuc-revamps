@@ -7,7 +7,7 @@ Priority order is optimized for a local-first POC with F&B + Tech and ~18 compan
 ### Epic 0: Local Platform Bootstrap (P0)
 - Goal: reproducible local environment for all services.
 - Deliverables:
-  - Local runtime setup for SQLite (`.db` file) + MinIO.
+  - Local runtime setup for SQLite (`.db` file) + local filesystem storage (`./data-lake`).
   - Next.js app scaffold (`web-platform`).
   - Worker service scaffold (`ingestion + scoring + brief scheduler`).
   - Shared config (`.env.example`) and local run scripts.
@@ -31,7 +31,7 @@ Priority order is optimized for a local-first POC with F&B + Tech and ~18 compan
   - Connector interface (`pull(range, cursor)`).
   - Source registry + reliability/category metadata.
   - News connector(s) supporting historical date-range pulls.
-  - Raw object persistence to MinIO + ingestion metadata to DB.
+  - Raw object persistence to local filesystem + ingestion metadata to DB.
 - Exit criteria:
   - Backdated range ingestion works for selected sources.
   - Traceability: every raw object has ingestion metadata + source pointer.
@@ -187,7 +187,7 @@ create table raw_document (
   fetched_at text not null default current_timestamp,
   title text,
   url text,
-  object_key text not null, -- MinIO key
+  object_key text not null, -- local file path key (e.g., data-lake/raw/...)
   content_hash text not null,
   pii_masked boolean not null default false
 );

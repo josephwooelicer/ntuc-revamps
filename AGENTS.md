@@ -403,7 +403,7 @@ All changes must be auditable (audit log).
 - Core stack: **Next.js + local services**.
 - Local data stack for day 1:
   - SQLite local database file (`.db`)
-  - Local object storage (S3-compatible, e.g., MinIO)
+  - Local filesystem storage for raw/evidence data (e.g., `./data-lake/raw`)
   - Local worker/scheduler process for ingestion, scoring, and brief generation
 - No requirement for self-contained executable packaging in POC.
 
