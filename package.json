@@ -8,6 +8,8 @@
   ],
   "scripts": {
     "setup": "bash ./scripts/setup-dev.sh",
+    "db:init": "npm --workspace worker-service run db:init",
+    "db:status": "npm --workspace worker-service run db:status",
     "dev": "bash ./scripts/start-local.sh",
     "dev:web": "npm --workspace web-platform run dev",
     "dev:worker": "npm --workspace worker-service run dev",

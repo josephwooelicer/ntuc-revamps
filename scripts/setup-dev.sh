@@ -43,10 +43,17 @@ if [ -f .env ]; then
 fi
 
 mkdir -p "${DATA_LAKE_RAW_PATH:-./data-lake/raw}" "${DATA_LAKE_ARCHIVE_PATH:-./data-lake/archive}" ./data
-: > "${SQLITE_DB_PATH:-./data/ntuc-ews.db}"
+DB_PATH="${SQLITE_DB_PATH:-./data/ntuc-ews.db}"
+mkdir -p "$(dirname "$DB_PATH")"
+if [ ! -f "$DB_PATH" ]; then
+  touch "$DB_PATH"
+fi
 
 echo "Installing workspace dependencies..."
 npm install
+
+echo "Applying database migrations and seeds..."
+npm run db:init
 
 echo "Setup complete."
 echo "Next steps:"

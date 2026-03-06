@@ -215,6 +215,18 @@ This repository now includes the Epic 0 baseline for a reproducible local runtim
 - `scripts/start-local.sh`: one-command startup
 - `scripts/health-check.sh`: health verification
 
+## Epic 1 Core Data Model + Audit
+
+The repository now includes Epic 1 foundations:
+- SQL migrations in `worker-service/src/db/migrations/`
+- Seed defaults for users, role permissions, source registry, and baseline thresholds
+- Worker API audit hooks for controlled mutations:
+  - `POST /api/v1/overrides`
+  - `POST /api/v1/config`
+  - `POST /api/v1/model-recommendations/:id/decision`
+  - `POST /api/v1/entity-resolution/:id/review`
+- Audit trail persisted in `audit_log`
+
 ### Prerequisites
 - Node.js 22+
 - npm 10+
@@ -223,6 +235,12 @@ This repository now includes the Epic 0 baseline for a reproducible local runtim
 ```bash
 npm run setup
 npm run dev
+```
+
+### Database commands
+```bash
+npm run db:init
+npm run db:status
 ```
 
 ### Health checks
