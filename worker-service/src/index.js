@@ -5,6 +5,8 @@ import { runMigrations } from "./db/migrate.js";
 import { openDb, getDbPath } from "./db/client.js";
 import { insertAuditLog } from "./db/audit.js";
 import { resolveRepoPath } from "./lib/paths.js";
+import { createSource, listSources } from "./ingestion/sourceRegistry.js";
+import { fetchIngestionRun, runBackfillNews, runIngestion } from "./ingestion/service.js";
 
 const host = process.env.HOST || "127.0.0.1";
 const port = Number(process.env.PORT_WORKER || 4000);
@@ -34,6 +36,14 @@ function readJsonBody(req) {
 function sendJson(res, statusCode, payload) {
   res.writeHead(statusCode, { "Content-Type": "application/json" });
   res.end(JSON.stringify(payload));
+}
+
+function routePath(req) {
+  const url = new URL(req.url || "/", `http://${host}:${port}`);
+  return {
+    pathname: url.pathname,
+    searchParams: url.searchParams
+  };
 }
 
 function hasCoreTables() {
@@ -265,26 +275,95 @@ runMigrations();
 
 const server = http.createServer(async (req, res) => {
   try {
-    if (req.method === "GET" && req.url === "/health") {
+    const route = routePath(req);
+    const { pathname } = route;
+
+    if (req.method === "GET" && pathname === "/health") {
       sendJson(res, 200, checkHealth());
       return;
     }
 
-    if (req.method === "POST" && req.url === "/api/v1/overrides") {
+    if (req.method === "GET" && pathname === "/api/v1/sources") {
+      const rows = withDb((db) => listSources(db));
+      sendJson(res, 200, { data: rows });
+      return;
+    }
+
+    if (req.method === "POST" && pathname === "/api/v1/sources") {
+      const body = await readJsonBody(req);
+      const created = withDb((db) => {
+        db.exec("BEGIN;");
+        try {
+          const source = createSource(db, body);
+          insertAuditLog(db, {
+            actorUserId: body.actorUserId,
+            action: "data_source.created",
+            entityType: "data_source",
+            entityId: source.id,
+            beforeState: null,
+            afterState: source
+          });
+          db.exec("COMMIT;");
+          return source;
+        } catch (error) {
+          db.exec("ROLLBACK;");
+          throw error;
+        }
+      });
+      sendJson(res, 201, created);
+      return;
+    }
+
+    if (req.method === "POST" && pathname === "/api/v1/ingestion/runs") {
+      const body = await readJsonBody(req);
+      const result = withDb((db) =>
+        runIngestion(db, {
+          sourceId: body.sourceId,
+          runType: body.runType,
+          rangeStart: body.rangeStart,
+          rangeEnd: body.rangeEnd,
+          cursor: body.cursor || null
+        })
+      );
+      sendJson(res, 201, result);
+      return;
+    }
+
+    if (req.method === "POST" && pathname === "/api/v1/ingestion/backfill/news") {
+      const body = await readJsonBody(req);
+      const result = withDb((db) =>
+        runBackfillNews(db, {
+          sourceId: body.sourceId,
+          rangeStart: body.rangeStart,
+          rangeEnd: body.rangeEnd
+        })
+      );
+      sendJson(res, 201, result);
+      return;
+    }
+
+    const ingestionRunMatch = pathname.match(/^\/api\/v1\/ingestion\/runs\/([^/]+)$/);
+    if (req.method === "GET" && ingestionRunMatch) {
+      const row = withDb((db) => fetchIngestionRun(db, ingestionRunMatch[1]));
+      sendJson(res, 200, row);
+      return;
+    }
+
+    if (req.method === "POST" && pathname === "/api/v1/overrides") {
       const body = await readJsonBody(req);
       const result = applyScoreOverride(body);
       sendJson(res, 201, result);
       return;
     }
 
-    if (req.method === "POST" && req.url === "/api/v1/config") {
+    if (req.method === "POST" && pathname === "/api/v1/config") {
       const body = await readJsonBody(req);
       const result = upsertConfig(body);
       sendJson(res, 200, result);
       return;
     }
 
-    const recommendationMatch = req.url?.match(/^\/api\/v1\/model-recommendations\/([^/]+)\/decision$/);
+    const recommendationMatch = pathname.match(/^\/api\/v1\/model-recommendations\/([^/]+)\/decision$/);
     if (req.method === "POST" && recommendationMatch) {
       const body = await readJsonBody(req);
       const result = decideModelRecommendation(recommendationMatch[1], body);
@@ -292,7 +371,7 @@ const server = http.createServer(async (req, res) => {
       return;
     }
 
-    const entityReviewMatch = req.url?.match(/^\/api\/v1\/entity-resolution\/([^/]+)\/review$/);
+    const entityReviewMatch = pathname.match(/^\/api\/v1\/entity-resolution\/([^/]+)\/review$/);
     if (req.method === "POST" && entityReviewMatch) {
       const body = await readJsonBody(req);
       const result = reviewEntityResolution(entityReviewMatch[1], body);

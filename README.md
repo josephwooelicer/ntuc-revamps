@@ -227,6 +227,42 @@ The repository now includes Epic 1 foundations:
   - `POST /api/v1/entity-resolution/:id/review`
 - Audit trail persisted in `audit_log`
 
+## Epic 2 Ingestion Framework + Backdated News Ingestion
+
+The repository now includes Epic 2 ingestion capabilities:
+- Modular connector pattern via `pull(range, cursor)` (implemented for `src-news`)
+- Source registry APIs with reliability and category metadata
+- Backdated news ingestion endpoint for historical date ranges
+- Traceable raw persistence:
+  - raw content written under `data-lake/raw/...`
+  - `ingestion_run` + `raw_document` metadata persisted in SQLite
+
+### Epic 2 API examples
+
+List sources:
+```bash
+curl -s http://127.0.0.1:4000/api/v1/sources
+```
+
+Create a source:
+```bash
+curl -s -X POST http://127.0.0.1:4000/api/v1/sources \
+  -H "Content-Type: application/json" \
+  -d '{"id":"src-demo-news","name":"Demo News","sourceType":"news","accessMode":"api","category":"events_mentions","reliabilityWeight":0.8,"supportsBackfill":true}'
+```
+
+Run backdated news ingestion:
+```bash
+curl -s -X POST http://127.0.0.1:4000/api/v1/ingestion/backfill/news \
+  -H "Content-Type: application/json" \
+  -d '{"sourceId":"src-news","rangeStart":"2026-02-01","rangeEnd":"2026-02-03"}'
+```
+
+Read run status and raw traceability:
+```bash
+curl -s http://127.0.0.1:4000/api/v1/ingestion/runs/<runId>
+```
+
 ### Prerequisites
 - Node.js 22+
 - npm 10+
