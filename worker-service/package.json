@@ -4,9 +4,15 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "db:init": "node src/db/init.js",
-    "db:status": "node src/db/status.js",
-    "dev": "node src/index.js",
-    "start": "node src/index.js"
+    "db:init": "tsx src/db/init.ts",
+    "db:status": "tsx src/db/status.ts",
+    "dev": "tsx src/index.ts",
+    "start": "tsx src/index.ts",
+    "typecheck": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "@types/node": "^24.5.2",
+    "tsx": "^4.20.5",
+    "typescript": "^5.9.2"
   }
 }

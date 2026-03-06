@@ -37,6 +37,8 @@ function buildSampleNewsItems(day, sourceId) {
 }
 
 export class NewsAggregatorConnector {
+  source: any;
+
   constructor(source) {
     this.source = source;
   }

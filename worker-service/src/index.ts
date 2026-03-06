@@ -13,7 +13,7 @@ const port = Number(process.env.PORT_WORKER || 4000);
 const rawPath = process.env.DATA_LAKE_RAW_PATH || "./data-lake/raw";
 
 function readJsonBody(req) {
-  return new Promise((resolve, reject) => {
+  return new Promise<any>((resolve, reject) => {
     let raw = "";
     req.on("data", (chunk) => {
       raw += chunk;
