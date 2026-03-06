@@ -218,11 +218,10 @@ This repository now includes the Epic 0 baseline for a reproducible local runtim
 ### Prerequisites
 - Node.js 22+
 - npm 10+
-- Docker Desktop (daemon running)
 
 ### Run
 ```bash
-cp .env.example .env
+npm run setup
 npm run dev
 ```
 
