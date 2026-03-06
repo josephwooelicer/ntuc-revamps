@@ -402,7 +402,7 @@ All changes must be auditable (audit log).
 - Run **locally** for POC.
 - Core stack: **Next.js + local services**.
 - Local data stack for day 1:
-  - PostgreSQL (local container)
+  - SQLite local database file (`.db`)
   - Local object storage (S3-compatible, e.g., MinIO)
   - Local worker/scheduler process for ingestion, scoring, and brief generation
 - No requirement for self-contained executable packaging in POC.

@@ -174,7 +174,7 @@ Scope:
 
 Execution approach:
 - run everything locally,
-- use a local database and local services,
+- use a local SQLite `.db` database and local services,
 - focus on proving value and workflow before scaling.
 
 ### 9) How success will be measured

@@ -7,7 +7,7 @@ Priority order is optimized for a local-first POC with F&B + Tech and ~18 compan
 ### Epic 0: Local Platform Bootstrap (P0)
 - Goal: reproducible local environment for all services.
 - Deliverables:
-  - `docker-compose` for PostgreSQL + MinIO + Redis (optional but recommended).
+  - Local runtime setup for SQLite (`.db` file) + MinIO.
   - Next.js app scaffold (`web-platform`).
   - Worker service scaffold (`ingestion + scoring + brief scheduler`).
   - Shared config (`.env.example`) and local run scripts.
@@ -109,47 +109,47 @@ Priority order is optimized for a local-first POC with F&B + Tech and ~18 compan
 - Exit criteria:
   - Meets approved acceptance criteria in AGENTS baseline.
 
-## 2) Database Schema (Local PostgreSQL)
+## 2) Database Schema (Local SQLite `.db`)
 
 ```sql
 -- Roles and users
 create table app_user (
-  id uuid primary key,
+  id text primary key,
   email text unique not null,
   role text not null check (role in ('analyst','officer','admin')),
-  created_at timestamptz not null default now()
+  created_at text not null default current_timestamp
 );
 
 -- Company and industry master
 create table industry (
-  id uuid primary key,
+  id text primary key,
   code text unique not null,
   name text not null
 );
 
 create table company (
-  id uuid primary key,
+  id text primary key,
   uen text unique not null,
   registered_name text not null,
-  industry_id uuid references industry(id),
+  industry_id text references industry(id),
   is_active boolean not null default true,
-  created_at timestamptz not null default now()
+  created_at text not null default current_timestamp
 );
 
 create table brand (
-  id uuid primary key,
+  id text primary key,
   name text unique not null
 );
 
 create table brand_company (
-  brand_id uuid references brand(id),
-  company_id uuid references company(id),
+  brand_id text references brand(id),
+  company_id text references company(id),
   primary key (brand_id, company_id)
 );
 
 create table company_alias (
-  id uuid primary key,
-  company_id uuid references company(id),
+  id text primary key,
+  company_id text references company(id),
   alias text not null,
   source text not null,
   unique(company_id, alias)
@@ -157,7 +157,7 @@ create table company_alias (
 
 -- Source registry
 create table data_source (
-  id uuid primary key,
+  id text primary key,
   name text unique not null,
   source_type text not null, -- gov/news/forum/internal
   access_mode text not null, -- api/scrape/file
@@ -168,23 +168,23 @@ create table data_source (
 
 -- Raw ingestion metadata + object pointer
 create table ingestion_run (
-  id uuid primary key,
-  source_id uuid references data_source(id),
+  id text primary key,
+  source_id text references data_source(id),
   run_type text not null, -- scheduled/event/on_demand/backfill
-  range_start timestamptz,
-  range_end timestamptz,
+  range_start text,
+  range_end text,
   status text not null, -- running/success/failed
-  started_at timestamptz not null default now(),
-  ended_at timestamptz
+  started_at text not null default current_timestamp,
+  ended_at text
 );
 
 create table raw_document (
-  id uuid primary key,
-  ingestion_run_id uuid references ingestion_run(id),
-  source_id uuid references data_source(id),
+  id text primary key,
+  ingestion_run_id text references ingestion_run(id),
+  source_id text references data_source(id),
   external_id text,
-  published_at timestamptz,
-  fetched_at timestamptz not null default now(),
+  published_at text,
+  fetched_at text not null default current_timestamp,
   title text,
   url text,
   object_key text not null, -- MinIO key
@@ -194,25 +194,25 @@ create table raw_document (
 
 -- Entity resolution
 create table entity_resolution (
-  id uuid primary key,
-  raw_document_id uuid references raw_document(id),
-  matched_company_id uuid references company(id),
+  id text primary key,
+  raw_document_id text references raw_document(id),
+  matched_company_id text references company(id),
   confidence numeric(5,4) not null,
   method text not null, -- exact/alias/fuzzy/manual
   status text not null, -- auto_resolved/review_required/approved/rejected
-  reviewed_by uuid references app_user(id),
-  reviewed_at timestamptz
+  reviewed_by text references app_user(id),
+  reviewed_at text
 );
 
 -- Signals/features/evidence
 create table signal (
-  id uuid primary key,
-  company_id uuid references company(id),
-  industry_id uuid references industry(id),
-  source_id uuid references data_source(id),
+  id text primary key,
+  company_id text references company(id),
+  industry_id text references industry(id),
+  source_id text references data_source(id),
   signal_type text not null, -- trend/event
   category text not null,
-  signal_ts timestamptz not null,
+  signal_ts text not null,
   raw_value numeric,
   z_value numeric,
   reliability_weight numeric(5,4),
@@ -222,82 +222,82 @@ create table signal (
 );
 
 create table evidence_pointer (
-  id uuid primary key,
-  signal_id uuid references signal(id),
-  raw_document_id uuid references raw_document(id),
+  id text primary key,
+  signal_id text references signal(id),
+  raw_document_id text references raw_document(id),
   snippet text,
   pointer_url text
 );
 
 -- Scores and explanations
 create table score_snapshot (
-  id uuid primary key,
-  company_id uuid references company(id),
-  industry_id uuid references industry(id),
+  id text primary key,
+  company_id text references company(id),
+  industry_id text references industry(id),
   score_type text not null, -- industry/company/final
   period_type text not null, -- weekly/monthly
   score_date date not null,
   score_value numeric(5,2) not null check (score_value between 0 and 100),
-  details jsonb not null default '{}'::jsonb, -- breakdown, gate state
-  created_at timestamptz not null default now(),
+  details text not null default '{}', -- JSON string: breakdown, gate state
+  created_at text not null default current_timestamp,
   unique(company_id, industry_id, score_type, score_date)
 );
 
 create table score_explanation (
-  id uuid primary key,
-  score_snapshot_id uuid references score_snapshot(id),
-  ordered_contributions jsonb not null,
-  delta_summary jsonb not null
+  id text primary key,
+  score_snapshot_id text references score_snapshot(id),
+  ordered_contributions text not null, -- JSON string
+  delta_summary text not null -- JSON string
 );
 
 -- Overrides and approvals
 create table score_override (
-  id uuid primary key,
-  score_snapshot_id uuid references score_snapshot(id),
+  id text primary key,
+  score_snapshot_id text references score_snapshot(id),
   original_score numeric(5,2) not null,
   overridden_score numeric(5,2) not null,
   reason text not null,
   scope text not null, -- industry/company
-  created_by uuid references app_user(id),
-  created_at timestamptz not null default now()
+  created_by text references app_user(id),
+  created_at text not null default current_timestamp
 );
 
 create table config_item (
   key text primary key,
-  value jsonb not null,
+  value text not null, -- JSON string
   scope text not null, -- industry/company/global
-  updated_by uuid references app_user(id),
-  updated_at timestamptz not null default now()
+  updated_by text references app_user(id),
+  updated_at text not null default current_timestamp
 );
 
 create table model_recommendation (
-  id uuid primary key,
+  id text primary key,
   scope text not null, -- industry/company
-  recommendation jsonb not null,
+  recommendation text not null, -- JSON string
   status text not null, -- pending/approved/rejected
-  created_at timestamptz not null default now(),
-  decided_by uuid references app_user(id),
-  decided_at timestamptz
+  created_at text not null default current_timestamp,
+  decided_by text references app_user(id),
+  decided_at text
 );
 
 -- Briefs
 create table morning_brief (
-  id uuid primary key,
+  id text primary key,
   brief_date date unique not null,
-  generated_at timestamptz not null default now(),
-  payload jsonb not null
+  generated_at text not null default current_timestamp,
+  payload text not null -- JSON string
 );
 
 -- Global audit log
 create table audit_log (
-  id uuid primary key,
-  actor_user_id uuid references app_user(id),
+  id text primary key,
+  actor_user_id text references app_user(id),
   action text not null,
   entity_type text not null,
   entity_id text not null,
-  before_state jsonb,
-  after_state jsonb,
-  created_at timestamptz not null default now()
+  before_state text, -- JSON string
+  after_state text, -- JSON string
+  created_at text not null default current_timestamp
 );
 ```
 
