@@ -16,6 +16,14 @@ import {
   resolveEntities
 } from "./entity-resolution/service.js";
 import { listCompanySignals, listIndustrySignals, processSignals } from "./signal-processing/service.js";
+import {
+  getScoreExplanation,
+  listCompanyScores,
+  listIndustryScores,
+  recomputeScores,
+  runCompanyWeeklyScoring,
+  runIndustryMonthlyScoring
+} from "./risk-scoring/service.js";
 
 const host = process.env.HOST || "127.0.0.1";
 const port = Number(process.env.PORT_WORKER || 4000);
@@ -377,6 +385,44 @@ const server = http.createServer(async (req, res) => {
       return;
     }
 
+    if (req.method === "POST" && pathname === "/api/v1/scoring/run/company-weekly") {
+      const body = await readJsonBody(req);
+      const result = withDb((db) =>
+        runCompanyWeeklyScoring(db, {
+          weekStart: body.weekStart,
+          companyIds: body.companyIds
+        })
+      );
+      sendJson(res, 201, result);
+      return;
+    }
+
+    if (req.method === "POST" && pathname === "/api/v1/scoring/run/industry-monthly") {
+      const body = await readJsonBody(req);
+      const result = withDb((db) =>
+        runIndustryMonthlyScoring(db, {
+          month: body.month,
+          industryIds: body.industryIds
+        })
+      );
+      sendJson(res, 201, result);
+      return;
+    }
+
+    if (req.method === "POST" && pathname === "/api/v1/scoring/recompute") {
+      const body = await readJsonBody(req);
+      const result = withDb((db) =>
+        recomputeScores(db, {
+          startDate: body.startDate,
+          endDate: body.endDate,
+          companyIds: body.companyIds,
+          industryIds: body.industryIds
+        })
+      );
+      sendJson(res, 201, result);
+      return;
+    }
+
     if (req.method === "GET" && pathname === "/api/v1/entity-resolution/review-queue") {
       const result = withDb((db) =>
         listReviewQueue(db, {
@@ -449,6 +495,19 @@ const server = http.createServer(async (req, res) => {
       return;
     }
 
+    const companyScoresMatch = pathname.match(/^\/api\/v1\/companies\/([^/]+)\/scores$/);
+    if (companyScoresMatch && req.method === "GET") {
+      const result = withDb((db) =>
+        listCompanyScores(db, companyScoresMatch[1], {
+          start: route.searchParams.get("start"),
+          end: route.searchParams.get("end"),
+          type: route.searchParams.get("type")
+        })
+      );
+      sendJson(res, 200, result);
+      return;
+    }
+
     const industrySignalsMatch = pathname.match(/^\/api\/v1\/industries\/([^/]+)\/signals$/);
     if (industrySignalsMatch && req.method === "GET") {
       const result = withDb((db) =>
@@ -457,6 +516,25 @@ const server = http.createServer(async (req, res) => {
           end: route.searchParams.get("end")
         })
       );
+      sendJson(res, 200, result);
+      return;
+    }
+
+    const industryScoresMatch = pathname.match(/^\/api\/v1\/industries\/([^/]+)\/scores$/);
+    if (industryScoresMatch && req.method === "GET") {
+      const result = withDb((db) =>
+        listIndustryScores(db, industryScoresMatch[1], {
+          start: route.searchParams.get("start"),
+          end: route.searchParams.get("end")
+        })
+      );
+      sendJson(res, 200, result);
+      return;
+    }
+
+    const scoreExplanationMatch = pathname.match(/^\/api\/v1\/scores\/([^/]+)\/explanation$/);
+    if (scoreExplanationMatch && req.method === "GET") {
+      const result = withDb((db) => getScoreExplanation(db, scoreExplanationMatch[1]));
       sendJson(res, 200, result);
       return;
     }
