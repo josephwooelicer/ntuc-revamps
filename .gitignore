@@ -3,3 +3,4 @@ node_modules
 *.db
 .next
 npm-debug.log*
+/data-lake/raw/**/*

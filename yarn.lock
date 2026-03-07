@@ -321,10 +321,15 @@ fraction.js@^4.3.7:
   resolved "https://registry.npmjs.org/fraction.js/-/fraction.js-4.3.7.tgz"
   integrity sha512-ZsDfxO51wGAXREY55a7la9LScWpwv9RxIrYABrlvOFBlH/ShPnrtsXeuUIfXKKOVicNxQ+o8JTbJvjS4M89yew==
 
-fsevents@~2.3.2, fsevents@~2.3.3, fsevents@2.3.2:
+fsevents@~2.3.2, fsevents@~2.3.3:
   version "2.3.3"
   resolved "https://registry.npmjs.org/fsevents/-/fsevents-2.3.3.tgz"
   integrity sha512-5xoDfX+fL7faATnagmWPpbFtwh/R77WmMMqqHGS65C3vvB0YHrgF+B1YmZ3441tMj5n63k0212XNoJwzlhffQw==
+
+fsevents@2.3.2:
+  version "2.3.2"
+  resolved "https://registry.npmjs.org/fsevents/-/fsevents-2.3.2.tgz"
+  integrity sha512-xiqMQR4xAeHTuB9uWm+fFRcIOgKBMiOBP+eXiyT7jsgVCq1bkVygt00oASowB7EdtpOHaaPgKt812P9ab+DDKA==
 
 function-bind@^1.1.2:
   version "1.1.2"
@@ -846,7 +851,7 @@ util-deprecate@^1.0.2:
   resolved "https://registry.npmjs.org/util-deprecate/-/util-deprecate-1.0.2.tgz"
   integrity sha512-EPD5q1uXyFxJpCrLnCc1nHnq3gOa6DZBocAIiI2TaSCA7VCJ1UJDMagCzIkXNsUYfD1daK//LTEQ8xiIbrHtcw==
 
-"web-platform@file:/Users/joseph/Downloads/ELICE/Git/ntuc-revamps/web-platform":
+"web-platform@file:/Users/jo/Desktop/Projects/ntuc-revamps/web-platform":
   version "0.1.0"
   resolved "file:web-platform"
   dependencies:
@@ -858,7 +863,7 @@ util-deprecate@^1.0.2:
     react-dom "19.0.0"
     tailwind-merge "^3.5.0"
 
-"worker-service@file:/Users/joseph/Downloads/ELICE/Git/ntuc-revamps/worker-service":
+"worker-service@file:/Users/jo/Desktop/Projects/ntuc-revamps/worker-service":
   version "0.1.0"
   resolved "file:worker-service"
 
