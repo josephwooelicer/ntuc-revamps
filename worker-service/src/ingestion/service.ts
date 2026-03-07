@@ -64,8 +64,8 @@ function getIngestionRun(db, runId) {
   return { ...run, raw_documents: docs, raw_document_count: docs.length };
 }
 
-export function runIngestion(db, input) {
-  const { sourceId, runType, rangeStart, rangeEnd, cursor = null } = input;
+export async function runIngestion(db, input) {
+  const { sourceId, runType, rangeStart, rangeEnd, cursor = null, filters = {} } = input;
   if (!sourceId || !runType) {
     throw new Error("Missing required fields: sourceId, runType");
   }
@@ -89,7 +89,9 @@ export function runIngestion(db, input) {
   let nextCursorValue = cursor;
   try {
     do {
-      const loaded = connector.pull({ start: rangeStart, end: rangeEnd }, nextCursorValue);
+      const loaded = await Promise.resolve(
+        connector.pull({ start: rangeStart, end: rangeEnd }, nextCursorValue, filters)
+      );
       items.push(...(loaded.documents || []));
       nextCursorValue = loaded.nextCursor;
     } while (nextCursorValue);
@@ -144,7 +146,7 @@ export function runIngestion(db, input) {
   };
 }
 
-export function runBackfillNews(db, input) {
+export async function runBackfillNews(db, input) {
   const { sourceId, rangeStart, rangeEnd } = input;
   if (!sourceId || !rangeStart || !rangeEnd) {
     throw new Error("Missing required fields: sourceId, rangeStart, rangeEnd");

@@ -6,7 +6,12 @@ import { runMigrations } from "./db/migrate.js";
 import { openDb, getDbPath } from "./db/client.js";
 import { insertAuditLog } from "./db/audit.js";
 import { resolveRepoPath } from "./lib/paths.js";
-import { createSource, listSources } from "./ingestion/sourceRegistry.js";
+import {
+  connectorForSource,
+  createSource,
+  getSourceById,
+  listSources
+} from "./ingestion/sourceRegistry.js";
 import { fetchIngestionRun, runBackfillNews, runIngestion } from "./ingestion/service.js";
 import {
   generateMorningBrief,
@@ -117,6 +122,15 @@ function withDb(handler) {
   }
 }
 
+async function withDbAsync(handler) {
+  const db = openDb();
+  try {
+    return await handler(db);
+  } finally {
+    db.close();
+  }
+}
+
 function getUserById(db, userId) {
   if (!userId) return null;
   return db.prepare("SELECT id, email, role FROM app_user WHERE id = ?").get(userId) || null;
@@ -160,6 +174,73 @@ function listCompanies(db, industryId) {
     .all(...params);
 }
 
+function listExtractionSummary(db) {
+  return db
+    .prepare(
+      `SELECT
+         ds.id,
+         ds.name,
+         ds.source_type,
+         ds.access_mode,
+         ds.category,
+         ds.reliability_weight,
+         COUNT(rd.id) AS extracted_count,
+         MAX(rd.fetched_at) AS latest_extracted_at
+       FROM data_source ds
+       LEFT JOIN raw_document rd ON rd.source_id = ds.id
+       GROUP BY ds.id, ds.name, ds.source_type, ds.access_mode, ds.category, ds.reliability_weight
+       ORDER BY ds.name`
+    )
+    .all();
+}
+
+function listSourceExtractions(db, sourceId, limit) {
+  return db
+    .prepare(
+      `SELECT
+         rd.id,
+         rd.external_id,
+         rd.published_at,
+         rd.fetched_at,
+         rd.title,
+         rd.url,
+         rd.object_key,
+         rd.content_hash,
+         ir.id AS ingestion_run_id,
+         ir.run_type,
+         ir.status AS ingestion_status
+       FROM raw_document rd
+       LEFT JOIN ingestion_run ir ON ir.id = rd.ingestion_run_id
+       WHERE rd.source_id = ?
+       ORDER BY rd.fetched_at DESC
+       LIMIT ?`
+    )
+    .all(sourceId, limit);
+}
+
+function getRawDocumentById(db, rawDocumentId) {
+  return db
+    .prepare(
+      `SELECT
+         rd.id,
+         rd.source_id,
+         rd.external_id,
+         rd.published_at,
+         rd.fetched_at,
+         rd.title,
+         rd.url,
+         rd.object_key,
+         rd.content_hash,
+         ir.id AS ingestion_run_id,
+         ir.run_type,
+         ir.status AS ingestion_status
+       FROM raw_document rd
+       LEFT JOIN ingestion_run ir ON ir.id = rd.ingestion_run_id
+       WHERE rd.id = ?`
+    )
+    .get(rawDocumentId);
+}
+
 function listConfigItems(db, scope) {
   if (scope) {
     return db
@@ -167,6 +248,10 @@ function listConfigItems(db, scope) {
       .all(scope);
   }
   return db.prepare("SELECT key, value, scope, updated_by, updated_at FROM config_item ORDER BY scope, key").all();
+}
+
+function getConfigItem(db, key) {
+  return db.prepare("SELECT key, value, scope, updated_by, updated_at FROM config_item WHERE key = ?").get(key) || null;
 }
 
 function parseConfigValue(raw) {
@@ -409,8 +494,8 @@ function getOnDemandJob(db, jobId) {
   return row;
 }
 
-function executeOnDemandAnalysis(db, job) {
-  const run = runIngestion(db, {
+async function executeOnDemandAnalysis(db, job) {
+  const run = await runIngestion(db, {
     sourceId: "src-news",
     runType: "on_demand"
   });
@@ -561,15 +646,139 @@ const server = http.createServer(async (req, res) => {
       return;
     }
 
+    if (req.method === "GET" && pathname === "/api/v1/admin/extractions/summary") {
+      const user = getUserFromRequest(req, route);
+      requirePermission(user, "ops.manage");
+      const rows = withDb((db) => listExtractionSummary(db));
+      sendJson(res, 200, { data: rows, count: rows.length });
+      return;
+    }
+
+    if (req.method === "GET" && pathname === "/api/v1/admin/extractions") {
+      const user = getUserFromRequest(req, route);
+      requirePermission(user, "ops.manage");
+      const sourceId = route.searchParams.get("sourceId");
+      if (!sourceId) {
+        throw new Error("Missing required query parameter: sourceId");
+      }
+      const limit = Number(route.searchParams.get("limit") || 50);
+      const rows = withDb((db) => listSourceExtractions(db, sourceId, Math.max(1, Math.min(limit, 500))));
+      sendJson(res, 200, { data: rows, count: rows.length });
+      return;
+    }
+
+    const rawDocMatch = pathname.match(/^\/api\/v1\/admin\/extractions\/raw-document\/([^/]+)$/);
+    if (req.method === "GET" && rawDocMatch) {
+      const user = getUserFromRequest(req, route);
+      requirePermission(user, "ops.manage");
+      const rawDocId = rawDocMatch[1];
+      const row = withDb((db) => getRawDocumentById(db, rawDocId));
+      if (!row) {
+        throw new Error("raw_document not found");
+      }
+      const absPath = resolveRepoPath(row.object_key);
+      if (!fs.existsSync(absPath)) {
+        throw new Error(`raw object not found on disk: ${row.object_key}`);
+      }
+      const rawText = fs.readFileSync(absPath, "utf8");
+      let parsed = null;
+      try {
+        parsed = JSON.parse(rawText);
+      } catch {
+        parsed = null;
+      }
+      sendJson(res, 200, {
+        metadata: row,
+        rawObjectText: rawText,
+        rawObjectJson: parsed
+      });
+      return;
+    }
+
+    if (req.method === "GET" && pathname === "/api/v1/admin/singstat/preview") {
+      const user = getUserFromRequest(req, route);
+      requirePermission(user, "ops.manage");
+
+      const tableId = route.searchParams.get("tableId");
+      if (!tableId) {
+        throw new Error("Missing required query parameter: tableId");
+      }
+
+      const source = withDb((db) => getSourceById(db, "src-singstat"));
+      if (!source) {
+        throw new Error("src-singstat is not registered");
+      }
+      const connector = connectorForSource(source);
+      if (!connector) {
+        throw new Error("SingStat connector is unavailable");
+      }
+
+      const preview = await connector.pull(
+        {
+          start: route.searchParams.get("rangeStart") || undefined,
+          end: route.searchParams.get("rangeEnd") || undefined
+        },
+        null,
+        {
+          tableId
+        }
+      );
+
+      const first = preview?.documents?.[0] || null;
+      const content = first?.content;
+      const structuredContent =
+        content && typeof content === "object" && "response" in content ? content : null;
+      sendJson(res, 200, {
+        tableId,
+        requestUrl: first?.url || null,
+        preview: structuredContent?.response?.body || content || null
+      });
+      return;
+    }
+
     if (req.method === "POST" && pathname === "/api/v1/ingestion/runs") {
       const body = await readJsonBody(req);
-      const result = withDb((db) =>
+      const filters = { ...(body.filters || {}) };
+      if (body.sourceId === "src-singstat" && !filters.tableId) {
+        const fallback = withDb((db) => getConfigItem(db, "singstat_default_table_id"));
+        if (fallback?.value) {
+          filters.tableId = String(fallback.value);
+        }
+      }
+      if (body.sourceId === "src-mom" && !filters.resourceId && !filters.datasetId) {
+        const fallback = withDb((db) => getConfigItem(db, "mom_default_resource_id"));
+        if (fallback?.value) {
+          filters.resourceId = String(fallback.value);
+        }
+      }
+      if (body.sourceId === "src-ura" && !filters.resourceId) {
+        const fallback = withDb((db) => getConfigItem(db, "ura_default_resource_id"));
+        if (fallback?.value) filters.resourceId = String(fallback.value);
+      }
+      if (body.sourceId === "src-acra" && !filters.uen && !filters.entityName) {
+        const fallback = withDb((db) => getConfigItem(db, "acra_default_uen"));
+        if (fallback?.value) filters.uen = String(fallback.value);
+      }
+      if (body.sourceId === "src-egazette" && !filters.query) {
+        const fallback = withDb((db) => getConfigItem(db, "egazette_default_query"));
+        if (fallback?.value) filters.query = String(fallback.value);
+      }
+      if (body.sourceId === "src-reddit-sg" && !filters.subreddit) {
+        const fallback = withDb((db) => getConfigItem(db, "reddit_default_subreddit"));
+        if (fallback?.value) filters.subreddit = String(fallback.value);
+      }
+      if (body.sourceId === "src-hardwarezone" && !filters.query) {
+        const fallback = withDb((db) => getConfigItem(db, "hardwarezone_default_query"));
+        if (fallback?.value) filters.query = String(fallback.value);
+      }
+      const result = await withDbAsync((db) =>
         runIngestion(db, {
           sourceId: body.sourceId,
           runType: body.runType,
           rangeStart: body.rangeStart,
           rangeEnd: body.rangeEnd,
-          cursor: body.cursor || null
+          cursor: body.cursor || null,
+          filters
         })
       );
       sendJson(res, 201, result);
@@ -578,7 +787,7 @@ const server = http.createServer(async (req, res) => {
 
     if (req.method === "POST" && pathname === "/api/v1/ingestion/backfill/news") {
       const body = await readJsonBody(req);
-      const result = withDb((db) =>
+      const result = await withDbAsync((db) =>
         runBackfillNews(db, {
           sourceId: body.sourceId,
           rangeStart: body.rangeStart,
@@ -754,7 +963,7 @@ const server = http.createServer(async (req, res) => {
       });
 
       try {
-        const completed = withDb((db) => executeOnDemandAnalysis(db, created));
+        const completed = await withDbAsync((db) => executeOnDemandAnalysis(db, created));
         withDb((db) => {
           completeOnDemandJob(db, {
             jobId: created.id,
@@ -973,8 +1182,14 @@ const server = http.createServer(async (req, res) => {
     }
 
     sendJson(res, 404, { error: "Not Found" });
-  } catch (error) {
-    sendJson(res, 400, { error: error.message });
+  } catch (error: any) {
+    const status = Number(error?.status) || 400;
+    sendJson(res, status, {
+      error: error?.message || "Unknown error",
+      status,
+      request: error?.request || null,
+      responseText: error?.responseText || null
+    });
   }
 });
 

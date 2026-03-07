@@ -11,7 +11,7 @@ import { Select } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 
 type AnyObj = Record<string, any>;
-type View = "all" | "industry" | "company" | "settings" | "analysis";
+type View = "all" | "industry" | "company" | "settings" | "analysis" | "admin";
 
 type UserOption = {
   id: string;
@@ -30,7 +30,8 @@ const NAV: Array<{ href: string; label: string; view: View }> = [
   { href: "/industry", label: "Industry", view: "industry" },
   { href: "/company", label: "Company", view: "company" },
   { href: "/settings", label: "Settings", view: "settings" },
-  { href: "/analysis", label: "On-demand", view: "analysis" }
+  { href: "/analysis", label: "On-demand", view: "analysis" },
+  { href: "/admin", label: "Admin", view: "admin" }
 ];
 
 async function api(path: string, method = "GET", body?: AnyObj, userId?: string) {
@@ -43,7 +44,12 @@ async function api(path: string, method = "GET", body?: AnyObj, userId?: string)
     body: body ? JSON.stringify(body) : undefined
   });
   const payload = await response.json().catch(() => ({}));
-  if (!response.ok) throw new Error(payload.error || `Request failed: ${response.status}`);
+  if (!response.ok) {
+    const err: any = new Error(payload.error || `Request failed: ${response.status}`);
+    err.payload = payload;
+    err.status = response.status;
+    throw err;
+  }
   return payload;
 }
 
@@ -59,6 +65,17 @@ export function DashboardClient({ view }: { view: View }) {
   const [overrideScore, setOverrideScore] = useState<string>("70");
   const [overrideReason, setOverrideReason] = useState<string>("Manual review adjustment");
   const [configs, setConfigs] = useState<AnyObj[]>([]);
+  const [sourceSummaryRows, setSourceSummaryRows] = useState<AnyObj[]>([]);
+  const [selectedSourceId, setSelectedSourceId] = useState<string>("");
+  const [sourceExtractionRows, setSourceExtractionRows] = useState<AnyObj[]>([]);
+  const [sourceExtractionLimit, setSourceExtractionLimit] = useState<string>("50");
+  const [selectedRawDocument, setSelectedRawDocument] = useState<AnyObj | null>(null);
+  const [ingestRunType, setIngestRunType] = useState<string>("on_demand");
+  const [ingestRangeStart, setIngestRangeStart] = useState<string>("");
+  const [ingestRangeEnd, setIngestRangeEnd] = useState<string>("");
+  const [ingestFiltersJson, setIngestFiltersJson] = useState<string>("{}");
+  const [lastIngestionRun, setLastIngestionRun] = useState<AnyObj | null>(null);
+  const [latestTriggeredRaw, setLatestTriggeredRaw] = useState<AnyObj | null>(null);
   const [onDemandQuery, setOnDemandQuery] = useState<string>("Hanbaobao");
   const [onDemandJob, setOnDemandJob] = useState<AnyObj | null>(null);
   const [error, setError] = useState<string>("");
@@ -68,15 +85,20 @@ export function DashboardClient({ view }: { view: View }) {
     setLoading(true);
     setError("");
     try {
-      const [meRes, industriesRes, companiesRes, configRes] = await Promise.all([
+      const [meRes, industriesRes, companiesRes, configRes, sourceRes] = await Promise.all([
         api(`/api/v1/me?userId=${activeUserId}`, "GET", undefined, activeUserId),
         api("/api/v1/industries", "GET", undefined, activeUserId),
         api("/api/v1/companies", "GET", undefined, activeUserId),
-        api("/api/v1/config", "GET", undefined, activeUserId)
+        api("/api/v1/config", "GET", undefined, activeUserId),
+        api("/api/v1/admin/extractions/summary", "GET", undefined, activeUserId).catch(() => ({ data: [] }))
       ]);
 
       setMe(meRes);
       setConfigs(configRes.data || []);
+      setSourceSummaryRows(sourceRes.data || []);
+      if (!selectedSourceId && sourceRes.data?.length) {
+        setSelectedSourceId(sourceRes.data[0].id);
+      }
 
       const indRows = await Promise.all(
         (industriesRes.data || []).map(async (industry: AnyObj) => {
@@ -146,6 +168,86 @@ export function DashboardClient({ view }: { view: View }) {
     }
   }
 
+  async function loadSourceExtractions(sourceId: string) {
+    if (!sourceId) return;
+    try {
+      const limit = Number(sourceExtractionLimit || 50);
+      const res = await api(
+        `/api/v1/admin/extractions?sourceId=${encodeURIComponent(sourceId)}&limit=${Math.max(1, Math.min(limit, 500))}`,
+        "GET",
+        undefined,
+        activeUserId
+      );
+      setSourceExtractionRows(res.data || []);
+    } catch (err: any) {
+      setError(err.message || "Failed to load extracted documents");
+      setSourceExtractionRows([]);
+    }
+  }
+
+  async function loadRawDocumentDebug(rawDocumentId: string) {
+    try {
+      const res = await api(
+        `/api/v1/admin/extractions/raw-document/${encodeURIComponent(rawDocumentId)}`,
+        "GET",
+        undefined,
+        activeUserId
+      );
+      setSelectedRawDocument(res);
+    } catch (err: any) {
+      setError(err.message || "Failed to load raw document payload");
+      setSelectedRawDocument(null);
+    }
+  }
+
+  async function triggerConnectorCall() {
+    if (!selectedSourceId) {
+      setError("Select a source first");
+      return;
+    }
+    try {
+      let parsedFilters: AnyObj = {};
+      if (ingestFiltersJson.trim()) {
+        parsedFilters = JSON.parse(ingestFiltersJson);
+      }
+      const run = await api(
+        "/api/v1/ingestion/runs",
+        "POST",
+        {
+          sourceId: selectedSourceId,
+          runType: ingestRunType || "on_demand",
+          rangeStart: ingestRangeStart || undefined,
+          rangeEnd: ingestRangeEnd || undefined,
+          filters: parsedFilters
+        },
+        activeUserId
+      );
+      setLastIngestionRun(run.run || run);
+      const firstRawDocId = run?.run?.raw_documents?.[0]?.id;
+      if (firstRawDocId) {
+        const raw = await api(
+          `/api/v1/admin/extractions/raw-document/${encodeURIComponent(firstRawDocId)}`,
+          "GET",
+          undefined,
+          activeUserId
+        );
+        setLatestTriggeredRaw(raw);
+      } else {
+        setLatestTriggeredRaw(null);
+      }
+      await loadSourceExtractions(selectedSourceId);
+      await loadAll();
+    } catch (err: any) {
+      setError(err.message || "Failed to trigger connector call");
+      setLatestTriggeredRaw({
+        error: err.message || "Failed to trigger connector call",
+        status: err.status || err?.payload?.status || null,
+        request: err?.payload?.request || null,
+        responseText: err?.payload?.responseText || null
+      });
+    }
+  }
+
   useEffect(() => {
     loadAll();
   }, [activeUserId]);
@@ -153,6 +255,12 @@ export function DashboardClient({ view }: { view: View }) {
   useEffect(() => {
     if (selectedCompanyScoreId) loadExplanation(selectedCompanyScoreId);
   }, [selectedCompanyScoreId]);
+
+  useEffect(() => {
+    if (view === "admin" && activeUser.role === "admin" && selectedSourceId) {
+      loadSourceExtractions(selectedSourceId);
+    }
+  }, [view, activeUser.role, activeUserId, selectedSourceId]);
 
   return (
     <main className="min-h-screen bg-slate-50 p-6">
@@ -250,6 +358,130 @@ export function DashboardClient({ view }: { view: View }) {
               {onDemandJob ? <div className="rounded-md border p-3 text-sm"><p>Job: {onDemandJob.id}</p><p>Status: {onDemandJob.status}</p><p>Created: {onDemandJob.created_at}</p><p>Final score: {onDemandJob.report?.summary?.finalScore ?? "N/A"}</p>{onDemandJob.error ? <p className="text-destructive">{onDemandJob.error}</p> : null}</div> : null}
             </CardContent>
           </Card>
+        ) : null}
+
+        {view === "admin" ? (
+          activeUser.role !== "admin" ? (
+            <Card className="border-destructive/40">
+              <CardContent className="pt-6 text-sm text-destructive">
+                Admin access required. Switch to Admin user to troubleshoot connectors.
+              </CardContent>
+            </Card>
+          ) : (
+            <div className="grid gap-6 lg:grid-cols-2">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Connector Troubleshooting</CardTitle>
+                  <CardDescription>Trigger API/scraper calls on-demand and verify downloaded raw payload</CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  <div className="grid gap-2 md:grid-cols-2">
+                    <Select value={selectedSourceId} onChange={(e) => setSelectedSourceId(e.target.value)}>
+                      <option value="">Select source connector</option>
+                      {sourceSummaryRows.map((row) => (
+                        <option key={row.id} value={row.id}>
+                          {row.name} ({row.id}) - {row.access_mode}
+                        </option>
+                      ))}
+                    </Select>
+                    <Select value={ingestRunType} onChange={(e) => setIngestRunType(e.target.value)}>
+                      <option value="on_demand">on_demand</option>
+                      <option value="scheduled">scheduled</option>
+                      <option value="event">event</option>
+                      <option value="backfill">backfill</option>
+                    </Select>
+                  </div>
+                  <div className="grid gap-2 md:grid-cols-2">
+                    <Input value={ingestRangeStart} onChange={(e) => setIngestRangeStart(e.target.value)} placeholder="rangeStart (YYYY-MM-DD)" />
+                    <Input value={ingestRangeEnd} onChange={(e) => setIngestRangeEnd(e.target.value)} placeholder="rangeEnd (YYYY-MM-DD)" />
+                  </div>
+                  <textarea
+                    className="min-h-24 w-full rounded-md border border-input bg-background px-3 py-2 text-xs"
+                    value={ingestFiltersJson}
+                    onChange={(e) => setIngestFiltersJson(e.target.value)}
+                    placeholder='filters JSON for selected connector, e.g. {"tableId":"M212261"} or {"resourceId":"..."}'
+                  />
+                  <p className="text-xs text-muted-foreground">
+                    Connector runs use hardcoded retrieval profile by source. Optional filters JSON can still override.
+                  </p>
+                  <Button onClick={triggerConnectorCall}>Trigger Original Source Call</Button>
+                  {lastIngestionRun ? (
+                    <p className="text-xs text-muted-foreground">
+                      Last run: {lastIngestionRun.id} | status: {lastIngestionRun.status} | type: {lastIngestionRun.run_type}
+                    </p>
+                  ) : null}
+                  {latestTriggeredRaw ? (
+                    <div className="rounded-md border bg-slate-100 p-3">
+                      <p className="mb-1 text-xs font-medium">Latest Raw Source Response (Inline)</p>
+                      {latestTriggeredRaw.metadata ? (
+                        <p className="mb-2 text-xs text-muted-foreground">
+                          raw_document_id: {latestTriggeredRaw.metadata?.id} | source: {latestTriggeredRaw.metadata?.source_id}
+                        </p>
+                      ) : null}
+                      {latestTriggeredRaw.request ? (
+                        <p className="mb-2 text-xs text-muted-foreground">
+                          request: {latestTriggeredRaw.request.method} {latestTriggeredRaw.request.url}
+                        </p>
+                      ) : null}
+                      <pre className="max-h-64 overflow-auto text-xs">
+                        {JSON.stringify(
+                          latestTriggeredRaw.rawObjectJson ||
+                            latestTriggeredRaw.rawObjectText || {
+                              error: latestTriggeredRaw.error,
+                              status: latestTriggeredRaw.status,
+                              request: latestTriggeredRaw.request,
+                              responseText: latestTriggeredRaw.responseText
+                            },
+                          null,
+                          2
+                        )}
+                      </pre>
+                    </div>
+                  ) : null}
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader>
+                  <CardTitle>Raw Source Responses</CardTitle>
+                  <CardDescription>View connector output exactly as stored in data lake</CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  <div className="flex gap-2">
+                    <Input value={sourceExtractionLimit} onChange={(e) => setSourceExtractionLimit(e.target.value)} placeholder="Limit (1-500)" />
+                    <Button variant="outline" onClick={() => loadSourceExtractions(selectedSourceId)}>Load</Button>
+                  </div>
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Title</TableHead>
+                        <TableHead>Published</TableHead>
+                        <TableHead>Run</TableHead>
+                        <TableHead>Debug</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {sourceExtractionRows.map((row) => (
+                        <TableRow key={row.id}>
+                          <TableCell>{row.title || row.external_id || row.id}</TableCell>
+                          <TableCell>{row.published_at || "N/A"}</TableCell>
+                          <TableCell>{row.ingestion_run_id}</TableCell>
+                          <TableCell>
+                            <Button size="sm" variant="outline" onClick={() => loadRawDocumentDebug(row.id)}>View Raw</Button>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                  {selectedRawDocument ? (
+                    <pre className="max-h-80 overflow-auto rounded-md bg-slate-100 p-3 text-xs">
+                      {JSON.stringify(selectedRawDocument.rawObjectJson || selectedRawDocument.rawObjectText, null, 2)}
+                    </pre>
+                  ) : null}
+                </CardContent>
+              </Card>
+            </div>
+          )
         ) : null}
       </div>
     </main>

@@ -43,7 +43,7 @@ export class NewsAggregatorConnector {
     this.source = source;
   }
 
-  pull(range, cursor = null) {
+  pull(range, cursor = null, _options = {}) {
     const start = toIsoDay(range?.start);
     const end = toIsoDay(range?.end);
     if (!start || !end || start > end) {
