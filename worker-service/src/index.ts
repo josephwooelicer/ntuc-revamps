@@ -1,5 +1,6 @@
 import fs from "node:fs";
 import http from "node:http";
+import path from "node:path";
 import { randomUUID } from "node:crypto";
 import { runMigrations } from "./db/migrate.js";
 import { openDb, getDbPath } from "./db/client.js";
@@ -116,19 +117,93 @@ function withDb(handler) {
   }
 }
 
+function getUserById(db, userId) {
+  if (!userId) return null;
+  return db.prepare("SELECT id, email, role FROM app_user WHERE id = ?").get(userId) || null;
+}
+
+function getUserFromRequest(req, route) {
+  const userId = req.headers["x-user-id"] || route.searchParams.get("userId") || null;
+  return withDb((db) => getUserById(db, userId));
+}
+
+function hasPermission(db, role, permission) {
+  if (!role) return false;
+  const row = db
+    .prepare("SELECT 1 FROM role_permission WHERE role = ? AND permission = ? LIMIT 1")
+    .get(role, permission);
+  return Boolean(row);
+}
+
+function requirePermission(user, permission) {
+  const allowed = withDb((db) => hasPermission(db, user?.role || null, permission));
+  if (!allowed) {
+    throw new Error(`Forbidden: missing permission ${permission}`);
+  }
+}
+
+function listIndustries(db) {
+  return db.prepare("SELECT id, code, name FROM industry ORDER BY code").all();
+}
+
+function listCompanies(db, industryId) {
+  const where = industryId ? "WHERE c.is_active = 1 AND c.industry_id = ?" : "WHERE c.is_active = 1";
+  const params = industryId ? [industryId] : [];
+  return db
+    .prepare(
+      `SELECT c.id, c.uen, c.registered_name, c.industry_id, i.name AS industry_name
+       FROM company c
+       LEFT JOIN industry i ON i.id = c.industry_id
+       ${where}
+       ORDER BY c.registered_name`
+    )
+    .all(...params);
+}
+
+function listConfigItems(db, scope) {
+  if (scope) {
+    return db
+      .prepare("SELECT key, value, scope, updated_by, updated_at FROM config_item WHERE scope = ? ORDER BY key")
+      .all(scope);
+  }
+  return db.prepare("SELECT key, value, scope, updated_by, updated_at FROM config_item ORDER BY scope, key").all();
+}
+
+function parseConfigValue(raw) {
+  try {
+    return JSON.parse(raw);
+  } catch {
+    const numeric = Number(raw);
+    if (Number.isFinite(numeric)) return numeric;
+    if (String(raw).toLowerCase() === "true") return true;
+    if (String(raw).toLowerCase() === "false") return false;
+    return raw;
+  }
+}
+
+function resolveOverrideScope(snapshot) {
+  return snapshot.score_type === "industry" ? "industry" : "company";
+}
+
 function applyScoreOverride(body) {
-  const { scoreSnapshotId, overriddenScore, reason, scope, actorUserId } = body;
-  if (!scoreSnapshotId || overriddenScore == null || !reason || !scope) {
-    throw new Error("Missing required fields: scoreSnapshotId, overriddenScore, reason, scope");
+  const { scoreSnapshotId, overriddenScore, reason, actorUserId } = body;
+  if (!scoreSnapshotId || overriddenScore == null || !reason) {
+    throw new Error("Missing required fields: scoreSnapshotId, overriddenScore, reason");
   }
 
   return withDb((db) => {
-    const snapshot = db
-      .prepare("SELECT id, score_value FROM score_snapshot WHERE id = ?")
-      .get(scoreSnapshotId);
+    const snapshot = db.prepare("SELECT id, score_value, score_type FROM score_snapshot WHERE id = ?").get(scoreSnapshotId);
 
     if (!snapshot) {
       throw new Error("score_snapshot not found");
+    }
+
+    const scope = resolveOverrideScope(snapshot);
+    const actor = getUserById(db, actorUserId);
+    const requiredPermission =
+      scope === "industry" ? "industry.score.override" : "company.score.override";
+    if (!hasPermission(db, actor?.role || null, requiredPermission)) {
+      throw new Error(`Forbidden: missing permission ${requiredPermission}`);
     }
 
     const newOverride = {
@@ -160,7 +235,7 @@ function applyScoreOverride(body) {
         );
 
       insertAuditLog(db, {
-        actorUserId,
+        actorUserId: actorUserId || null,
         action: "score_override.created",
         entityType: "score_override",
         entityId: newOverride.id,
@@ -184,6 +259,17 @@ function upsertConfig(body) {
   }
 
   return withDb((db) => {
+    const actor = getUserById(db, actorUserId);
+    const requiredPermission =
+      scope === "industry"
+        ? "industry.settings.update"
+        : scope === "company"
+        ? "company.settings.update"
+        : "ops.manage";
+    if (!hasPermission(db, actor?.role || null, requiredPermission)) {
+      throw new Error(`Forbidden: missing permission ${requiredPermission}`);
+    }
+
     const before = db.prepare("SELECT * FROM config_item WHERE key = ?").get(key) || null;
 
     db.exec("BEGIN;");
@@ -203,7 +289,7 @@ function upsertConfig(body) {
       const after = db.prepare("SELECT * FROM config_item WHERE key = ?").get(key);
 
       insertAuditLog(db, {
-        actorUserId,
+        actorUserId: actorUserId || null,
         action: "config_item.upserted",
         entityType: "config_item",
         entityId: key,
@@ -262,6 +348,109 @@ function decideModelRecommendation(recommendationId, body) {
   });
 }
 
+function resolveCompanyIdForOnDemand(db, payload) {
+  if (payload.companyId) {
+    const byId = db.prepare("SELECT id FROM company WHERE id = ?").get(payload.companyId);
+    if (!byId) throw new Error("company not found");
+    return byId.id;
+  }
+
+  const query = String(payload.query || "").trim();
+  if (!query) {
+    throw new Error("Missing required field: companyId or query");
+  }
+
+  const like = `%${query}%`;
+  const row = db
+    .prepare(
+      `SELECT c.id
+       FROM company c
+       LEFT JOIN company_alias ca ON ca.company_id = c.id
+       WHERE c.uen = ?
+          OR c.registered_name LIKE ?
+          OR ca.alias LIKE ?
+       ORDER BY c.created_at ASC
+       LIMIT 1`
+    )
+    .get(query, like, like);
+
+  if (!row) {
+    throw new Error("No company matched query");
+  }
+  return row.id;
+}
+
+function upsertOnDemandJob(db, job) {
+  db
+    .prepare(
+      `INSERT INTO on_demand_analysis_job (
+         id, company_id, query, status, created_by, created_at, started_at
+       ) VALUES (?, ?, ?, 'running', ?, current_timestamp, current_timestamp)`
+    )
+    .run(job.id, job.companyId, job.query || null, job.createdBy || null);
+}
+
+function completeOnDemandJob(
+  db,
+  { jobId, status, reportPath, error }: { jobId: string; status: string; reportPath?: string | null; error?: string | null }
+) {
+  db
+    .prepare(
+      `UPDATE on_demand_analysis_job
+       SET status = ?, report_path = ?, error = ?, completed_at = current_timestamp
+       WHERE id = ?`
+    )
+    .run(status, reportPath || null, error || null, jobId);
+}
+
+function getOnDemandJob(db, jobId) {
+  const row = db.prepare("SELECT * FROM on_demand_analysis_job WHERE id = ?").get(jobId);
+  if (!row) throw new Error("on_demand_analysis_job not found");
+  return row;
+}
+
+function executeOnDemandAnalysis(db, job) {
+  const run = runIngestion(db, {
+    sourceId: "src-news",
+    runType: "on_demand"
+  });
+  resolveEntities(db, { ingestionRunId: run.run.id, actorUserId: job.createdBy || null });
+  processSignals(db, { ingestionRunId: run.run.id });
+
+  const company = db
+    .prepare("SELECT id, industry_id FROM company WHERE id = ?")
+    .get(job.companyId);
+  if (!company) throw new Error("company not found");
+
+  runIndustryMonthlyScoring(db, {
+    month: new Date().toISOString(),
+    industryIds: company.industry_id ? [company.industry_id] : undefined
+  });
+  const weekly = runCompanyWeeklyScoring(db, {
+    weekStart: new Date().toISOString(),
+    companyIds: [job.companyId]
+  });
+
+  const latest = weekly.data[0];
+  const explanation = getScoreExplanation(db, latest.finalSnapshotId);
+
+  const report = {
+    jobId: job.id,
+    companyId: job.companyId,
+    ingestionRunId: run.run.id,
+    generatedAt: new Date().toISOString(),
+    summary: latest,
+    explanation
+  };
+
+  const reportPath = path.join("data-lake", "reports", "on-demand", `${job.id}.json`);
+  const absolutePath = resolveRepoPath(reportPath);
+  fs.mkdirSync(path.dirname(absolutePath), { recursive: true });
+  fs.writeFileSync(absolutePath, JSON.stringify(report, null, 2));
+
+  return { reportPath, report };
+}
+
 function runDailyBriefSchedulerTick() {
   if (!schedulerState.enabled) return;
 
@@ -316,6 +505,28 @@ const server = http.createServer(async (req, res) => {
 
     if (req.method === "GET" && pathname === "/health") {
       sendJson(res, 200, checkHealth());
+      return;
+    }
+
+    if (req.method === "GET" && pathname === "/api/v1/me") {
+      const user = getUserFromRequest(req, route);
+      if (!user) {
+        sendJson(res, 401, { error: "Unauthorized: provide x-user-id header or userId query" });
+        return;
+      }
+      sendJson(res, 200, user);
+      return;
+    }
+
+    if (req.method === "GET" && pathname === "/api/v1/industries") {
+      const rows = withDb((db) => listIndustries(db));
+      sendJson(res, 200, { data: rows, count: rows.length });
+      return;
+    }
+
+    if (req.method === "GET" && pathname === "/api/v1/companies") {
+      const rows = withDb((db) => listCompanies(db, route.searchParams.get("industryId")));
+      sendJson(res, 200, { data: rows, count: rows.length });
       return;
     }
 
@@ -392,9 +603,47 @@ const server = http.createServer(async (req, res) => {
       return;
     }
 
+    const scoreOverrideMatch = pathname.match(/^\/api\/v1\/scores\/([^/]+)\/override$/);
+    if (req.method === "POST" && scoreOverrideMatch) {
+      const body = await readJsonBody(req);
+      const result = applyScoreOverride({
+        scoreSnapshotId: scoreOverrideMatch[1],
+        overriddenScore: body.overriddenScore,
+        reason: body.reason,
+        actorUserId: body.actorUserId || req.headers["x-user-id"] || null
+      });
+      sendJson(res, 201, result);
+      return;
+    }
+
+    if (req.method === "GET" && pathname === "/api/v1/config") {
+      const rows = withDb((db) => listConfigItems(db, route.searchParams.get("scope")));
+      sendJson(res, 200, {
+        data: rows.map((row) => ({
+          ...row,
+          parsedValue: parseConfigValue(row.value)
+        })),
+        count: rows.length
+      });
+      return;
+    }
+
     if (req.method === "POST" && pathname === "/api/v1/config") {
       const body = await readJsonBody(req);
       const result = upsertConfig(body);
+      sendJson(res, 200, result);
+      return;
+    }
+
+    const configUpdateMatch = pathname.match(/^\/api\/v1\/config\/([^/]+)$/);
+    if (req.method === "PUT" && configUpdateMatch) {
+      const body = await readJsonBody(req);
+      const result = upsertConfig({
+        key: configUpdateMatch[1],
+        value: body.value,
+        scope: body.scope,
+        actorUserId: body.actorUserId || req.headers["x-user-id"] || null
+      });
       sendJson(res, 200, result);
       return;
     }
@@ -485,6 +734,76 @@ const server = http.createServer(async (req, res) => {
         })
       );
       sendJson(res, 201, result);
+      return;
+    }
+
+    if (req.method === "POST" && pathname === "/api/v1/analysis/on-demand") {
+      const body = await readJsonBody(req);
+      const actorUserId = body.actorUserId || req.headers["x-user-id"] || null;
+
+      const created = withDb((db) => {
+        const companyId = resolveCompanyIdForOnDemand(db, body);
+        const job = {
+          id: randomUUID(),
+          companyId,
+          query: body.query || null,
+          createdBy: actorUserId
+        };
+        upsertOnDemandJob(db, job);
+        return job;
+      });
+
+      try {
+        const completed = withDb((db) => executeOnDemandAnalysis(db, created));
+        withDb((db) => {
+          completeOnDemandJob(db, {
+            jobId: created.id,
+            status: "success",
+            reportPath: completed.reportPath
+          });
+          insertAuditLog(db, {
+            actorUserId: actorUserId || null,
+            action: "on_demand_analysis.completed",
+            entityType: "on_demand_analysis_job",
+            entityId: created.id,
+            beforeState: { status: "running" },
+            afterState: { status: "success", reportPath: completed.reportPath }
+          });
+        });
+      } catch (error) {
+        withDb((db) => {
+          completeOnDemandJob(db, {
+            jobId: created.id,
+            status: "failed",
+            error: error.message
+          });
+          insertAuditLog(db, {
+            actorUserId: actorUserId || null,
+            action: "on_demand_analysis.completed",
+            entityType: "on_demand_analysis_job",
+            entityId: created.id,
+            beforeState: { status: "running" },
+            afterState: { status: "failed", error: error.message }
+          });
+        });
+      }
+
+      const result = withDb((db) => getOnDemandJob(db, created.id));
+      sendJson(res, 201, result);
+      return;
+    }
+
+    const onDemandJobMatch = pathname.match(/^\/api\/v1\/analysis\/on-demand\/([^/]+)$/);
+    if (req.method === "GET" && onDemandJobMatch) {
+      const job = withDb((db) => getOnDemandJob(db, onDemandJobMatch[1]));
+      let report = null;
+      if (job.report_path) {
+        const reportAbs = resolveRepoPath(job.report_path);
+        if (fs.existsSync(reportAbs)) {
+          report = JSON.parse(fs.readFileSync(reportAbs, "utf8"));
+        }
+      }
+      sendJson(res, 200, { ...job, report });
       return;
     }
 

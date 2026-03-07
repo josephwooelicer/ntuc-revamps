@@ -1,5 +1,5 @@
 import { DashboardClient } from "@/components/dashboard/dashboard-client";
 
 export default function Page() {
-  return <DashboardClient view="all" />;
+  return <DashboardClient view="company" />;
 }
