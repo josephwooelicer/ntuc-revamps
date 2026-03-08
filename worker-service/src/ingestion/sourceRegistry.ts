@@ -1,5 +1,3 @@
-import { createSingstatConnector } from "../connectors/singstat.js";
-
 export function listSources(db) {
   return db
     .prepare(
@@ -56,8 +54,5 @@ export function createSource(db, body) {
 
 export function connectorForSource(source) {
   if (!source?.id) return null;
-  if (source.id === "src-singstat") {
-    return createSingstatConnector();
-  }
   return null;
 }

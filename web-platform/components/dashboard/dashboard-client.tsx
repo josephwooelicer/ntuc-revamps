@@ -30,8 +30,7 @@ const NAV: Array<{ href: string; label: string; view: View }> = [
   { href: "/industry", label: "Industry", view: "industry" },
   { href: "/company", label: "Company", view: "company" },
   { href: "/settings", label: "Settings", view: "settings" },
-  { href: "/analysis", label: "On-demand", view: "analysis" },
-  { href: "/admin", label: "Admin", view: "admin" }
+  { href: "/analysis", label: "On-demand", view: "analysis" }
 ];
 
 async function api(path: string, method = "GET", body?: AnyObj, userId?: string) {
