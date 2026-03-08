@@ -12,7 +12,7 @@ import {
   getSourceById,
   listSources
 } from "./ingestion/sourceRegistry.js";
-import { fetchIngestionRun, runBackfillNews, runIngestion } from "./ingestion/service.js";
+import { clearSourceData, fetchIngestionRun, runBackfillNews, runIngestion } from "./ingestion/service.js";
 import {
   generateMorningBrief,
   getDailyBriefReadyByConfig,
@@ -675,6 +675,35 @@ const server = http.createServer(async (req, res) => {
       requirePermission(user, "ops.manage");
       const rows = withDb((db) => listExtractionSummary(db));
       sendJson(res, 200, { data: rows, count: rows.length });
+      return;
+    }
+
+    const sourceClearMatch = pathname.match(/^\/api\/v1\/admin\/sources\/([^/]+)\/clear$/);
+    if (req.method === "POST" && sourceClearMatch) {
+      const user = getUserFromRequest(req, route);
+      requirePermission(user, "ops.manage");
+      const body = await readJsonBody(req);
+      const sourceId = sourceClearMatch[1];
+      const result = withDb((db) => {
+        const source = getSourceById(db, sourceId);
+        if (!source) {
+          throw new Error("source not found");
+        }
+        const cleared = clearSourceData(db, sourceId);
+        insertAuditLog(db, {
+          actorUserId: body.actorUserId || user?.id || null,
+          action: "data_source.data_cleared",
+          entityType: "data_source",
+          entityId: sourceId,
+          beforeState: {
+            source_id: sourceId,
+            source_name: source.name
+          },
+          afterState: cleared
+        });
+        return cleared;
+      });
+      sendJson(res, 200, result);
       return;
     }
 

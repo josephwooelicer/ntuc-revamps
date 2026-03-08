@@ -209,3 +209,112 @@ export function fetchIngestionRun(db, runId) {
   }
   return run;
 }
+
+export function clearSourceData(db, sourceId) {
+  if (!sourceId) {
+    throw new Error("Missing required field: sourceId");
+  }
+
+  const source = getSourceById(db, sourceId);
+  if (!source) {
+    throw new Error("source not found");
+  }
+
+  const rawDocIds = db
+    .prepare(
+      `SELECT id
+       FROM raw_document
+       WHERE source_id = ?`
+    )
+    .all(sourceId)
+    .map((row) => row.id);
+
+  const signalIds = db
+    .prepare(
+      `SELECT id
+       FROM signal
+       WHERE source_id = ?`
+    )
+    .all(sourceId)
+    .map((row) => row.id);
+
+  const counts = {
+    evidence_pointer: 0,
+    entity_resolution: 0,
+    signal: signalIds.length,
+    raw_document: rawDocIds.length,
+    ingestion_run: 0
+  };
+
+  db.exec("BEGIN;");
+  try {
+    if (rawDocIds.length || signalIds.length) {
+      const evidenceClauses = [];
+      const evidenceArgs = [];
+      if (rawDocIds.length) {
+        evidenceClauses.push(`raw_document_id IN (${rawDocIds.map(() => "?").join(",")})`);
+        evidenceArgs.push(...rawDocIds);
+      }
+      if (signalIds.length) {
+        evidenceClauses.push(`signal_id IN (${signalIds.map(() => "?").join(",")})`);
+        evidenceArgs.push(...signalIds);
+      }
+      if (evidenceClauses.length) {
+        counts.evidence_pointer = db
+          .prepare(`SELECT COUNT(*) AS count FROM evidence_pointer WHERE ${evidenceClauses.join(" OR ")}`)
+          .get(...evidenceArgs).count;
+        db
+          .prepare(`DELETE FROM evidence_pointer WHERE ${evidenceClauses.join(" OR ")}`)
+          .run(...evidenceArgs);
+      }
+    }
+
+    if (rawDocIds.length) {
+      const rawPlaceholders = rawDocIds.map(() => "?").join(",");
+      counts.entity_resolution = db
+        .prepare(`SELECT COUNT(*) AS count FROM entity_resolution WHERE raw_document_id IN (${rawPlaceholders})`)
+        .get(...rawDocIds).count;
+      db
+        .prepare(`DELETE FROM entity_resolution WHERE raw_document_id IN (${rawPlaceholders})`)
+        .run(...rawDocIds);
+    }
+
+    if (signalIds.length) {
+      const signalPlaceholders = signalIds.map(() => "?").join(",");
+      db.prepare(`DELETE FROM signal WHERE id IN (${signalPlaceholders})`).run(...signalIds);
+    }
+
+    if (rawDocIds.length) {
+      const rawPlaceholders = rawDocIds.map(() => "?").join(",");
+      db.prepare(`DELETE FROM raw_document WHERE id IN (${rawPlaceholders})`).run(...rawDocIds);
+    }
+
+    counts.ingestion_run = db
+      .prepare(
+        `SELECT COUNT(*) AS count
+         FROM ingestion_run
+         WHERE source_id = ?`
+      )
+      .get(sourceId).count;
+    db.prepare("DELETE FROM ingestion_run WHERE source_id = ?").run(sourceId);
+
+    db.exec("COMMIT;");
+  } catch (error) {
+    db.exec("ROLLBACK;");
+    throw error;
+  }
+
+  const sourceDir = resolveRepoPath(path.join(rawPath, sourceId));
+  let removedDataLakePath = false;
+  if (fs.existsSync(sourceDir)) {
+    fs.rmSync(sourceDir, { recursive: true, force: true });
+    removedDataLakePath = true;
+  }
+
+  return {
+    sourceId,
+    counts,
+    removedDataLakePath,
+    dataLakePath: sourceDir
+  };
+}

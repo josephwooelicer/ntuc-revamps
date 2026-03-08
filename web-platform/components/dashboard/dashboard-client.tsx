@@ -69,13 +69,20 @@ export function DashboardClient({ view }: { view: View }) {
   const [selectedSourceId, setSelectedSourceId] = useState<string>("");
   const [sourceExtractionRows, setSourceExtractionRows] = useState<AnyObj[]>([]);
   const [selectedRawDocument, setSelectedRawDocument] = useState<AnyObj | null>(null);
-  const [ingestFiltersJson, setIngestFiltersJson] = useState<string>("{}");
   const [lastIngestionRun, setLastIngestionRun] = useState<AnyObj | null>(null);
   const [retrievalRunning, setRetrievalRunning] = useState<boolean>(false);
+  const [clearRunning, setClearRunning] = useState<boolean>(false);
   const [onDemandQuery, setOnDemandQuery] = useState<string>("Hanbaobao");
   const [onDemandJob, setOnDemandJob] = useState<AnyObj | null>(null);
   const [error, setError] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(false);
+
+  const retrievalHint = useMemo(() => {
+    if (!retrievalRunning) return "";
+    const sourceLabel =
+      sourceSummaryRows.find((row) => row.id === selectedSourceId)?.name || selectedSourceId || "selected connector";
+    return `Retrieval is running for ${sourceLabel}. Large pulls can take several minutes.`;
+  }, [retrievalRunning, sourceSummaryRows, selectedSourceId]);
 
   async function loadAll() {
     setLoading(true);
@@ -203,17 +210,13 @@ export function DashboardClient({ view }: { view: View }) {
     try {
       setRetrievalRunning(true);
       setError("");
-      let parsedFilters: AnyObj = {};
-      if (ingestFiltersJson.trim()) {
-        parsedFilters = JSON.parse(ingestFiltersJson);
-      }
       const run = await api(
         "/api/v1/ingestion/runs",
         "POST",
         {
           sourceId: selectedSourceId,
           runType: "on_demand",
-          filters: parsedFilters
+          filters: {}
         },
         activeUserId
       );
@@ -229,6 +232,36 @@ export function DashboardClient({ view }: { view: View }) {
       setError(err.message || "Failed to trigger connector call");
     } finally {
       setRetrievalRunning(false);
+    }
+  }
+
+  async function clearSelectedSourceData() {
+    if (!selectedSourceId) {
+      setError("Select a source first");
+      return;
+    }
+    const confirmed = window.confirm(
+      `Clear all database and data-lake records for source "${selectedSourceId}"? This cannot be undone.`
+    );
+    if (!confirmed) return;
+
+    try {
+      setClearRunning(true);
+      setError("");
+      await api(
+        `/api/v1/admin/sources/${encodeURIComponent(selectedSourceId)}/clear`,
+        "POST",
+        { actorUserId: activeUserId },
+        activeUserId
+      );
+      setLastIngestionRun(null);
+      setSourceExtractionRows([]);
+      setSelectedRawDocument(null);
+      await loadAll();
+    } catch (err: any) {
+      setError(err.message || "Failed to clear source data");
+    } finally {
+      setClearRunning(false);
     }
   }
 
@@ -350,7 +383,7 @@ export function DashboardClient({ view }: { view: View }) {
               <Card>
                 <CardHeader>
                   <CardTitle>Connector Troubleshooting</CardTitle>
-                  <CardDescription>Select connector, set params JSON, and start retrieval</CardDescription>
+                  <CardDescription>Select connector and start retrieval</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-3">
                   <div className="grid gap-2">
@@ -370,18 +403,19 @@ export function DashboardClient({ view }: { view: View }) {
                       ))}
                     </Select>
                   </div>
-                  <textarea
-                    className="min-h-24 w-full rounded-md border border-input bg-background px-3 py-2 text-xs"
-                    value={ingestFiltersJson}
-                    onChange={(e) => setIngestFiltersJson(e.target.value)}
-                    placeholder='params JSON, e.g. {"maxReports":667,"expectedPages":14}'
-                  />
                   <Button onClick={triggerConnectorCall} disabled={retrievalRunning}>
                     {retrievalRunning ? "Retrieving..." : "Start Retrieval"}
                   </Button>
+                  <Button
+                    variant="outline"
+                    onClick={clearSelectedSourceData}
+                    disabled={!selectedSourceId || retrievalRunning || clearRunning}
+                  >
+                    {clearRunning ? "Clearing..." : "Clear Source Data"}
+                  </Button>
                   {retrievalRunning ? (
                     <p className="text-xs text-muted-foreground">
-                      Retrieval is running. Full SingStat pull (667 tables) can take several minutes.
+                      {retrievalHint}
                     </p>
                   ) : null}
                   {lastIngestionRun ? (
