@@ -68,14 +68,10 @@ export function DashboardClient({ view }: { view: View }) {
   const [sourceSummaryRows, setSourceSummaryRows] = useState<AnyObj[]>([]);
   const [selectedSourceId, setSelectedSourceId] = useState<string>("");
   const [sourceExtractionRows, setSourceExtractionRows] = useState<AnyObj[]>([]);
-  const [sourceExtractionLimit, setSourceExtractionLimit] = useState<string>("50");
   const [selectedRawDocument, setSelectedRawDocument] = useState<AnyObj | null>(null);
-  const [ingestRunType, setIngestRunType] = useState<string>("on_demand");
-  const [ingestRangeStart, setIngestRangeStart] = useState<string>("");
-  const [ingestRangeEnd, setIngestRangeEnd] = useState<string>("");
   const [ingestFiltersJson, setIngestFiltersJson] = useState<string>("{}");
   const [lastIngestionRun, setLastIngestionRun] = useState<AnyObj | null>(null);
-  const [latestTriggeredRaw, setLatestTriggeredRaw] = useState<AnyObj | null>(null);
+  const [retrievalRunning, setRetrievalRunning] = useState<boolean>(false);
   const [onDemandQuery, setOnDemandQuery] = useState<string>("Hanbaobao");
   const [onDemandJob, setOnDemandJob] = useState<AnyObj | null>(null);
   const [error, setError] = useState<string>("");
@@ -168,12 +164,11 @@ export function DashboardClient({ view }: { view: View }) {
     }
   }
 
-  async function loadSourceExtractions(sourceId: string) {
-    if (!sourceId) return;
+  async function loadRunExtractions(ingestionRunId: string) {
+    if (!ingestionRunId) return;
     try {
-      const limit = Number(sourceExtractionLimit || 50);
       const res = await api(
-        `/api/v1/admin/extractions?sourceId=${encodeURIComponent(sourceId)}&limit=${Math.max(1, Math.min(limit, 500))}`,
+        `/api/v1/admin/extractions?ingestionRunId=${encodeURIComponent(ingestionRunId)}&limit=1000`,
         "GET",
         undefined,
         activeUserId
@@ -206,6 +201,8 @@ export function DashboardClient({ view }: { view: View }) {
       return;
     }
     try {
+      setRetrievalRunning(true);
+      setError("");
       let parsedFilters: AnyObj = {};
       if (ingestFiltersJson.trim()) {
         parsedFilters = JSON.parse(ingestFiltersJson);
@@ -215,36 +212,23 @@ export function DashboardClient({ view }: { view: View }) {
         "POST",
         {
           sourceId: selectedSourceId,
-          runType: ingestRunType || "on_demand",
-          rangeStart: ingestRangeStart || undefined,
-          rangeEnd: ingestRangeEnd || undefined,
+          runType: "on_demand",
           filters: parsedFilters
         },
         activeUserId
       );
       setLastIngestionRun(run.run || run);
-      const firstRawDocId = run?.run?.raw_documents?.[0]?.id;
-      if (firstRawDocId) {
-        const raw = await api(
-          `/api/v1/admin/extractions/raw-document/${encodeURIComponent(firstRawDocId)}`,
-          "GET",
-          undefined,
-          activeUserId
-        );
-        setLatestTriggeredRaw(raw);
-      } else {
-        setLatestTriggeredRaw(null);
+      const runId = run?.run?.id || run?.id;
+      if (runId) {
+        await loadRunExtractions(runId);
       }
-      await loadSourceExtractions(selectedSourceId);
+      const firstRawDocId = run?.run?.raw_documents?.[0]?.id;
+      if (firstRawDocId) await loadRawDocumentDebug(firstRawDocId);
       await loadAll();
     } catch (err: any) {
       setError(err.message || "Failed to trigger connector call");
-      setLatestTriggeredRaw({
-        error: err.message || "Failed to trigger connector call",
-        status: err.status || err?.payload?.status || null,
-        request: err?.payload?.request || null,
-        responseText: err?.payload?.responseText || null
-      });
+    } finally {
+      setRetrievalRunning(false);
     }
   }
 
@@ -255,12 +239,6 @@ export function DashboardClient({ view }: { view: View }) {
   useEffect(() => {
     if (selectedCompanyScoreId) loadExplanation(selectedCompanyScoreId);
   }, [selectedCompanyScoreId]);
-
-  useEffect(() => {
-    if (view === "admin" && activeUser.role === "admin" && selectedSourceId) {
-      loadSourceExtractions(selectedSourceId);
-    }
-  }, [view, activeUser.role, activeUserId, selectedSourceId]);
 
   return (
     <main className="min-h-screen bg-slate-50 p-6">
@@ -372,11 +350,18 @@ export function DashboardClient({ view }: { view: View }) {
               <Card>
                 <CardHeader>
                   <CardTitle>Connector Troubleshooting</CardTitle>
-                  <CardDescription>Trigger API/scraper calls on-demand and verify downloaded raw payload</CardDescription>
+                  <CardDescription>Select connector, set params JSON, and start retrieval</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-3">
-                  <div className="grid gap-2 md:grid-cols-2">
-                    <Select value={selectedSourceId} onChange={(e) => setSelectedSourceId(e.target.value)}>
+                  <div className="grid gap-2">
+                    <Select
+                      value={selectedSourceId}
+                      onChange={(e) => {
+                        setSelectedSourceId(e.target.value);
+                        setSourceExtractionRows([]);
+                        setSelectedRawDocument(null);
+                      }}
+                    >
                       <option value="">Select source connector</option>
                       {sourceSummaryRows.map((row) => (
                         <option key={row.id} value={row.id}>
@@ -384,73 +369,35 @@ export function DashboardClient({ view }: { view: View }) {
                         </option>
                       ))}
                     </Select>
-                    <Select value={ingestRunType} onChange={(e) => setIngestRunType(e.target.value)}>
-                      <option value="on_demand">on_demand</option>
-                      <option value="scheduled">scheduled</option>
-                      <option value="event">event</option>
-                      <option value="backfill">backfill</option>
-                    </Select>
-                  </div>
-                  <div className="grid gap-2 md:grid-cols-2">
-                    <Input value={ingestRangeStart} onChange={(e) => setIngestRangeStart(e.target.value)} placeholder="rangeStart (YYYY-MM-DD)" />
-                    <Input value={ingestRangeEnd} onChange={(e) => setIngestRangeEnd(e.target.value)} placeholder="rangeEnd (YYYY-MM-DD)" />
                   </div>
                   <textarea
                     className="min-h-24 w-full rounded-md border border-input bg-background px-3 py-2 text-xs"
                     value={ingestFiltersJson}
                     onChange={(e) => setIngestFiltersJson(e.target.value)}
-                    placeholder='filters JSON for selected connector, e.g. {"tableId":"M212261"} or {"resourceId":"..."}'
+                    placeholder='params JSON, e.g. {"maxReports":667,"expectedPages":14}'
                   />
-                  <p className="text-xs text-muted-foreground">
-                    Connector runs use hardcoded retrieval profile by source. Optional filters JSON can still override.
-                  </p>
-                  <Button onClick={triggerConnectorCall}>Trigger Original Source Call</Button>
+                  <Button onClick={triggerConnectorCall} disabled={retrievalRunning}>
+                    {retrievalRunning ? "Retrieving..." : "Start Retrieval"}
+                  </Button>
+                  {retrievalRunning ? (
+                    <p className="text-xs text-muted-foreground">
+                      Retrieval is running. Full SingStat pull (667 tables) can take several minutes.
+                    </p>
+                  ) : null}
                   {lastIngestionRun ? (
                     <p className="text-xs text-muted-foreground">
                       Last run: {lastIngestionRun.id} | status: {lastIngestionRun.status} | type: {lastIngestionRun.run_type}
                     </p>
-                  ) : null}
-                  {latestTriggeredRaw ? (
-                    <div className="rounded-md border bg-slate-100 p-3">
-                      <p className="mb-1 text-xs font-medium">Latest Raw Source Response (Inline)</p>
-                      {latestTriggeredRaw.metadata ? (
-                        <p className="mb-2 text-xs text-muted-foreground">
-                          raw_document_id: {latestTriggeredRaw.metadata?.id} | source: {latestTriggeredRaw.metadata?.source_id}
-                        </p>
-                      ) : null}
-                      {latestTriggeredRaw.request ? (
-                        <p className="mb-2 text-xs text-muted-foreground">
-                          request: {latestTriggeredRaw.request.method} {latestTriggeredRaw.request.url}
-                        </p>
-                      ) : null}
-                      <pre className="max-h-64 overflow-auto text-xs">
-                        {JSON.stringify(
-                          latestTriggeredRaw.rawObjectJson ||
-                            latestTriggeredRaw.rawObjectText || {
-                              error: latestTriggeredRaw.error,
-                              status: latestTriggeredRaw.status,
-                              request: latestTriggeredRaw.request,
-                              responseText: latestTriggeredRaw.responseText
-                            },
-                          null,
-                          2
-                        )}
-                      </pre>
-                    </div>
                   ) : null}
                 </CardContent>
               </Card>
 
               <Card>
                 <CardHeader>
-                  <CardTitle>Raw Source Responses</CardTitle>
-                  <CardDescription>View connector output exactly as stored in data lake</CardDescription>
+                  <CardTitle>Collected Data (Current Run)</CardTitle>
+                  <CardDescription>Shows only documents from the latest retrieval run</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-3">
-                  <div className="flex gap-2">
-                    <Input value={sourceExtractionLimit} onChange={(e) => setSourceExtractionLimit(e.target.value)} placeholder="Limit (1-500)" />
-                    <Button variant="outline" onClick={() => loadSourceExtractions(selectedSourceId)}>Load</Button>
-                  </div>
                   <Table>
                     <TableHeader>
                       <TableRow>
@@ -473,6 +420,9 @@ export function DashboardClient({ view }: { view: View }) {
                       ))}
                     </TableBody>
                   </Table>
+                  {!sourceExtractionRows.length ? (
+                    <p className="text-xs text-muted-foreground">No run data yet. Start a retrieval to populate this panel.</p>
+                  ) : null}
                   {selectedRawDocument ? (
                     <pre className="max-h-80 overflow-auto rounded-md bg-slate-100 p-3 text-xs">
                       {JSON.stringify(selectedRawDocument.rawObjectJson || selectedRawDocument.rawObjectText, null, 2)}

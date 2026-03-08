@@ -64,6 +64,30 @@ function getIngestionRun(db, runId) {
   return { ...run, raw_documents: docs, raw_document_count: docs.length };
 }
 
+function listExistingExternalIds(db, sourceId) {
+  return db
+    .prepare(
+      `SELECT DISTINCT external_id
+       FROM raw_document
+       WHERE source_id = ? AND external_id IS NOT NULL`
+    )
+    .all(sourceId)
+    .map((row) => String(row.external_id));
+}
+
+function rawDocumentExists(db, sourceId, externalId) {
+  if (!externalId) return false;
+  const row = db
+    .prepare(
+      `SELECT 1
+       FROM raw_document
+       WHERE source_id = ? AND external_id = ?
+       LIMIT 1`
+    )
+    .get(sourceId, externalId);
+  return Boolean(row);
+}
+
 export async function runIngestion(db, input) {
   const { sourceId, runType, rangeStart, rangeEnd, cursor = null, filters = {} } = input;
   if (!sourceId || !runType) {
@@ -84,13 +108,17 @@ export async function runIngestion(db, input) {
   }
 
   const runId = insertIngestionRun(db, sourceId, runType, rangeStart, rangeEnd);
+  const runFilters = { ...(filters || {}) };
+  if (sourceId === "src-singstat") {
+    runFilters.existingExternalIds = listExistingExternalIds(db, sourceId);
+  }
 
   const items = [];
   let nextCursorValue = cursor;
   try {
     do {
       const loaded = await Promise.resolve(
-        connector.pull({ start: rangeStart, end: rangeEnd }, nextCursorValue, filters)
+        connector.pull({ start: rangeStart, end: rangeEnd }, nextCursorValue, runFilters)
       );
       items.push(...(loaded.documents || []));
       nextCursorValue = loaded.nextCursor;
@@ -103,6 +131,9 @@ export async function runIngestion(db, input) {
   db.exec("BEGIN;");
   try {
     for (const doc of items) {
+      if (rawDocumentExists(db, sourceId, doc.externalId || null)) {
+        continue;
+      }
       const { objectKey, contentHash } = persistRawDocument({
         runId,
         sourceId,

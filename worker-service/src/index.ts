@@ -218,6 +218,30 @@ function listSourceExtractions(db, sourceId, limit) {
     .all(sourceId, limit);
 }
 
+function listRunExtractions(db, ingestionRunId, limit) {
+  return db
+    .prepare(
+      `SELECT
+         rd.id,
+         rd.external_id,
+         rd.published_at,
+         rd.fetched_at,
+         rd.title,
+         rd.url,
+         rd.object_key,
+         rd.content_hash,
+         ir.id AS ingestion_run_id,
+         ir.run_type,
+         ir.status AS ingestion_status
+       FROM raw_document rd
+       LEFT JOIN ingestion_run ir ON ir.id = rd.ingestion_run_id
+       WHERE rd.ingestion_run_id = ?
+       ORDER BY rd.fetched_at DESC
+       LIMIT ?`
+    )
+    .all(ingestionRunId, limit);
+}
+
 function getRawDocumentById(db, rawDocumentId) {
   return db
     .prepare(
@@ -657,12 +681,20 @@ const server = http.createServer(async (req, res) => {
     if (req.method === "GET" && pathname === "/api/v1/admin/extractions") {
       const user = getUserFromRequest(req, route);
       requirePermission(user, "ops.manage");
-      const sourceId = route.searchParams.get("sourceId");
-      if (!sourceId) {
-        throw new Error("Missing required query parameter: sourceId");
-      }
       const limit = Number(route.searchParams.get("limit") || 50);
-      const rows = withDb((db) => listSourceExtractions(db, sourceId, Math.max(1, Math.min(limit, 500))));
+      const clampedLimit = Math.max(1, Math.min(limit, 1000));
+      const ingestionRunId = route.searchParams.get("ingestionRunId");
+      const sourceId = route.searchParams.get("sourceId");
+
+      if (!ingestionRunId && !sourceId) {
+        throw new Error("Missing required query parameter: ingestionRunId or sourceId");
+      }
+
+      const rows = withDb((db) =>
+        ingestionRunId
+          ? listRunExtractions(db, ingestionRunId, clampedLimit)
+          : listSourceExtractions(db, sourceId, clampedLimit)
+      );
       sendJson(res, 200, { data: rows, count: rows.length });
       return;
     }
@@ -739,12 +771,6 @@ const server = http.createServer(async (req, res) => {
     if (req.method === "POST" && pathname === "/api/v1/ingestion/runs") {
       const body = await readJsonBody(req);
       const filters = { ...(body.filters || {}) };
-      if (body.sourceId === "src-singstat" && !filters.tableId) {
-        const fallback = withDb((db) => getConfigItem(db, "singstat_default_table_id"));
-        if (fallback?.value) {
-          filters.tableId = String(fallback.value);
-        }
-      }
       if (body.sourceId === "src-mom" && !filters.resourceId && !filters.datasetId) {
         const fallback = withDb((db) => getConfigItem(db, "mom_default_resource_id"));
         if (fallback?.value) {

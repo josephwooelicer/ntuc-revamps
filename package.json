@@ -14,6 +14,7 @@
     "dev:web": "npm --workspace web-platform run dev",
     "dev:worker": "npm --workspace worker-service run dev",
     "health": "bash ./scripts/health-check.sh",
-    "deps:down": "bash ./scripts/stop-local.sh"
+    "deps:down": "bash ./scripts/stop-local.sh",
+    "singstat:download-all": "node ./scripts/download-singstat-reports.mjs"
   }
 }
