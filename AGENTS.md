@@ -144,6 +144,11 @@ Both contribute to scoring and explanations.
 - User can search a company and trigger immediate data pull + scoring on demand
 - Must collect all relevant signals and produce a report with breakdown + evidence
 
+### Pipeline run modes (YES)
+- Support two run modes:
+  1) **Debugging / On-demand mode**: admin enters company name in debug page; system resolves entity, infers industry, and runs full scoring pipeline for that scope.
+  2) **Production mode**: system uses configured industries, retrieves data for industries and mapped companies, and runs full scheduled pipeline.
+
 ---
 
 ## 9) Human-in-the-loop Controls
@@ -179,10 +184,12 @@ Both contribute to scoring and explanations.
 
 ### Ingestion mode (HYBRID)
 - Scheduled batch jobs + event-driven triggers
+- Production runs are scheduled; debugging/on-demand runs are user-triggered.
 
 ### Connectors (YES)
 - Each source has a modular connector.
 - Connectors write raw data to Data Lake + emit tasks for downstream processing.
+- For this POC, connectors may use web scraping when APIs are unavailable or unsuitable for historical replay.
 
 ---
 
@@ -353,6 +360,10 @@ All changes must be auditable (audit log).
 - Fall back to **web scraping** when API is unavailable.
 - If public data is insufficient, ingest **NTUC-provided internal sources** via modular connectors.
 - News connectors must support **backdated ingestion** (historical pulls by date range) for backtesting and time-series score replay.
+- `data.gov.sg` retrieval is implemented via URL-parameter-filtered requests and web scraping in this POC.
+- `layoffs.fyi` retrieval is implemented via web scraping of Airtable-backed pages.
+- News, Reddit, and HardwareZone retrieval supports web scraping through Google Search using `site:` and date filters.
+- Date-filtered Google Search retrieval is required for historical backtesting and weight-setting fine-tuning.
 
 ### Ground truth & lead-time labels
 - Positive retrenchment label is valid when evidenced by:
@@ -379,6 +390,7 @@ All changes must be auditable (audit log).
 - Operational layers store metadata + evidence pointers/links.
 - Apply **PII masking/redaction by default** in UI and analyst exports.
 - Keep restricted access to unredacted raw objects.
+- Store source query metadata (`query text`, `filter params`, `date-range`, `retrieval URL`) to make backtests reproducible.
 - Retention baseline:
   - Raw content: 24 months online + archive up to 7 years
   - Metadata/features/audit: 7 years

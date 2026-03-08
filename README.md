@@ -130,6 +130,14 @@ Each morning, users get a **Daily Brief** with:
 
 Users can also run **on-demand analysis** for a selected company and receive a full breakdown with evidence.
 
+### 5.1) Pipeline operating modes
+- **Debugging / on-demand mode (admin-triggered):**
+  - Admin enters a company name on the debug page.
+  - System resolves the company entity, infers the company industry, ingests scoped data, and runs end-to-end scoring.
+- **Production mode (scheduled):**
+  - System reads configured industries.
+  - It ingests data for each selected industry and the companies within those industries, then runs end-to-end scoring and briefing.
+
 ### 6) Governance and accountability
 The system includes role-based controls:
 - **Analysts** handle industry-level overrides/settings/approvals.
@@ -159,6 +167,12 @@ Data collection will use:
 - and NTUC-provided data where needed.
 
 For testing and backtesting, news sources can be ingested historically (backdated).
+
+POC source retrieval specifics:
+- `data.gov.sg`: retrieved via URL parameter filters and web scraping.
+- `layoffs.fyi`: retrieved via web scraping (Airtable-backed pages).
+- News, Reddit, and HardwareZone: retrieved via Google Search scraping with `site:` and date filters.
+- Date-filtered Google Search retrieval is required for backtesting and weight-setting fine-tuning.
 
 Evidence handling defaults:
 - raw source content retained for audit/reprocessing,

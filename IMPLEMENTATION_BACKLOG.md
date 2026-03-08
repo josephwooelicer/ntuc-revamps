@@ -31,9 +31,13 @@ Priority order is optimized for a local-first POC with F&B + Tech and ~18 compan
   - Connector interface (`pull(range, cursor)`).
   - Source registry + reliability/category metadata.
   - News connector(s) supporting historical date-range pulls.
+  - `data.gov.sg` connector using URL-parameter filtering with scrape retrieval for POC.
+  - `layoffs.fyi` scrape connector for Airtable-backed content.
+  - Google Search scrape connector (`site:` + date filters) for News/Reddit/HardwareZone.
   - Raw object persistence to local filesystem + ingestion metadata to DB.
 - Exit criteria:
   - Backdated range ingestion works for selected sources.
+  - Date-filtered Google Search replay works for historical backtesting windows.
   - Traceability: every raw object has ingestion metadata + source pointer.
 
 ### Epic 3: Entity Resolution Service (P0)
@@ -84,12 +88,24 @@ Priority order is optimized for a local-first POC with F&B + Tech and ~18 compan
 - Deliverables:
   - Industry dashboard (analyst).
   - Company dashboard + evidence drill-down (officer).
+  - Admin debug page for one-company on-demand pipeline runs.
   - Overrides UI with reason capture.
   - Settings UI (weights, thresholds, decay, reliability).
   - On-demand company analysis UI/API.
 - Exit criteria:
   - Override and settings changes are role-gated and audited.
   - On-demand request completes within POC SLO target (`<= 1 hour`).
+
+### Epic 10: Pipeline Run Modes (P0)
+- Goal: support deterministic execution for both debugging and production operations.
+- Deliverables:
+  - Run-mode controller with `debugging` and `production` modes.
+  - `debugging` mode flow: input company name -> entity resolution -> industry inference -> scoped ingestion -> scoring.
+  - `production` mode flow: configured industries -> industry ingestion -> company expansion -> scheduled scoring.
+  - Unified run trace and mode tag in ingestion/scoring metadata.
+- Exit criteria:
+  - Both run modes execute end-to-end and produce explainable score outputs.
+  - Mode-specific runs are auditable and reproducible.
 
 ### Epic 8: Model Recommendation Loop (P2)
 - Goal: monthly recommendation outputs based on outcomes + override patterns.
@@ -171,6 +187,7 @@ create table ingestion_run (
   id text primary key,
   source_id text references data_source(id),
   run_type text not null, -- scheduled/event/on_demand/backfill
+  run_mode text not null default 'production', -- production/debugging
   range_start text,
   range_end text,
   status text not null, -- running/success/failed
@@ -187,6 +204,8 @@ create table raw_document (
   fetched_at text not null default current_timestamp,
   title text,
   url text,
+  retrieval_query text,
+  retrieval_filters text, -- JSON string: site/date params/url params
   object_key text not null, -- local file path key (e.g., data-lake/raw/...)
   content_hash text not null,
   pii_masked boolean not null default false
@@ -314,10 +333,13 @@ Base path: `/api/v1`
 2. `POST /sources`
 - Body: `{ name, sourceType, accessMode, reliabilityWeight, supportsBackfill }`
 3. `POST /ingestion/runs`
-- Body: `{ sourceId, runType, rangeStart?, rangeEnd? }`
+- Body: `{ sourceId, runType, runMode?, rangeStart?, rangeEnd?, filters? }`
 4. `POST /ingestion/backfill/news`
 - Body: `{ sourceId, rangeStart, rangeEnd, filters? }`
 5. `GET /ingestion/runs/:id`
+6. `POST /debug/company-run`
+- Body: `{ companyName, asOfDate?, sourceFilters? }`
+- Behavior: resolve company -> infer industry -> run scoped ingestion + scoring in `debugging` mode
 
 ### Entity Resolution
 1. `GET /entity-resolution/review-queue?limit=&offset=`

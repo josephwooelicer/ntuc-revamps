@@ -2,17 +2,29 @@ This document lists all external data sources and the signal category they belon
 
 ---
 
+## Retrieval Policy (POC)
+
+- Prefer API access where possible.
+- Use web scraping when API access is unavailable or does not support required historical replay.
+- `data.gov.sg` is retrieved using URL-parameter filters via web scraping.
+- `layoffs.fyi` is retrieved via web scraping (Airtable-backed content).
+- News, Reddit, and HardwareZone retrieval uses Google Search scraping with `site:` and date-range filters.
+- Date-filtered Google Search retrieval is required for backtesting and weight fine-tuning.
+- Persist query metadata (search query, site filter, date-range, retrieval URL) with raw evidence for replay/audit.
+
+---
+
 ## 1. Macroeconomic Signals
 
 Broad economic indicators affecting industries.
 
-| Source | Organization | Example Data |
-|---|---|---|
-SingStat Table Builder | Singapore Department of Statistics | GDP by industry, CPI, retail sales |
-MAS Statistics | Monetary Authority of Singapore | interest rates, financial indicators |
-Singapore Tourism Board | STB | tourist arrivals |
-World Bank API | World Bank | global macro indicators |
-FRED API | Federal Reserve | global economic indicators |
+| Source | Organization | Access Mode (POC) | Example Data |
+|---|---|---|---|
+SingStat Table Builder | Singapore Department of Statistics | API | GDP by industry, CPI, retail sales |
+MAS Statistics | Monetary Authority of Singapore | API | interest rates, financial indicators |
+Singapore Tourism Board | STB | API / Web | tourist arrivals |
+World Bank API | World Bank | API | global macro indicators |
+FRED API | Federal Reserve | API | global economic indicators |
 
 Example signals:
 
@@ -28,13 +40,14 @@ Example signals:
 
 Industry-wide operational pressures.
 
-| Source | Organization | Example Data |
-|---|---|---|
-URA Market Statistics | Urban Redevelopment Authority | Retail Rental Index, office rental index |
-SingStat | DOS | industry revenue indices |
-ACRA | Accounting and Corporate Regulatory Authority | business registrations/closures |
-eGazette | Singapore Government | company liquidation notices |
-Singapore Customs | Government | import/export trade data |
+| Source | Organization | Access Mode (POC) | Example Data |
+|---|---|---|---|
+URA Market Statistics | Urban Redevelopment Authority | Web / API | Retail Rental Index, office rental index |
+SingStat | DOS | API | industry revenue indices |
+ACRA | Accounting and Corporate Regulatory Authority | Web / API | business registrations/closures |
+eGazette | Singapore Government | Web | company liquidation notices |
+Singapore Customs | Government | Web / API | import/export trade data |
+data.gov.sg datasets | Government Technology Agency (GovTech) | Web scrape with URL params | government open datasets used for macro/industry indicators |
 
 Example signals:
 
@@ -49,14 +62,14 @@ Example signals:
 
 Indicators of hiring demand and workforce changes.
 
-| Source | Platform | Example Data |
-|---|---|---|
-MyCareersFuture | Government job portal | job postings |
-JobStreet | Job portal | hiring demand |
-LinkedIn Jobs | LinkedIn | hiring trends |
-layoffs.fyi | Layoff tracker | company layoffs records |
-MOM Labour Statistics | Ministry of Manpower | unemployment, retrenchment stats |
-SkillsFuture | Government | skill demand trends |
+| Source | Platform | Access Mode (POC) | Example Data |
+|---|---|---|---|
+MyCareersFuture | Government job portal | Web / API | job postings |
+JobStreet | Job portal | Web | hiring demand |
+LinkedIn Jobs | LinkedIn | Web | hiring trends |
+layoffs.fyi | Layoff tracker | Web scrape (Airtable-backed) | company layoffs records |
+MOM Labour Statistics | Ministry of Manpower | API / Web | unemployment, retrenchment stats |
+SkillsFuture | Government | Web / API | skill demand trends |
 
 Example signals:
 
@@ -113,13 +126,13 @@ Example signals:
 
 Public sentiment and discussions about companies.
 
-| Source | Platform | Example Data |
-|---|---|---|
-News APIs | CNA / ST / BT / NewsAPI | articles mentioning layoffs |
-Reddit | r/singapore / r/asksingapore | workforce discussions |
-HardwareZone Forums | HWZ | job discussions |
-Glassdoor | employee reviews | employee sentiment |
-Google Trends | Google | search demand |
+| Source | Platform | Access Mode (POC) | Example Data |
+|---|---|---|---|
+News APIs / Web News | CNA / ST / BT / NewsAPI | Google Search scrape (`site:` + date filter) / API | articles mentioning layoffs |
+Reddit | r/singapore / r/asksingapore | Google Search scrape (`site:reddit.com` + date filter) / API | workforce discussions |
+HardwareZone Forums | HWZ | Google Search scrape (`site:hardwarezone.com.sg` + date filter) | job discussions |
+Glassdoor | employee reviews | Web | employee sentiment |
+Google Trends | Google | API / Web | search demand |
 
 Example signals:
 
@@ -134,12 +147,12 @@ Example signals:
 
 Sudden events that may trigger layoffs.
 
-| Source | Platform | Example Data |
-|---|---|---|
-News sites | CNA / ST / BT | restructuring announcements |
-SGX | SGX | corporate restructuring |
-eGazette | Government | insolvency notices |
-Courts | Singapore Judiciary | legal disputes |
+| Source | Platform | Access Mode (POC) | Example Data |
+|---|---|---|---|
+News sites | CNA / ST / BT | Google Search scrape (`site:` + date filter) / API | restructuring announcements |
+SGX | SGX | API / Web | corporate restructuring |
+eGazette | Government | Web | insolvency notices |
+Courts | Singapore Judiciary | Web | legal disputes |
 
 Example signals:
 
