@@ -32,12 +32,22 @@ Priority order is optimized for a local-first POC with F&B + Tech and ~18 compan
   - Source registry + reliability/category metadata.
   - News connector(s) supporting historical date-range pulls.
   - `data.gov.sg` connector using URL-parameter filtering with scrape retrieval for POC.
+  - Single source record for `data.gov.sg`: `src-data-gov-sg`.
+  - Agency filters for industry-wellbeing phase: `URA`, `SINGSTAT`, `MOM`.
+  - Format filters: `CSV`, `XLSX`, `PDF`.
+  - Exhaustive pagination with empty query text.
+  - Download and persist actual resources under agency-specific paths in `data-lake/raw`.
+  - Dedup by dataset/page URL + file URL and skip duplicates.
+  - Automated run behavior: daily 06:00 SGT with no `coverage` parameter.
+  - On-demand behavior: accept human date and convert to SGT end-of-day Unix `coverage`.
+  - Retry policy: 3 retries with backoff for file download failures.
   - `layoffs.fyi` scrape connector for Airtable-backed content.
   - Google Search scrape connector (`site:` + date filters) for News/Reddit/HardwareZone.
   - Raw object persistence to local filesystem + ingestion metadata to DB.
 - Exit criteria:
   - Backdated range ingestion works for selected sources.
   - Date-filtered Google Search replay works for historical backtesting windows.
+  - `src-data-gov-sg` run can retrieve and store all matching resources across URA/SINGSTAT/MOM with replay metadata.
   - Traceability: every raw object has ingestion metadata + source pointer.
 
 ### Epic 3: Entity Resolution Service (P0)

@@ -174,6 +174,27 @@ POC source retrieval specifics:
 - News, Reddit, and HardwareZone: retrieved via Google Search scraping with `site:` and date filters.
 - Date-filtered Google Search retrieval is required for backtesting and weight-setting fine-tuning.
 
+### 7.1) data.gov.sg ingestion baseline (industry-wellbeing first)
+- Use a single source registry record: `src-data-gov-sg`.
+- Retrieve only from agencies: `URA`, `SINGSTAT`, `MOM`.
+- Retrieve only formats: `CSV`, `XLSX`, `PDF`.
+- Keep query text empty and exhaust all result pages.
+- Download and store actual files (not metadata only).
+- Store raw files under agency-specific folders in data lake:
+  - `data-lake/raw/URA/...`
+  - `data-lake/raw/SINGSTAT/...`
+  - `data-lake/raw/MOM/...`
+- Dedup key: dataset/page URL + file URL.
+- Duplicate handling: skip re-download for previously seen keys.
+- Retry policy for failed file downloads: 3 retries with backoff.
+- If a dataset entry has multiple resources, download all matching resources.
+- Persist replay/audit metadata per document and run:
+  - agencies, formats, query, request URL, page number, run timestamp, optional on-demand cutoff date.
+
+Run behavior:
+- Automated daily run at `06:00` SGT: no `coverage` parameter.
+- On-demand run: user supplies a human date; system converts to SGT end-of-day (`23:59:59`) Unix timestamp for `coverage`.
+
 Evidence handling defaults:
 - raw source content retained for audit/reprocessing,
 - personal identifiers masked in user-facing outputs by default,

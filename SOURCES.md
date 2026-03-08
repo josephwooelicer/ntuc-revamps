@@ -12,6 +12,26 @@ This document lists all external data sources and the signal category they belon
 - Date-filtered Google Search retrieval is required for backtesting and weight fine-tuning.
 - Persist query metadata (search query, site filter, date-range, retrieval URL) with raw evidence for replay/audit.
 
+### data.gov.sg connector baseline (current)
+
+- Use one source registry record: `src-data-gov-sg`.
+- Restrict retrieval to agencies: `URA`, `SINGSTAT`, `MOM`.
+- Restrict retrieval to formats: `CSV`, `XLSX`, `PDF`.
+- Keep `query` empty and exhaust all pages.
+- Automated schedule: daily at `06:00` SGT, with no `coverage` parameter.
+- On-demand runs: user provides human date; system converts to SGT `23:59:59` and sends as `coverage` Unix timestamp.
+- Download and store full resources, not only metadata.
+- Save resources under agency-specific raw folders:
+  - `data-lake/raw/URA/...`
+  - `data-lake/raw/SINGSTAT/...`
+  - `data-lake/raw/MOM/...`
+- Deduplicate using: dataset/page URL + resource file URL.
+- On duplicate hits, skip re-download.
+- Retry failed file downloads 3 times with backoff.
+- If a dataset has multiple resources, download all matching resources in allowed formats.
+- Persist retrieval metadata for reproducibility:
+  - agencies, formats, query, request URL, page number, run timestamp, optional cutoff date.
+
 ---
 
 ## 1. Macroeconomic Signals
