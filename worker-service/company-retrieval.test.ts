@@ -8,17 +8,17 @@ import path from 'path';
 import { fromSGT } from './src/ingestion/utils';
 
 /**
- * Epic 4: Raw Data Retrieval Test
+ * Raw Data Retrieval Test
  * 
  * This script performs a full retrieval of raw data for a target company and period.
- * It gathers data from 12 months prior to the target month, month-by-month.
+ * It gathers data from 6 months prior to the target month, month-by-month.
  * 
  * 1. Industry data & macroeconomics using data.gov.sg (all agencies).
  * 2. Company data using Egazette, News, and Reddit connectors.
  */
 
 async function runEpic4Retrieval(targetYear: number, targetMonth: number, companyName: string) {
-    console.log(`[Epic 4] Starting retrieval for ${companyName} checking ${targetYear}-${targetMonth.toString().padStart(2, '0')}`);
+    console.log(`Starting retrieval for ${companyName} checking ${targetYear}-${targetMonth.toString().padStart(2, '0')}`);
 
     const engine = new IngestionEngine();
     engine.registerConnector(new DataGovSgConnector());
@@ -26,9 +26,9 @@ async function runEpic4Retrieval(targetYear: number, targetMonth: number, compan
     engine.registerConnector(new EgazetteConnector());
     engine.registerConnector(new RedditSentimentConnector());
 
-    // Generate month-by-month ranges for the previous 12 months using SGT
+    // Generate month-by-month ranges for the previous 6 months using SGT
     const months: { year: number, month: number }[] = [];
-    for (let i = 12; i >= 1; i--) {
+    for (let i = 6; i >= 1; i--) {
         // Create SGT date for the first day of the target month, then subtract i months
         const d = new Date(Date.UTC(targetYear, targetMonth - 1 - i, 1));
         months.push({
@@ -37,7 +37,7 @@ async function runEpic4Retrieval(targetYear: number, targetMonth: number, compan
         });
     }
 
-    console.log(`[Epic 4] Calculated 12-month range: ${months[0].year}-${months[0].month} to ${months[11].year}-${months[11].month}`);
+    console.log(`Calculated 6-month range: ${months[0].year}-${months[0].month} to ${months[5].year}-${months[5].month}`);
 
     for (const m of months) {
         const monthStr = m.month.toString().padStart(2, '0');
@@ -88,7 +88,7 @@ async function runEpic4Retrieval(targetYear: number, targetMonth: number, compan
         }
     }
 
-    console.log(`\n[Epic 4] Full retrieval completed for ${companyName}`);
+    console.log(`\nFull retrieval completed for ${companyName}`);
 }
 
 function getMonthName(m: number): string {

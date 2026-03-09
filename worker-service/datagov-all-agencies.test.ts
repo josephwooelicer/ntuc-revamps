@@ -5,12 +5,13 @@ import { open } from 'sqlite';
 import path from 'path';
 
 const AGENCIES = [
-    'URA',
-    // 'MOM', 'SINGSTATS',
-    'SSG', 'WSG', 'STB', 'SLA', 'CUSTOMS', 'OGP',
-    'NHB', 'MAS', 'MOT', 'MSF', 'MLAW', 'MFA', 'MOF', 'MPA', 'STATECOURTS', 'IMDA',
-    'IRAS', 'ICA', 'HLB', 'A*STAR', 'CPF', 'CAAS', 'CCCS', 'EDB', 'ENTERPRISESG',
-    'GovTech'
+    // 'URA',
+    'MOM',
+    // 'SINGSTATS',
+    // 'SSG', 'WSG', 'STB', 'SLA', 'CUSTOMS', 'OGP',
+    // 'NHB', 'MAS', 'MOT', 'MSF', 'MLAW', 'MFA', 'MOF', 'MPA', 'STATECOURTS', 'IMDA',
+    // 'IRAS', 'ICA', 'HLB', 'A*STAR', 'CPF', 'CAAS', 'CCCS', 'EDB', 'ENTERPRISESG',
+    // 'GovTech'
 ];
 
 async function ensureSourceSeeded() {
