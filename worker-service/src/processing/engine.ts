@@ -6,6 +6,8 @@ import { normalizeRangeToSgtDayBounds } from '../ingestion/utils';
 import { SHARED_MATRIX_VERSION } from './evaluation-matrix';
 import { parseNewsRows, readNewsCsv } from './news-parser';
 import { parseEgazettePdf } from './egazette-parser';
+import { parseAnnualReportRows, readAnnualReportCsv } from './annual-report-parser';
+import { parseRedditCommentSentiment, readRedditCommentsCsv } from './reddit-parser';
 
 type ProcessingRunMode = 'debug_on_demand' | 'production';
 
@@ -242,7 +244,12 @@ export class ProcessingEngine {
                     let itemSignalsSkipped = 0;
                     let itemSignalsFailed = 0;
 
-                    if (target.sourceId === 'src-news' || target.sourceId === 'src-egazette') {
+                    if (
+                        target.sourceId === 'src-news' ||
+                        target.sourceId === 'src-egazette' ||
+                        target.sourceId === 'src-annual-reports-listed' ||
+                        target.sourceId === 'src-reddit-sentiment'
+                    ) {
                         const orchestration = await db.get(
                             `SELECT company_name, uen
                              FROM ingestion_orchestration_run
@@ -258,16 +265,32 @@ export class ProcessingEngine {
 
                         for (const doc of rawDocRows) {
                             try {
-                                const signals = target.sourceId === 'src-news'
-                                    ? await parseNewsRows(companyName, await readNewsCsv(doc.local_path))
-                                    : [await parseEgazettePdf({
+                                let signals: Array<any> = [];
+                                if (target.sourceId === 'src-news') {
+                                    signals = await parseNewsRows(companyName, await readNewsCsv(doc.local_path));
+                                } else if (target.sourceId === 'src-egazette') {
+                                    signals = [await parseEgazettePdf({
                                         companyName,
                                         localPath: doc.local_path,
                                         sourceUrl: doc.url,
                                         title: doc.title || 'eGazette Document'
                                     })];
+                                } else if (target.sourceId === 'src-annual-reports-listed') {
+                                    signals = await parseAnnualReportRows(companyName, await readAnnualReportCsv(doc.local_path));
+                                } else if (target.sourceId === 'src-reddit-sentiment') {
+                                    const parsed = await parseRedditCommentSentiment({
+                                        companyName,
+                                        postTitle: doc.title || 'Reddit Post',
+                                        postUrl: doc.url || '',
+                                        comments: await readRedditCommentsCsv(doc.local_path)
+                                    });
+                                    signals = parsed ? [parsed] : [];
+                                }
                                 for (const signal of signals) {
-                                    if (signal.label === 'irrelevant') {
+                                    if (
+                                        target.sourceId !== 'src-annual-reports-listed' &&
+                                        signal.label === 'irrelevant'
+                                    ) {
                                         itemSignalsSkipped++;
                                         continue;
                                     }

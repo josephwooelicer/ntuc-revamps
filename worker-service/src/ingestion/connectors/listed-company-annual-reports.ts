@@ -96,6 +96,14 @@ export class ListedCompanyAnnualReportsConnector implements Connector {
                     metadata: {
                         company_name: companyName,
                         query,
+                        queryText: query,
+                        filterParams: {
+                            company_name: companyName,
+                            range_start: range?.start.toISOString() ?? null,
+                            range_end: range?.end.toISOString() ?? null
+                        },
+                        retrievalUrl: 'https://www.google.com/search',
+                        pageNumber: 1,
                         result_count: hits.length,
                         filename: 'annual_reports.csv',
                         customDir

@@ -17,6 +17,8 @@ Files:
 - [ ] Keep parser confidence and parser version in output.
 - [x] Connector rollout: `src-news` (first connector in sequence).
 - [x] Connector rollout: `src-egazette`.
+- [x] Connector rollout: `src-annual-reports-listed`.
+- [x] Connector rollout: `src-reddit-sentiment`.
 
 Files:
 - `worker-service/src/processing/*` (new)
@@ -31,6 +33,8 @@ Files:
 - [ ] Flag uncertain mappings for review queue.
 - [x] Connector rollout: `src-news` (first connector in sequence).
 - [x] Connector rollout: `src-egazette`.
+- [x] Connector rollout: `src-annual-reports-listed`.
+- [x] Connector rollout: `src-reddit-sentiment`.
 
 Files:
 - `worker-service/src/processing/*`

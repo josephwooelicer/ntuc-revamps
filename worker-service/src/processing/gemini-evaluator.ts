@@ -62,32 +62,47 @@ async function callGeminiJson(model: string, apiKey: string, payload: any, timeo
     return text;
 }
 
+function fallbackEval(base: {
+    eventType: string;
+    signalCategory: string;
+    summary: string;
+    groupKey: string;
+    matrixScores: MatrixScores;
+}): EvalOutput {
+    return {
+        eventType: base.eventType,
+        signalCategory: base.signalCategory,
+        label: 'neutral',
+        summary: base.summary,
+        occurredAt: null,
+        eventGroupKey: base.groupKey,
+        confidence: 0.35,
+        matrixScores: base.matrixScores,
+        finalScore: computeFinalScore(base.matrixScores),
+        reasoning: 'GEMINI_API_KEY not configured; fallback neutral evaluation applied.',
+        model: 'fallback-no-key'
+    };
+}
+
 export async function evaluateNewsWithGemini(input: NewsEvalInput): Promise<EvalOutput> {
     const apiKey = process.env.GEMINI_API_KEY;
     const model = process.env.GEMINI_MODEL || 'gemini-2.5-flash';
     if (!apiKey) {
-        const matrixScores: MatrixScores = {
-            distress_signal: 0,
-            retrenchment_proximity: 0,
-            impact_scope: 1,
-            credibility: 2,
-            timeliness: 2,
-            relevance: 2,
-            positive_offset: 0
-        };
-        return {
+        return fallbackEval({
             eventType: 'unknown',
             signalCategory: 'news_event',
-            label: 'neutral',
             summary: `${input.title} (${input.outlet})`,
-            occurredAt: null,
-            eventGroupKey: input.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '').slice(0, 80),
-            confidence: 0.35,
-            matrixScores,
-            finalScore: computeFinalScore(matrixScores),
-            reasoning: 'GEMINI_API_KEY not configured; fallback neutral evaluation applied.',
-            model: 'fallback-no-key'
-        };
+            groupKey: input.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '').slice(0, 80),
+            matrixScores: {
+                distress_signal: 0,
+                retrenchment_proximity: 0,
+                impact_scope: 1,
+                credibility: 2,
+                timeliness: 2,
+                relevance: 2,
+                positive_offset: 0
+            }
+        });
     }
 
     const prompt = `
@@ -117,15 +132,11 @@ Return strict JSON only with fields:
     "positive_offset": 0..5
   },
   "reasoning": "one short paragraph"
-}
-`;
+}`;
 
     const text = await callGeminiJson(model, apiKey, {
         contents: [{ parts: [{ text: prompt }] }],
-        generationConfig: {
-            responseMimeType: 'application/json',
-            temperature: 0.1
-        }
+        generationConfig: { responseMimeType: 'application/json', temperature: 0.1 }
     }, 30000);
 
     const { parsed, matrixScores } = parseEvalResponse(text);
@@ -153,28 +164,21 @@ export async function evaluateEgazettePdfWithGemini(input: {
     const apiKey = process.env.GEMINI_API_KEY;
     const model = process.env.GEMINI_MODEL || 'gemini-2.5-flash';
     if (!apiKey) {
-        const matrixScores: MatrixScores = {
-            distress_signal: 0,
-            retrenchment_proximity: 0,
-            impact_scope: 1,
-            credibility: 3,
-            timeliness: 2,
-            relevance: 2,
-            positive_offset: 0
-        };
-        return {
+        return fallbackEval({
             eventType: 'unknown',
             signalCategory: 'registry_notice',
-            label: 'neutral',
             summary: `${input.title} (fallback evaluation)`,
-            occurredAt: null,
-            eventGroupKey: input.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '').slice(0, 80),
-            confidence: 0.35,
-            matrixScores,
-            finalScore: computeFinalScore(matrixScores),
-            reasoning: 'GEMINI_API_KEY not configured; fallback neutral evaluation applied.',
-            model: 'fallback-no-key'
-        };
+            groupKey: input.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '').slice(0, 80),
+            matrixScores: {
+                distress_signal: 0,
+                retrenchment_proximity: 0,
+                impact_scope: 1,
+                credibility: 3,
+                timeliness: 2,
+                relevance: 2,
+                positive_offset: 0
+            }
+        });
     }
 
     const prompt = `
@@ -207,25 +211,16 @@ Return strict JSON only:
     "positive_offset": 0..5
   },
   "reasoning": "one short paragraph"
-}
-`;
+}`;
 
     const text = await callGeminiJson(model, apiKey, {
         contents: [{
             parts: [
                 { text: prompt },
-                {
-                    inlineData: {
-                        mimeType: 'application/pdf',
-                        data: input.pdfBytes.toString('base64')
-                    }
-                }
+                { inlineData: { mimeType: 'application/pdf', data: input.pdfBytes.toString('base64') } }
             ]
         }],
-        generationConfig: {
-            responseMimeType: 'application/json',
-            temperature: 0.1
-        }
+        generationConfig: { responseMimeType: 'application/json', temperature: 0.1 }
     }, 45000);
 
     const { parsed, matrixScores } = parseEvalResponse(text);
@@ -236,6 +231,217 @@ Return strict JSON only:
         summary: parsed?.summary || `${input.title} (${input.url})`,
         occurredAt: parsed?.occurredAt || null,
         eventGroupKey: parsed?.eventGroupKey || input.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '').slice(0, 80),
+        confidence: Math.max(0, Math.min(1, Number(parsed?.confidence ?? 0.5))),
+        matrixScores,
+        finalScore: computeFinalScore(matrixScores),
+        reasoning: parsed?.reasoning || '',
+        model: `${model}@${SHARED_MATRIX_VERSION}`
+    };
+}
+
+export async function evaluateAnnualReportPdfWithGemini(input: {
+    companyName: string;
+    title: string;
+    url: string;
+    snippet: string;
+    pdfBytes: Buffer;
+}): Promise<EvalOutput> {
+    const apiKey = process.env.GEMINI_API_KEY;
+    const model = process.env.GEMINI_MODEL || 'gemini-2.5-flash';
+    if (!apiKey) {
+        return fallbackEval({
+            eventType: 'annual_report',
+            signalCategory: 'company_financial',
+            summary: `${input.title} (fallback evaluation)`,
+            groupKey: input.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '').slice(0, 80),
+            matrixScores: {
+                distress_signal: 1,
+                retrenchment_proximity: 1,
+                impact_scope: 2,
+                credibility: 4,
+                timeliness: 3,
+                relevance: 5,
+                positive_offset: 1
+            }
+        });
+    }
+
+    const prompt = `
+You are evaluating a COMPANY-LEVEL listed company annual report PDF for retrenchment early warning.
+Company: ${input.companyName}
+Title: ${input.title}
+URL: ${input.url}
+Snippet: ${input.snippet}
+
+Task:
+1) Analyze report financial/operational signals that affect retrenchment risk direction.
+2) Return negative label for deterioration (e.g., revenue/margin/profit collapse, restructuring stress).
+3) Return positive label for healthy expansion/improving fundamentals reducing risk.
+4) This source is always relevant annual-report material.
+
+Return strict JSON only:
+{
+  "eventType": "annual_report",
+  "signalCategory": "company_financial",
+  "label": "positive|neutral|negative",
+  "summary": "string max 240 chars",
+  "occurredAt": "ISO datetime or null",
+  "eventGroupKey": "short normalized key",
+  "confidence": 0..1,
+  "matrixScores": {
+    "distress_signal": 0..5,
+    "retrenchment_proximity": 0..5,
+    "impact_scope": 0..5,
+    "credibility": 0..5,
+    "timeliness": 0..5,
+    "relevance": 0..5,
+    "positive_offset": 0..5
+  },
+  "reasoning": "one short paragraph"
+}`;
+
+    const text = await callGeminiJson(model, apiKey, {
+        contents: [{
+            parts: [
+                { text: prompt },
+                { inlineData: { mimeType: 'application/pdf', data: input.pdfBytes.toString('base64') } }
+            ]
+        }],
+        generationConfig: { responseMimeType: 'application/json', temperature: 0.1 }
+    }, 60000);
+
+    const { parsed, matrixScores } = parseEvalResponse(text);
+    const label = normalizeLabel(parsed?.label) === 'irrelevant' ? 'neutral' : normalizeLabel(parsed?.label);
+    return {
+        eventType: 'annual_report',
+        signalCategory: 'company_financial',
+        label,
+        summary: parsed?.summary || `${input.title} (${input.url})`,
+        occurredAt: parsed?.occurredAt || null,
+        eventGroupKey: parsed?.eventGroupKey || input.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '').slice(0, 80),
+        confidence: Math.max(0, Math.min(1, Number(parsed?.confidence ?? 0.5))),
+        matrixScores,
+        finalScore: computeFinalScore(matrixScores),
+        reasoning: parsed?.reasoning || '',
+        model: `${model}@${SHARED_MATRIX_VERSION}`
+    };
+}
+
+export async function evaluateRedditPostRelevancyWithGemini(input: {
+    companyName: string;
+    postTitle: string;
+    postUrl: string;
+    comments: string[];
+}): Promise<{ relevant: boolean; confidence: number; reasoning: string; model: string }> {
+    const apiKey = process.env.GEMINI_API_KEY;
+    const model = process.env.GEMINI_MODEL || 'gemini-2.5-flash';
+    if (!apiKey) {
+        return {
+            relevant: true,
+            confidence: 0.35,
+            reasoning: 'GEMINI_API_KEY not configured; fallback assumes relevant.',
+            model: 'fallback-no-key'
+        };
+    }
+
+    const prompt = `
+Determine if this Reddit post is relevant to company-level retrenchment risk monitoring.
+Company: ${input.companyName}
+Post title: ${input.postTitle}
+Post URL: ${input.postUrl}
+Comment samples:
+${input.comments.slice(0, 20).map((c, i) => `${i + 1}. ${c}`).join('\n')}
+
+Return strict JSON:
+{
+  "relevant": true|false,
+  "confidence": 0..1,
+  "reasoning": "one short paragraph"
+}`;
+
+    const text = await callGeminiJson(model, apiKey, {
+        contents: [{ parts: [{ text: prompt }] }],
+        generationConfig: { responseMimeType: 'application/json', temperature: 0.1 }
+    }, 30000);
+
+    const parsed = JSON.parse(text);
+    return {
+        relevant: Boolean(parsed?.relevant),
+        confidence: Math.max(0, Math.min(1, Number(parsed?.confidence ?? 0.5))),
+        reasoning: parsed?.reasoning || '',
+        model: `${model}@${SHARED_MATRIX_VERSION}`
+    };
+}
+
+export async function evaluateRedditCommentSentimentWithGemini(input: {
+    companyName: string;
+    postTitle: string;
+    postUrl: string;
+    comments: string[];
+}): Promise<EvalOutput> {
+    const apiKey = process.env.GEMINI_API_KEY;
+    const model = process.env.GEMINI_MODEL || 'gemini-2.5-flash';
+    if (!apiKey) {
+        return fallbackEval({
+            eventType: 'reddit_comment_sentiment',
+            signalCategory: 'company_sentiment',
+            summary: `${input.postTitle} (fallback evaluation)`,
+            groupKey: input.postTitle.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '').slice(0, 80),
+            matrixScores: {
+                distress_signal: 1,
+                retrenchment_proximity: 1,
+                impact_scope: 2,
+                credibility: 2,
+                timeliness: 3,
+                relevance: 4,
+                positive_offset: 1
+            }
+        });
+    }
+
+    const prompt = `
+Evaluate commenter sentiment as a COMPANY-LEVEL signal.
+Company: ${input.companyName}
+Post title: ${input.postTitle}
+Post URL: ${input.postUrl}
+Comment samples:
+${input.comments.slice(0, 120).map((c, i) => `${i + 1}. ${c}`).join('\n')}
+
+Return strict JSON:
+{
+  "eventType": "reddit_comment_sentiment",
+  "signalCategory": "company_sentiment",
+  "label": "positive|neutral|negative",
+  "summary": "string max 240 chars",
+  "occurredAt": "ISO datetime or null",
+  "eventGroupKey": "short normalized key",
+  "confidence": 0..1,
+  "matrixScores": {
+    "distress_signal": 0..5,
+    "retrenchment_proximity": 0..5,
+    "impact_scope": 0..5,
+    "credibility": 0..5,
+    "timeliness": 0..5,
+    "relevance": 0..5,
+    "positive_offset": 0..5
+  },
+  "reasoning": "one short paragraph"
+}`;
+
+    const text = await callGeminiJson(model, apiKey, {
+        contents: [{ parts: [{ text: prompt }] }],
+        generationConfig: { responseMimeType: 'application/json', temperature: 0.1 }
+    }, 30000);
+
+    const { parsed, matrixScores } = parseEvalResponse(text);
+    const label = normalizeLabel(parsed?.label) === 'irrelevant' ? 'neutral' : normalizeLabel(parsed?.label);
+    return {
+        eventType: 'reddit_comment_sentiment',
+        signalCategory: 'company_sentiment',
+        label,
+        summary: parsed?.summary || input.postTitle,
+        occurredAt: parsed?.occurredAt || null,
+        eventGroupKey: parsed?.eventGroupKey || input.postTitle.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '').slice(0, 80),
         confidence: Math.max(0, Math.min(1, Number(parsed?.confidence ?? 0.5))),
         matrixScores,
         finalScore: computeFinalScore(matrixScores),
