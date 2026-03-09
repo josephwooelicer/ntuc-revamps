@@ -13,6 +13,7 @@ import { EgazetteConnector } from './src/ingestion/connectors/egazette';
 import { AcraBulkSyncConnector, AcraLocalSearchConnector } from './src/ingestion/connectors/acra-bulk-sync';
 import { ListedCompanyAnnualReportsConnector } from './src/ingestion/connectors/listed-company-annual-reports';
 import { RedditSentimentConnector } from './src/ingestion/connectors/reddit-sentiment';
+import { ProcessingEngine } from './src/processing/engine';
 
 dotenv.config({ path: path.resolve(__dirname, '../.env') });
 
@@ -21,6 +22,7 @@ app.use(express.json());
 const port = process.env.WORKER_PORT || 4000;
 
 const ingestionEngine = new IngestionEngine();
+const processingEngine = new ProcessingEngine();
 ingestionEngine.registerConnector(new DataGovSgConnector());
 ingestionEngine.registerConnector(new NewsGoogleSearchConnector());
 ingestionEngine.registerConnector(new LayoffsFyiConnector());
@@ -219,6 +221,36 @@ app.get('/api/v1/ingestion/runs', async (req: Request, res: Response) => {
         );
         await db.close();
         return res.json({ runs, limit });
+    } catch (err: any) {
+        return res.status(500).json({ error: err.message });
+    }
+});
+
+app.post('/api/v1/processing/run', async (req: Request, res: Response) => {
+    const { runMode, ingestionOrchestrationRunId, rangeStart, rangeEnd } = req.body;
+    if (!runMode) {
+        return res.status(400).json({ error: 'Missing runMode' });
+    }
+    if (runMode !== 'debug_on_demand' && runMode !== 'production') {
+        return res.status(400).json({ error: 'runMode must be debug_on_demand or production' });
+    }
+    if (runMode === 'debug_on_demand' && !ingestionOrchestrationRunId) {
+        return res.status(400).json({ error: 'debug_on_demand requires ingestionOrchestrationRunId' });
+    }
+
+    try {
+        const normalizedRange =
+            rangeStart && rangeEnd
+                ? normalizeRangeToSgtDayBounds(new Date(rangeStart), new Date(rangeEnd))
+                : null;
+
+        const result = await processingEngine.run({
+            runMode,
+            ingestionOrchestrationRunId,
+            rangeStart: normalizedRange?.start,
+            rangeEnd: normalizedRange?.end
+        });
+        return res.json(result);
     } catch (err: any) {
         return res.status(500).json({ error: err.message });
     }
