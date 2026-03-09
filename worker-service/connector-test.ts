@@ -115,18 +115,18 @@ async function test() {
     //     console.error('Reddit Sentiment Error:', e);
     // }
 
-    console.log('Testing Data.gov.sg (MOM)...');
-    try {
-        const resDataGov = await engine.runBackfill('src-data-gov-sg', {
-            start: new Date('2026-01-01T00:00:00Z'),
-            end: new Date('2026-02-01T00:00:00Z')
-        }, {
-            agency: 'NEA',
-        });
-        console.log(`Data.gov.sg Result: ${resDataGov.recordsPulled} documents found (runId: ${resDataGov.runId})`);
-    } catch (e) {
-        console.error('Data.gov.sg Error:', e);
-    }
+    // console.log('Testing Data.gov.sg (MOM)...');
+    // try {
+    //     const resDataGov = await engine.runBackfill('src-data-gov-sg', {
+    //         start: new Date('2026-01-01T00:00:00Z'),
+    //         end: new Date('2026-02-01T00:00:00Z')
+    //     }, {
+    //         agency: 'NEA',
+    //     });
+    //     console.log(`Data.gov.sg Result: ${resDataGov.recordsPulled} documents found (runId: ${resDataGov.runId})`);
+    // } catch (e) {
+    //     console.error('Data.gov.sg Error:', e);
+    // }
 
     // console.log('Testing Egazette (Singapore Airlines)...');
     // try {
