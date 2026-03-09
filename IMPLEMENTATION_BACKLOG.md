@@ -11,9 +11,6 @@ This document outlines the phased implementation roadmap for the NTUC Retrenchme
 - [x] Local bootstrap scripts (`setup`, `dev`, `health`).
 - [x] Health check endpoints and data-lake directory structure.
 
-**Isolated Testing**:
-- Run `npm run health` to verify Next.js and worker process connectivity.
-- Verify `./data-lake/raw` creation on setup.
 
 ## [Epic 1] Core Data Model + Audit
 **Goal**: Build the persistence layer and security/accountability foundations.
@@ -22,9 +19,6 @@ This document outlines the phased implementation roadmap for the NTUC Retrenchme
 - [x] API hooks for overrides, config changes, and model recommendations.
 - [x] Initial role-based access control (Analyst, Officer, Admin).
 
-**Isolated Testing**:
-- Manual API testing via `curl` to `POST /api/v1/overrides` and verifying `audit_log` entry in SQLite.
-- Run `npm run db:status` to verify migration version.
 
 ## [Epic 2] Ingestion Framework + Connectors
 **Goal**: Build the modular engine for retrieving data from diverse external sources.
@@ -35,86 +29,54 @@ This document outlines the phased implementation roadmap for the NTUC Retrenchme
 - [x] `layoffs.fyi` tech-only connector via direct Airtable scraping.
 - [x] `eGazette` search-based connector for company-specific liquidation notices.
 
-**Isolated Testing**:
-- Use `POST /api/v1/ingestion/backfill/news` with short date range and verify local files in `data-lake/raw`.
-- Run `curl -s http://127.0.0.1:4000/api/v1/sources` to verify registry metadata.
 
-## [Epic 3] Entity Resolution Service
-**Goal**: Match messy external mentions to clean legal entities (UENs).
-- [x] Matching pipeline with exact, alias, and fuzzy strategies.
-- [x] UEN retrieval logic from `https://www.bizfile.gov.sg` entity search via `playwright`.
-- [x] Manual review queue for low-confidence mappings.
-- [x] Alias learning and persistence from manual analyst approvals.
+## [Epic 3] Entity Relationship Mapping
+**Goal**: Identify and link related entities to provide a comprehensive view of the searched target.
+- [x] Find all relevant entities to the searched entity.
 
-**Isolated Testing**:
-- Trigger `/api/v1/entity-resolution/resolve` for a specific run and check the `review-queue` API output.
-- Perform a manual approval and verify `alias` persistence in the `company_aliases` table.
+## [Epic 4] Raw Data Retrieval
+**Goal**: Comprehensive data collection for targeted entities across all configured sources.
+- [ ] Automated retrieval of raw data from all connectors for identified entities.
+- [ ] Implementation of date-range filtering for comprehensive historical context.
 
-## [Epic 4] Signal Processing Engine
-**Goal**: Convert raw text/data into standardized signals and features.
-- [ ] Extraction logic for trend detection (gradual) and event detection (sudden).
-- [ ] Sentiment analysis engine for forum/news content.
-- [ ] Cleaning, parsing, and normalization (Z-score) of raw signals.
-- [ ] Category-aware feature preparation for the scoring service.
+## [Epic 5] Data Processing & Persistence
+**Goal**: Transform raw data into structured insights and maintain traceability.
+- [ ] Processing and deduplication of retrieved data.
+- [ ] Storage into the database with mapping/pointers to original raw sources for auditability.
 
-**Isolated Testing**:
-- Unit test extraction logic with mock HTML/JSON payloads.
-- Verify feature generation for a single UEN without running the full ingestion pipeline.
+## [Epic 6] Risk Scoring Engine
+**Goal**: Quantify retrenchment risk using multi-factor signals.
+- [ ] Implementation of the core risk scoring algorithm.
+- [ ] Integration of sentiment signals and financial indicators into the score.
 
-## [Epic 5] Feature Store
-**Goal**: Centralized storage for features and their evidence trails.
-- [ ] Standardized feature persistence (value, timestamp, confidence).
-- [ ] Evidence pointer storage linking scores back to original raw documents.
-- [ ] API for scoring service to efficiently retrieve historical feature snapshots.
+## [Epic 7] Entity Investigation Interface
+**Goal**: Provide a detailed investigation report for specific companies.
+- [ ] Web interface for searching a company by name and date.
+- [ ] Real-time execution of Epics 4, 5, and 6 to generate an instant report.
 
-**Isolated Testing**:
-- Query feature store APIs for a specific UEN and date to verify data integrity and evidence pointers.
+## [Epic 8] Analyst Override System
+**Goal**: Allow human expertise to refine automated scores.
+- [ ] Feature to manually override risk scores.
+- [ ] Auditing and logging of all manual score adjustments.
 
-## [Epic 6] Risk Scoring Service
-**Goal**: Implement the core early warning math and combination logic.
-- [ ] Industry Risk Score calculation (monthly).
-- [ ] Company Signals Score calculation (weekly).
-- [ ] Gated combination logic (Industry stress impacting Company scores).
-- [ ] Delta calculation (score changes since previous assessment).
+## [Epic 9] Executive Dashboard
+**Goal**: High-level visualization of systemic risks and trends.
+- [ ] Aggregate risk views across sectors and periods.
+- [ ] Critical alert summaries and "top at-risk" company leaderboards.
 
-**Isolated Testing**:
-- Run scoring logic on a fixed set of features in the feature store and verify against expected score (Excel baseline).
+## [Epic 10] Administration & Configuration
+**Goal**: Manage system settings, users, and source reliability.
+- [ ] Settings page for system-wide configurations.
+- [ ] Admin interface for managing user roles and source registry weights.
 
-## [Epic 7] Briefing + Alerting
-**Goal**: Deliver actionable insights to users.
-- [x] Daily morning brief generation (06:00 SGT).
-- [x] High-risk detections, industry clusters, and major event summaries.
-- [x] Emerging risk watchlist (rapidly rising scores below alert threshold).
-- [ ] Notification delivery (Email/In-app).
+## [Epic 11] Proactive Alerts & Reporting
+**Goal**: Deliver timely insights to stakeholders.
+- [ ] Daily brief generation for specific sectors.
+- [ ] Real-time alerting for high-risk threshold breaches.
 
-**Isolated Testing**:
-- Trigger `POST /api/v1/briefs/generate` for a past date and verify the JSON payload in the `morning_brief` table.
+## [Epic 12] Model Optimization & Feedback
+**Goal**: Continuous improvement of the warning system.
+- [ ] Model training cycles based on historical outcomes.
+- [ ] AI feedback loop to refine scoring logic based on analyst adjustments.
 
-## [Epic 8] Web Platform & Dashboards
-**Goal**: Provide a premium user interface for analysts and officers.
-- [ ] Industry Dashboard for Analysts (sector-wide stress).
-- [ ] Company Dashboard for Officers (specific case deep-dives).
-- [ ] On-demand Search & Analysis tool (immediate ingestion + scoring).
-- [ ] Evidence viewer showing signal context and grounding sources.
 
-**Isolated Testing**:
-- Component-level tests for dashboards using mock API data.
-- Verify on-demand report generation UI with a test company.
-
-## [Epic 9] Configuration & Administrative Interface
-**Goal**: Empower users to tune the system.
-- [ ] Settings UI for adjusting category/source weights and time decay.
-- [ ] Threshold management (gating, alerts, emerging risk).
-- [ ] Operational monitoring for connectors and worker queues.
-
-**Isolated Testing**:
-- Verify that updating a weight in the UI immediately reflects in subsequent API calls to `POST /api/v1/config`.
-
-## [Epic 10] Model Training & AI Feedback
-**Goal**: Periodically improve the system based on outcomes and human feedback.
-- [ ] Automated log analysis for override patterns.
-- [ ] AI-driven recommendation engine for suggested weight adjustments.
-- [ ] Training pipeline for periodic (monthly) model improvement.
-
-**Isolated Testing**:
-- Run recommendation engine on a dump of `audit_log` overrides and verify suggested weight changes.

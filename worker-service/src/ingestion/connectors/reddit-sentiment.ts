@@ -13,11 +13,14 @@ export class RedditSentimentConnector implements Connector {
 
         console.log(`[RedditSentimentConnector] Pulling for ${companyName}`);
 
-        let customDir = `${companyName}`;
+        let customDir = '';
         if (range) {
-            const startStr = range.start.toISOString().split('T')[0];
-            const endStr = range.end.toISOString().split('T')[0];
-            customDir += ` | ${startStr} - ${endStr}`;
+            const year = range.start.getUTCFullYear();
+            const month = (range.start.getUTCMonth() + 1).toString().padStart(2, '0');
+            const yyyymm = `${year}${month}`;
+            customDir = path.join(yyyymm, companyName);
+        } else {
+            customDir = companyName;
         }
 
         const browser: Browser = await chromium.launch({

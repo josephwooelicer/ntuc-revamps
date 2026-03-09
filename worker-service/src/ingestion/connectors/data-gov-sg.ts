@@ -1,6 +1,7 @@
 import { chromium } from 'playwright';
 import * as crypto from 'crypto';
 import * as fs from 'fs';
+import * as path from 'path';
 import { Connector, IngestionRange, IngestionResult, RawDocument } from '../types';
 
 /**
@@ -31,20 +32,23 @@ export class DataGovSgConnector implements Connector {
             // "FEB", "2026"
             // Get start of month and end of month
             const year = parseInt(options.year, 10);
-            const monthMap: Record<string, number> = {
-                'JAN': 0, 'FEB': 1, 'MAR': 2, 'APR': 3, 'MAY': 4, 'JUN': 5,
-                'JUL': 6, 'AUG': 7, 'SEP': 8, 'OCT': 9, 'NOV': 10, 'DEC': 11
+            const monthMap: Record<string, string> = {
+                'JAN': '01', 'FEB': '02', 'MAR': '03', 'APR': '04', 'MAY': '05', 'JUN': '06',
+                'JUL': '07', 'AUG': '08', 'SEP': '09', 'OCT': '10', 'NOV': '11', 'DEC': '12'
             };
-            const m = monthMap[options.month.toUpperCase()];
-            if (m !== undefined) {
+            const mStr = monthMap[options.month.toUpperCase()];
+            if (mStr) {
+                const m = parseInt(mStr, 10) - 1;
                 const startDate = new Date(Date.UTC(year, m, 1));
                 const endDate = new Date(Date.UTC(year, m + 1, 0, 23, 59, 59));
                 startUnix = Math.floor(startDate.getTime() / 1000).toString();
                 endUnix = Math.floor(endDate.getTime() / 1000).toString();
             }
         } else if (range) {
-            startUnix = Math.floor(range.start.getTime() / 1000).toString();
-            endUnix = Math.floor(range.end.getTime() / 1000).toString();
+            // Adjust for 8 hour offset (SGT is UTC+8)
+            const OFFSET_SECONDS = 8 * 3600;
+            startUnix = (Math.floor(range.start.getTime() / 1000) - OFFSET_SECONDS).toString();
+            endUnix = (Math.floor(range.end.getTime() / 1000) - OFFSET_SECONDS).toString();
         }
 
         const formats = 'CSV|XLSX|PDF';
@@ -114,8 +118,26 @@ export class DataGovSgConnector implements Connector {
                 let metadata: Record<string, any> = {};
 
                 if (options?.year) metadata.year = options.year;
-                if (options?.month) metadata.month = options.monthNumeric || options.month;
+                if (options?.month) {
+                    const monthMap: Record<string, string> = {
+                        'JAN': '01', 'FEB': '02', 'MAR': '03', 'APR': '04', 'MAY': '05', 'JUN': '06',
+                        'JUL': '07', 'AUG': '08', 'SEP': '09', 'OCT': '10', 'NOV': '11', 'DEC': '12'
+                    };
+                    metadata.month = options.monthNumeric || monthMap[options.month.toUpperCase()] || options.month;
+                }
                 if (options?.agency) metadata.agency = options.agency;
+
+                // Construct customDir: YYYYMM/<agency>
+                let year = metadata.year;
+                let month = metadata.month;
+
+                if (!year || !month) {
+                    const dateToUse = range ? range.start : new Date();
+                    year = year || dateToUse.getUTCFullYear().toString();
+                    month = month || (dateToUse.getUTCMonth() + 1).toString().padStart(2, '0');
+                }
+
+                metadata.customDir = path.join(`${year}${month}`, agency);
 
                 const datasetUrl = `https://data.gov.sg/datasets?query=${encodeURIComponent(title)}`;
 

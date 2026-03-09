@@ -52,11 +52,6 @@ async function test() {
     engine.registerConnector(new AcraLocalSearchConnector());
     engine.registerConnector(new RedditSentimentConnector());
 
-    // Widened range to ensure we capture records seen in debug (many are from 2020-2023)
-    const range = {
-        start: new Date('2025-10-01T00:00:00Z'),
-        end: new Date('2025-11-01T00:00:00Z')
-    };
 
     // console.log('Testing Layoffs.fyi Connector (Singapore)...');
     // try {
@@ -76,25 +71,29 @@ async function test() {
     //     console.error('ACRA Bulk Sync Error:', e);
     // }
 
-    console.log('Testing ACRA Local Search (lazada)...');
-    try {
-        const resLocalSearch = await engine.runBackfill('src-acra-data-gov-sg', range, {
-            companyName: 'lazada'
-        });
-        console.log(`ACRA Local Search Result: ${resLocalSearch.recordsPulled} records pulled (runId: ${resLocalSearch.runId})`);
-
-        if (resLocalSearch.records && resLocalSearch.records.length > 0) {
-            console.log('Returned JSON Result:');
-            console.log(JSON.stringify(resLocalSearch.records, null, 2));
-        }
-    } catch (e) {
-        console.error('ACRA Local Search Error:', e);
-    }
-
-    // console.log('Testing News Google Search (twelve cupcakes)...');
+    // console.log('Testing ACRA Local Search (lazada)...');
     // try {
+    //     const resLocalSearch = await engine.runBackfill('src-acra-data-gov-sg', range, {
+    //         companyName: 'lazada'
+    //     });
+    //     console.log(`ACRA Local Search Result: ${resLocalSearch.recordsPulled} records pulled (runId: ${resLocalSearch.runId})`);
+
+    //     if (resLocalSearch.records && resLocalSearch.records.length > 0) {
+    //         console.log('Returned JSON Result:');
+    //         console.log(JSON.stringify(resLocalSearch.records, null, 2));
+    //     }
+    // } catch (e) {
+    //     console.error('ACRA Local Search Error:', e);
+    // }
+
+    // console.log('Testing News Google Search (lazada)...');
+    // try {
+    //     const range = {
+    //         start: new Date('2025-10-01T00:00:00Z'),
+    //         end: new Date('2025-11-01T00:00:00Z')
+    //     };
     //     const resNews = await engine.runBackfill('src-news', range, {
-    //         company_name: 'twelve cupcakes',
+    //         company_name: 'lazada',
     //         news_site: 'straitstimes.com'
     //     });
     //     console.log(`News Google Search Result: ${resNews.recordsPulled} documents found (runId: ${resNews.runId})`);
@@ -102,14 +101,44 @@ async function test() {
     //     console.error('News Google Search Error:', e);
     // }
 
-    // console.log('Testing Reddit Sentiment (twelve cupcakes)...');
+    // console.log('Testing Reddit Sentiment (lazada)...');
     // try {
+    //     const range = {
+    //         start: new Date('2025-10-01T00:00:00Z'),
+    //         end: new Date('2025-11-01T00:00:00Z')
+    //     };
     //     const resReddit = await engine.runBackfill('src-reddit-sentiment', range, {
-    //         company_name: 'twelve cupcakes'
+    //         company_name: 'lazada'
     //     });
     //     console.log(`Reddit Sentiment Result: ${resReddit.recordsPulled} documents found (runId: ${resReddit.runId})`);
     // } catch (e) {
     //     console.error('Reddit Sentiment Error:', e);
+    // }
+
+    console.log('Testing Data.gov.sg (MOM)...');
+    try {
+        const resDataGov = await engine.runBackfill('src-data-gov-sg', {
+            start: new Date('2026-01-01T00:00:00Z'),
+            end: new Date('2026-02-01T00:00:00Z')
+        }, {
+            agency: 'NEA',
+        });
+        console.log(`Data.gov.sg Result: ${resDataGov.recordsPulled} documents found (runId: ${resDataGov.runId})`);
+    } catch (e) {
+        console.error('Data.gov.sg Error:', e);
+    }
+
+    // console.log('Testing Egazette (Singapore Airlines)...');
+    // try {
+    //     const resEgazette = await engine.runBackfill('src-egazette', {
+    //         start: new Date('2026-02-01T00:00:00Z'),
+    //         end: new Date('2026-03-01T00:00:00Z')
+    //     }, {
+    //         query: 'twelve cupcakes'
+    //     });
+    //     console.log(`Egazette Result: ${resEgazette.recordsPulled} documents found (runId: ${resEgazette.runId})`);
+    // } catch (e) {
+    //     console.error('Egazette Error:', e);
     // }
 }
 
