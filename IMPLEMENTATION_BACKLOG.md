@@ -1,417 +1,120 @@
-# NTUC EWS POC Implementation Backlog
+# NTUC EWS Implementation Backlog
 
-Priority order is optimized for a local-first POC with F&B + Tech and ~18 companies.
+This document outlines the phased implementation roadmap for the NTUC Retrenchment Early Warning System (EWS).
 
-## 1) Epics (Priority Order)
+---
 
-### Epic 0: Local Platform Bootstrap (P0)
-- Goal: reproducible local environment for all services.
-- Deliverables:
-  - Local runtime setup for SQLite (`.db` file) + local filesystem storage (`./data-lake`).
-  - Next.js app scaffold (`web-platform`).
-  - Worker service scaffold (`ingestion + scoring + brief scheduler`).
-  - Shared config (`.env.example`) and local run scripts.
-- Exit criteria:
-  - One command starts all local dependencies.
-  - Health checks pass for web + worker + DB + storage.
+## [Epic 0] Local Bootstrap
+**Goal**: Establish a reproducible local development and runtime environment.
+- [x] Next.js web platform scaffold (Epic 0 baseline).
+- [x] Worker service scaffold (SQLite + filesystem checks).
+- [x] Local bootstrap scripts (`setup`, `dev`, `health`).
+- [x] Health check endpoints and data-lake directory structure.
 
-### Epic 1: Core Data Model + Audit Foundations (P0)
-- Goal: establish schema for entities, ingestion, features, scores, configs, and audits.
-- Deliverables:
-  - SQL migrations for schema in Section 2.
-  - Seed data for roles, permissions, default thresholds/weights.
-  - Audit logging middleware/hooks for override/config/model/entity actions.
-- Exit criteria:
-  - DB migrations run cleanly from empty state.
-  - Audit rows are created for all controlled mutations.
+**Isolated Testing**:
+- Run `npm run health` to verify Next.js and worker process connectivity.
+- Verify `./data-lake/raw` creation on setup.
 
-### Epic 2: Ingestion Framework + Backdated News Ingestion (P0)
-- Goal: modular connectors with API-first, scrape-fallback and date-range backfill.
-- Deliverables:
-  - Connector interface (`pull(range, cursor)`).
-  - Source registry + reliability/category metadata.
-  - News connector(s) supporting historical date-range pulls.
-  - `data.gov.sg` connector using URL-parameter filtering with scrape retrieval for POC.
-  - Single source record for `data.gov.sg`: `src-data-gov-sg`.
-  - Agency filters for industry-wellbeing phase: `URA`, `SINGSTAT`, `MOM`.
-  - Format filters: `CSV`, `XLSX`, `PDF`.
-  - Exhaustive pagination with empty query text.
-  - Download and persist actual resources under agency-specific paths in `data-lake/raw`.
-  - Dedup by dataset/page URL + file URL and skip duplicates.
-  - Automated run behavior: daily 06:00 SGT with no `coverage` parameter.
-  - On-demand behavior: accept human date and convert to SGT end-of-day Unix `coverage`.
-  - Retry policy: 3 retries with backoff for file download failures.
-  - `layoffs.fyi` scrape connector for Airtable-backed content.
-  - Google Search scrape connector (`site:` + date filters) for News/Reddit/HardwareZone.
-  - Raw object persistence to local filesystem + ingestion metadata to DB.
-- Exit criteria:
-  - Backdated range ingestion works for selected sources.
-  - Date-filtered Google Search replay works for historical backtesting windows.
-  - `src-data-gov-sg` run can retrieve and store all matching resources across URA/SINGSTAT/MOM with replay metadata.
-  - Traceability: every raw object has ingestion metadata + source pointer.
+## [Epic 1] Core Data Model + Audit
+**Goal**: Build the persistence layer and security/accountability foundations.
+- [x] SQL migrations (SQLite) using `.sql` files and a custom script (`migrate.ts`) to track and apply structural/seed data changes.
+- [x] Audit trail infrastructure for logging all critical mutations.
+- [x] API hooks for overrides, config changes, and model recommendations.
+- [x] Initial role-based access control (Analyst, Officer, Admin).
 
-### Epic 3: Entity Resolution Service (P0)
-- Goal: UEN-level scoring inputs with brand roll-up and review queue.
-- Deliverables:
-  - Matching pipeline (exact, alias, fuzzy).
-  - Confidence scoring with auto-resolve threshold default `0.85`.
-  - Manual review queue for uncertain mappings.
-  - Mapping persistence and alias learning.
-- Exit criteria:
-  - Auto-resolve + manual review flow works end-to-end.
-  - Mapping actions are audited.
+**Isolated Testing**:
+- Manual API testing via `curl` to `POST /api/v1/overrides` and verifying `audit_log` entry in SQLite.
+- Run `npm run db:status` to verify migration version.
 
-### Epic 4: Signal Processing Engine (P0)
-- Goal: transform raw documents to standardized features with evidence pointers.
-- Deliverables:
-  - Parsing/cleaning pipeline by extractor type.
-  - Trend + event detection engines.
-  - Z-score normalization (industry 24m, company 12m baselines).
-  - Reliability and decay weighting prep.
-  - Feature/evidence writes.
-- Exit criteria:
-  - Features are generated for pilot companies/industries.
-  - Evidence pointers available for all generated signals.
+## [Epic 2] Ingestion Framework + Connectors
+**Goal**: Build the modular engine for retrieving data from diverse external sources.
+- [x] Source registry with reliability weights and categories.
+- [x] Modular connector pattern with `pull(range, cursor)` capability.
+- [x] `data.gov.sg` connector via Playwright (34 agencies, specific URL params).
+- [x] News, Reddit, and HardwareZone connectors via Playwright-based Google Search scraping (3 pages, month-by-month).
+- [x] `layoffs.fyi` tech-only connector via direct Airtable scraping.
+- [x] `eGazette` search-based connector for company-specific liquidation notices.
 
-### Epic 5: Risk Scoring Service (P0)
-- Goal: produce industry, company, and final gated scores with explanations and history.
-- Deliverables:
-  - Industry score (monthly), company signals score (weekly).
-  - Gated combination rule with configurable threshold/weight.
-  - Explanation object with ordered contributors + delta.
-  - Historical recompute jobs for backtesting.
-- Exit criteria:
-  - Weekly and monthly scoring runs pass for pilot scope.
-  - Historical replay produces visible score change timeline.
+**Isolated Testing**:
+- Use `POST /api/v1/ingestion/backfill/news` with short date range and verify local files in `data-lake/raw`.
+- Run `curl -s http://127.0.0.1:4000/api/v1/sources` to verify registry metadata.
 
-### Epic 6: Briefing + Alerting (P1)
-- Goal: daily 6:00 AM SGT brief + watchlist and stress clusters.
-- Deliverables:
-  - Brief generator job and storage.
-  - Sections: high-risk, stressed industries, major events, emerging watchlist.
-  - Industry stress cluster detection.
-- Exit criteria:
-  - Brief generated by 6:00 AM SGT in local scheduled runs.
+## [Epic 3] Entity Resolution Service
+**Goal**: Match messy external mentions to clean legal entities (UENs).
+- [x] Matching pipeline with exact, alias, and fuzzy strategies.
+- [x] UEN retrieval logic from `https://www.bizfile.gov.sg` entity search via `playwright`.
+- [x] Manual review queue for low-confidence mappings.
+- [x] Alias learning and persistence from manual analyst approvals.
 
-### Epic 7: Analyst/Officer Workflows (P1)
-- Goal: usable POC UI for review, override, settings, and on-demand analysis.
-- Deliverables:
-  - Industry dashboard (analyst).
-  - Company dashboard + evidence drill-down (officer).
-  - Admin debug page for one-company on-demand pipeline runs.
-  - Overrides UI with reason capture.
-  - Settings UI (weights, thresholds, decay, reliability).
-  - On-demand company analysis UI/API.
-- Exit criteria:
-  - Override and settings changes are role-gated and audited.
-  - On-demand request completes within POC SLO target (`<= 1 hour`).
+**Isolated Testing**:
+- Trigger `/api/v1/entity-resolution/resolve` for a specific run and check the `review-queue` API output.
+- Perform a manual approval and verify `alias` persistence in the `company_aliases` table.
 
-### Epic 10: Pipeline Run Modes (P0)
-- Goal: support deterministic execution for both debugging and production operations.
-- Deliverables:
-  - Run-mode controller with `debugging` and `production` modes.
-  - `debugging` mode flow: input company name -> entity resolution -> industry inference -> scoped ingestion -> scoring.
-  - `production` mode flow: configured industries -> industry ingestion -> company expansion -> scheduled scoring.
-  - Unified run trace and mode tag in ingestion/scoring metadata.
-- Exit criteria:
-  - Both run modes execute end-to-end and produce explainable score outputs.
-  - Mode-specific runs are auditable and reproducible.
+## [Epic 4] Signal Processing Engine
+**Goal**: Convert raw text/data into standardized signals and features.
+- [ ] Extraction logic for trend detection (gradual) and event detection (sudden).
+- [ ] Sentiment analysis engine for forum/news content.
+- [ ] Cleaning, parsing, and normalization (Z-score) of raw signals.
+- [ ] Category-aware feature preparation for the scoring service.
 
-### Epic 8: Model Recommendation Loop (P2)
-- Goal: monthly recommendation outputs based on outcomes + override patterns.
-- Deliverables:
-  - Recommendation job for weight updates.
-  - Approval workflow by role boundary (industry=analyst, company=officer).
-  - Versioned recommendation records.
-- Exit criteria:
-  - Recommendations generated and can be approved/rejected with audit.
+**Isolated Testing**:
+- Unit test extraction logic with mock HTML/JSON payloads.
+- Verify feature generation for a single UEN without running the full ingestion pipeline.
 
-### Epic 9: Validation, Backtesting, and Acceptance Gate (P1)
-- Goal: prove POC acceptance criteria on 18-company backtest.
-- Deliverables:
-  - Backtest runner over selected date ranges.
-  - Metrics report: recall/precision, lead-time, SLO, traceability.
-  - QA checklist for explainability completeness.
-- Exit criteria:
-  - Meets approved acceptance criteria in AGENTS baseline.
+## [Epic 5] Feature Store
+**Goal**: Centralized storage for features and their evidence trails.
+- [ ] Standardized feature persistence (value, timestamp, confidence).
+- [ ] Evidence pointer storage linking scores back to original raw documents.
+- [ ] API for scoring service to efficiently retrieve historical feature snapshots.
 
-## 2) Database Schema (Local SQLite `.db`)
+**Isolated Testing**:
+- Query feature store APIs for a specific UEN and date to verify data integrity and evidence pointers.
 
-```sql
--- Roles and users
-create table app_user (
-  id text primary key,
-  email text unique not null,
-  role text not null check (role in ('analyst','officer','admin')),
-  created_at text not null default current_timestamp
-);
+## [Epic 6] Risk Scoring Service
+**Goal**: Implement the core early warning math and combination logic.
+- [ ] Industry Risk Score calculation (monthly).
+- [ ] Company Signals Score calculation (weekly).
+- [ ] Gated combination logic (Industry stress impacting Company scores).
+- [ ] Delta calculation (score changes since previous assessment).
 
--- Company and industry master
-create table industry (
-  id text primary key,
-  code text unique not null,
-  name text not null
-);
+**Isolated Testing**:
+- Run scoring logic on a fixed set of features in the feature store and verify against expected score (Excel baseline).
 
-create table company (
-  id text primary key,
-  uen text unique not null,
-  registered_name text not null,
-  industry_id text references industry(id),
-  is_active boolean not null default true,
-  created_at text not null default current_timestamp
-);
+## [Epic 7] Briefing + Alerting
+**Goal**: Deliver actionable insights to users.
+- [x] Daily morning brief generation (06:00 SGT).
+- [x] High-risk detections, industry clusters, and major event summaries.
+- [x] Emerging risk watchlist (rapidly rising scores below alert threshold).
+- [ ] Notification delivery (Email/In-app).
 
-create table brand (
-  id text primary key,
-  name text unique not null
-);
+**Isolated Testing**:
+- Trigger `POST /api/v1/briefs/generate` for a past date and verify the JSON payload in the `morning_brief` table.
 
-create table brand_company (
-  brand_id text references brand(id),
-  company_id text references company(id),
-  primary key (brand_id, company_id)
-);
+## [Epic 8] Web Platform & Dashboards
+**Goal**: Provide a premium user interface for analysts and officers.
+- [ ] Industry Dashboard for Analysts (sector-wide stress).
+- [ ] Company Dashboard for Officers (specific case deep-dives).
+- [ ] On-demand Search & Analysis tool (immediate ingestion + scoring).
+- [ ] Evidence viewer showing signal context and grounding sources.
 
-create table company_alias (
-  id text primary key,
-  company_id text references company(id),
-  alias text not null,
-  source text not null,
-  unique(company_id, alias)
-);
+**Isolated Testing**:
+- Component-level tests for dashboards using mock API data.
+- Verify on-demand report generation UI with a test company.
 
--- Source registry
-create table data_source (
-  id text primary key,
-  name text unique not null,
-  source_type text not null, -- gov/news/forum/internal
-  access_mode text not null, -- api/scrape/file
-  reliability_weight numeric(5,4) not null default 0.7000,
-  is_active boolean not null default true,
-  supports_backfill boolean not null default false
-);
+## [Epic 9] Configuration & Administrative Interface
+**Goal**: Empower users to tune the system.
+- [ ] Settings UI for adjusting category/source weights and time decay.
+- [ ] Threshold management (gating, alerts, emerging risk).
+- [ ] Operational monitoring for connectors and worker queues.
 
--- Raw ingestion metadata + object pointer
-create table ingestion_run (
-  id text primary key,
-  source_id text references data_source(id),
-  run_type text not null, -- scheduled/event/on_demand/backfill
-  run_mode text not null default 'production', -- production/debugging
-  range_start text,
-  range_end text,
-  status text not null, -- running/success/failed
-  started_at text not null default current_timestamp,
-  ended_at text
-);
+**Isolated Testing**:
+- Verify that updating a weight in the UI immediately reflects in subsequent API calls to `POST /api/v1/config`.
 
-create table raw_document (
-  id text primary key,
-  ingestion_run_id text references ingestion_run(id),
-  source_id text references data_source(id),
-  external_id text,
-  published_at text,
-  fetched_at text not null default current_timestamp,
-  title text,
-  url text,
-  retrieval_query text,
-  retrieval_filters text, -- JSON string: site/date params/url params
-  object_key text not null, -- local file path key (e.g., data-lake/raw/...)
-  content_hash text not null,
-  pii_masked boolean not null default false
-);
+## [Epic 10] Model Training & AI Feedback
+**Goal**: Periodically improve the system based on outcomes and human feedback.
+- [ ] Automated log analysis for override patterns.
+- [ ] AI-driven recommendation engine for suggested weight adjustments.
+- [ ] Training pipeline for periodic (monthly) model improvement.
 
--- Entity resolution
-create table entity_resolution (
-  id text primary key,
-  raw_document_id text references raw_document(id),
-  matched_company_id text references company(id),
-  confidence numeric(5,4) not null,
-  method text not null, -- exact/alias/fuzzy/manual
-  status text not null, -- auto_resolved/review_required/approved/rejected
-  reviewed_by text references app_user(id),
-  reviewed_at text
-);
-
--- Signals/features/evidence
-create table signal (
-  id text primary key,
-  company_id text references company(id),
-  industry_id text references industry(id),
-  source_id text references data_source(id),
-  signal_type text not null, -- trend/event
-  category text not null,
-  signal_ts text not null,
-  raw_value numeric,
-  z_value numeric,
-  reliability_weight numeric(5,4),
-  decay_weight numeric(5,4),
-  weighted_value numeric,
-  confidence numeric(5,4)
-);
-
-create table evidence_pointer (
-  id text primary key,
-  signal_id text references signal(id),
-  raw_document_id text references raw_document(id),
-  snippet text,
-  pointer_url text
-);
-
--- Scores and explanations
-create table score_snapshot (
-  id text primary key,
-  company_id text references company(id),
-  industry_id text references industry(id),
-  score_type text not null, -- industry/company/final
-  period_type text not null, -- weekly/monthly
-  score_date date not null,
-  score_value numeric(5,2) not null check (score_value between 0 and 100),
-  details text not null default '{}', -- JSON string: breakdown, gate state
-  created_at text not null default current_timestamp,
-  unique(company_id, industry_id, score_type, score_date)
-);
-
-create table score_explanation (
-  id text primary key,
-  score_snapshot_id text references score_snapshot(id),
-  ordered_contributions text not null, -- JSON string
-  delta_summary text not null -- JSON string
-);
-
--- Overrides and approvals
-create table score_override (
-  id text primary key,
-  score_snapshot_id text references score_snapshot(id),
-  original_score numeric(5,2) not null,
-  overridden_score numeric(5,2) not null,
-  reason text not null,
-  scope text not null, -- industry/company
-  created_by text references app_user(id),
-  created_at text not null default current_timestamp
-);
-
-create table config_item (
-  key text primary key,
-  value text not null, -- JSON string
-  scope text not null, -- industry/company/global
-  updated_by text references app_user(id),
-  updated_at text not null default current_timestamp
-);
-
-create table model_recommendation (
-  id text primary key,
-  scope text not null, -- industry/company
-  recommendation text not null, -- JSON string
-  status text not null, -- pending/approved/rejected
-  created_at text not null default current_timestamp,
-  decided_by text references app_user(id),
-  decided_at text
-);
-
--- Briefs
-create table morning_brief (
-  id text primary key,
-  brief_date date unique not null,
-  generated_at text not null default current_timestamp,
-  payload text not null -- JSON string
-);
-
--- Global audit log
-create table audit_log (
-  id text primary key,
-  actor_user_id text references app_user(id),
-  action text not null,
-  entity_type text not null,
-  entity_id text not null,
-  before_state text, -- JSON string
-  after_state text, -- JSON string
-  created_at text not null default current_timestamp
-);
-```
-
-## 3) API Contracts (v1)
-
-Base path: `/api/v1`
-
-### Auth + RBAC
-1. `GET /me`
-- Response: `{ id, email, role }`
-
-### Source + Ingestion
-1. `GET /sources`
-2. `POST /sources`
-- Body: `{ name, sourceType, accessMode, reliabilityWeight, supportsBackfill }`
-3. `POST /ingestion/runs`
-- Body: `{ sourceId, runType, runMode?, rangeStart?, rangeEnd?, filters? }`
-4. `POST /ingestion/backfill/news`
-- Body: `{ sourceId, rangeStart, rangeEnd, filters? }`
-5. `GET /ingestion/runs/:id`
-6. `POST /debug/company-run`
-- Body: `{ companyName, asOfDate?, sourceFilters? }`
-- Behavior: resolve company -> infer industry -> run scoped ingestion + scoring in `debugging` mode
-
-### Entity Resolution
-1. `GET /entity-resolution/review-queue?limit=&offset=`
-2. `POST /entity-resolution/:id/approve`
-- Body: `{ companyId }`
-3. `POST /entity-resolution/:id/reject`
-- Body: `{ reason }`
-4. `GET /companies/:id/aliases`
-5. `POST /companies/:id/aliases`
-
-### Signal Processing + Feature Access
-1. `POST /signals/process`
-- Body: `{ ingestionRunId }`
-2. `GET /companies/:id/signals?start=&end=&category=&type=`
-3. `GET /industries/:id/signals?start=&end=`
-
-### Scoring
-1. `POST /scoring/run/company-weekly`
-- Body: `{ weekStart?, companyIds? }`
-2. `POST /scoring/run/industry-monthly`
-- Body: `{ month?, industryIds? }`
-3. `POST /scoring/recompute`
-- Body: `{ startDate, endDate, companyIds?, industryIds? }`
-4. `GET /companies/:id/scores?start=&end=&type=`
-5. `GET /industries/:id/scores?start=&end=`
-6. `GET /scores/:scoreSnapshotId/explanation`
-
-### Overrides + Config
-1. `POST /scores/:scoreSnapshotId/override`
-- Body: `{ overriddenScore, reason }`
-- RBAC: industry score -> analyst, company score -> officer
-2. `GET /config`
-3. `PUT /config/:key`
-- Body: `{ value }`
-- RBAC: industry config -> analyst, company config -> officer
-
-### Briefing + Alerts
-1. `POST /briefs/generate`
-- Body: `{ briefDate? }`
-2. `GET /briefs/:date`
-3. `GET /alerts/high-risk?date=`
-4. `GET /alerts/watchlist?date=`
-5. `GET /alerts/industry-clusters?date=`
-
-### On-demand Analysis
-1. `POST /analysis/on-demand`
-- Body: `{ companyId | query }`
-- Behavior: trigger ingest + process + score; async completion allowed.
-2. `GET /analysis/on-demand/:jobId`
-- Response includes status and final report pointer.
-
-### Model Recommendations
-1. `POST /model/recommendations/run`
-2. `GET /model/recommendations?scope=&status=`
-3. `POST /model/recommendations/:id/approve`
-4. `POST /model/recommendations/:id/reject`
-
-## 4) Suggested Milestones
-
-1. M1 (Week 1): Epic 0 + Epic 1 complete.
-2. M2 (Week 2): Epic 2 + Epic 3 complete (with backdated ingestion).
-3. M3 (Week 3): Epic 4 + Epic 5 complete (weekly/monthly scoring + explanations).
-4. M4 (Week 4): Epic 6 + Epic 7 complete (brief + UI + overrides/settings).
-5. M5 (Week 5): Epic 9 complete (backtest report against acceptance criteria).
-6. M6 (Week 6): Epic 8 complete (recommendation loop + approvals).
+**Isolated Testing**:
+- Run recommendation engine on a dump of `audit_log` overrides and verify suggested weight changes.

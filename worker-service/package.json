@@ -1,19 +1,38 @@
 {
   "name": "worker-service",
-  "version": "0.1.0",
-  "private": true,
-  "type": "module",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.ts",
   "scripts": {
-    "db:init": "tsx src/db/init.ts",
-    "db:status": "tsx src/db/status.ts",
-    "dev": "tsx src/index.ts",
-    "start": "tsx src/index.ts",
-    "typecheck": "tsc --noEmit"
+    "start": "tsx index.ts",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "db:init": "tsx migrate.ts",
+    "db:status": "sqlite3 ../dev.db 'SELECT * FROM migrations;' || echo \"Migrations table not found.\""
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "dependencies": {
+    "axios": "1.13.6",
+    "cheerio": "1.2.0",
+    "dotenv": "16.4.7",
+    "express": "4.22.1",
+    "playwright": "1.58.2",
+    "sqlite": "5.1.1",
+    "sqlite3": "5.1.7"
+  },
+  "overrides": {
+    "tar": "7.5.10",
+    "qs": "6.15.0",
+    "@tootallnate/once": "3.0.1"
   },
   "devDependencies": {
-    "@types/node": "^24.5.2",
-    "playwright": "^1.54.2",
-    "tsx": "^4.20.5",
-    "typescript": "^5.9.2"
+    "@types/cheerio": "0.22.35",
+    "@types/express": "5.0.6",
+    "@types/node": "25.3.5",
+    "@types/sqlite3": "3.1.11",
+    "tsx": "4.21.0",
+    "typescript": "5.9.3"
   }
 }

@@ -225,7 +225,7 @@ Example queues:
 ### Dedicated Entity Resolution Service (YES)
 Must handle:
 - Different operating names vs ACRA registered names (e.g., “McDonald’s” vs “Hanbaobao” in ACRA)
-- Multiple legal entities (multiple UENs) per brand/group
+- Multiple legal entities (multiple UENs) per brand/group (UEN retrieved from `https://www.bizfile.gov.sg` entity search by company name)
 
 ### Scoring granularity (BOTH)
 - Compute scores at **UEN (legal entity)** level
@@ -360,9 +360,12 @@ All changes must be auditable (audit log).
 - Fall back to **web scraping** when API is unavailable.
 - If public data is insufficient, ingest **NTUC-provided internal sources** via modular connectors.
 - News connectors must support **backdated ingestion** (historical pulls by date range) for backtesting and time-series score replay.
-- `data.gov.sg` retrieval is implemented via URL-parameter-filtered requests and web scraping in this POC.
-- `layoffs.fyi` retrieval is implemented via web scraping of Airtable-backed pages.
-- News, Reddit, and HardwareZone retrieval supports web scraping through Google Search using `site:` and date filters.
+- `data.gov.sg` retrieval is implemented via `playwright` web scraping with URL-parameter-filtered requests.
+- ACRA BizFile UEN retrieval is implemented via `playwright` web scraping at `https://www.bizfile.gov.sg` using company-name entity search.
+- `layoffs.fyi` retrieval is implemented via web scraping for **tech layoffs only** (direct Airtable source: `https://airtable.com/app1PaujS9zxVGUZ4/shroKsHx3SdYYOzeh/tblleV7Pnb6AcPCYL?viewControls=on`).
+- News, Reddit, and HardwareZone retrieval supports web scraping via `playwright` through Google Search using `site:`, `from:`, and `to:` filters with company name.
+- For News, Reddit, and HardwareZone, at least the first 3 pages of results are scraped, and data is retrieved month-by-month.
+- `eGazette` retrieval is implemented via search at `https://www.egazette.gov.sg/egazette-search` using the `q` parameter (e.g., `q=twelve%2520cupcakes`) for company-specific documents.
 - Date-filtered Google Search retrieval is required for historical backtesting and weight-setting fine-tuning.
 
 ### Ground truth & lead-time labels
@@ -414,7 +417,7 @@ All changes must be auditable (audit log).
 - Run **locally** for POC.
 - Core stack: **Next.js + local services**.
 - Local data stack for day 1:
-  - SQLite local database file (`.db`)
+  - SQLite local database file (`.db`) stored within the project directory. **Crucial:** All database schema changes and initial seed data must be driven through `.sql` migration files in the `worker-service/migrations` directory, using the custom `migrate.ts` runner. Do not modify the database schema directly.
   - Local filesystem storage for raw/evidence data (e.g., `./data-lake/raw`)
   - Local worker/scheduler process for ingestion, scoring, and brief generation
 - No requirement for self-contained executable packaging in POC.

@@ -112,7 +112,7 @@ These indicate deterioration or sudden shocks at specific companies.
 | Retrenchment/event mentions and negative business events | Immediate adverse events or retrenchment-related signals | Public news outlets and press releases; government notices/public records where available |
 | Company sentiment and reputation deterioration | Declining public sentiment and complaints | Reddit Singapore communities; HardwareZone forums; public review platforms/maps (where legal and available) |
 | Hiring contraction / operational slowdown indicators | Reduced hiring demand and possible business slowdown | Changes in company job posting activity; publicly visible hiring signals and related announcements |
-| Registry/compliance and corporate activity signals | Structural/legal signals tied to company health | ACRA-related public filings/registry information; eGazette and similar official publication channels |
+| Registry/compliance and corporate activity signals | Structural/legal signals tied to company health | ACRA-related public filings/registry information (UEN retrieved from `https://www.bizfile.gov.sg` entity search by company name); eGazette (searchable at `https://www.egazette.gov.sg/egazette-search` using `q` parameter) |
 | Rapid risk change ("emerging risk") signals | Fast week-on-week deterioration even below high-risk threshold | Internal score movement over recent weeks (delta-based detection) |
 
 #### C) Signal quality controls applied to both levels
@@ -163,21 +163,25 @@ flowchart TD
 ### 7) Data and privacy approach
 Data collection will use:
 - public APIs first,
-- web scraping only when APIs are unavailable,
+- web scraping with `playwright` only when APIs are unavailable,
 - and NTUC-provided data where needed.
 
 For testing and backtesting, news sources can be ingested historically (backdated).
 
 POC source retrieval specifics:
-- `data.gov.sg`: retrieved via URL parameter filters and web scraping.
-- `layoffs.fyi`: retrieved via web scraping (Airtable-backed pages).
-- News, Reddit, and HardwareZone: retrieved via Google Search scraping with `site:` and date filters.
+- `data.gov.sg`: retrieved via URL parameter filters and web scraping with `playwright`.
+- `layoffs.fyi`: retrieved via web scraping for **tech layoffs only** (direct Airtable source: `https://airtable.com/app1PaujS9zxVGUZ4/shroKsHx3SdYYOzeh/tblleV7Pnb6AcPCYL?viewControls=on`).
+- News, Reddit, and HardwareZone: retrieved via Google Search scraping with `playwright` using `site:`, `from:`, and `to:` filters with company name. At least the first 3 pages of results are scraped, and data is retrieved month-by-month.
 - Date-filtered Google Search retrieval is required for backtesting and weight-setting fine-tuning.
 
 ### 7.1) data.gov.sg ingestion baseline (industry-wellbeing first)
 - Use a single source registry record: `src-data-gov-sg`.
-- Retrieve only from agencies: `URA`, `SINGSTAT`, `MOM`.
-- Retrieve only formats: `CSV`, `XLSX`, `PDF`.
+- Supported agencies (separated by `|`): `URA|SINGSTAT|MOM|SSG|WSG|STB|SLA|CUSTOMS|OGP|NPARKS|NHB|MAS|MOT|MSF|MLAW|MFA|MOF|MPA|STATECOURTS|IMDA|IRAS|ICA|HLB|NEA|A*STAR|CPF|CAAS|CCCS|EDB|ENTERPRISESG|GovTech|HSA|HPB`.
+- Retrieve only formats: `CSV|XLSX|PDF`.
+- URL parameters:
+  - `formats=CSV|XLSX|PDF`
+  - `coverage`: e.g., `1767196800|1772294399` for JAN 2026 to FEB 2026. `from` can be left blank to get all data up till the `to` date. If `coverage` is empty, all reports are retrieved.
+  - `agencies`: e.g., `agencies=MOM`.
 - Keep query text empty and exhaust all result pages.
 - Download and store actual files (not metadata only).
 - Store raw files under agency-specific folders in data lake:
@@ -209,7 +213,7 @@ Scope:
 
 Execution approach:
 - run everything locally,
-- use a local SQLite `.db` database and local services,
+- use a local SQLite `.db` database stored within the project directory and local services,
 - focus on proving value and workflow before scaling.
 
 ### 9) How success will be measured
@@ -382,6 +386,7 @@ curl -s http://127.0.0.1:4000/api/v1/briefs/2026-03-06
 ### Prerequisites
 - Node.js 22+
 - npm 10+
+- **Dependency Management:** When adding new packages, always pin exact versions (do not use `^` or `~`). This prevents vulnerability regressions from unpinned upgrades.
 
 ### Run
 ```bash

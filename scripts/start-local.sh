@@ -1,39 +1,22 @@
-#!/usr/bin/env bash
-set -euo pipefail
+#!/bin/bash
 
-ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-cd "$ROOT_DIR"
+echo "Starting NTUC EWS services..."
 
-if [ -f .env ]; then
-  set -a
-  # shellcheck disable=SC1091
-  source .env
-  set +a
-fi
-
-mkdir -p "${DATA_LAKE_RAW_PATH:-./data-lake/raw}" "${DATA_LAKE_ARCHIVE_PATH:-./data-lake/archive}" ./data
-DB_PATH="${SQLITE_DB_PATH:-./data/ntuc-ews.db}"
-mkdir -p "$(dirname "$DB_PATH")"
-if [ ! -f "$DB_PATH" ]; then
-  touch "$DB_PATH"
-fi
-
-if [ ! -d node_modules ]; then
-  echo "Dependencies are not installed. Run: npm install"
-  exit 1
-fi
-
-cleanup() {
-  kill "$WEB_PID" "$WORKER_PID" 2>/dev/null || true
-  bash ./scripts/stop-local.sh >/dev/null 2>&1 || true
-}
-
-trap cleanup EXIT INT TERM
-
-npm run dev:web &
-WEB_PID=$!
-
-npm run dev:worker &
+# Start worker service
+cd worker-service
+npm start &
 WORKER_PID=$!
+cd ..
 
-wait "$WEB_PID" "$WORKER_PID"
+# Start web platform
+cd web-platform
+npm run dev &
+WEB_PID=$!
+cd ..
+
+echo "Services started (Worker PID: $WORKER_PID, Web PID: $WEB_PID)"
+echo "Press Ctrl+C to stop all services."
+
+# Handle shutdown
+trap "kill $WORKER_PID $WEB_PID; exit" INT TERM
+wait

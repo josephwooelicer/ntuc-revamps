@@ -1,0 +1,507 @@
+{
+  "code": 0,
+  "data": {
+    "datasetId": "d_8575e84912df3c28995b8e6e0e05205a",
+    "createdAt": "2019-07-17T11:16:47+08:00",
+    "name": "ACRA Information on Corporate Entities ('A')",
+    "collectionIds": [
+      "2"
+    ],
+    "description": "This file contains information on corporate entities that begin with the letter \"A\".",
+    "format": "CSV",
+    "lastUpdatedAt": "2026-02-12T14:53:36+08:00",
+    "managedBy": "Accounting and Corporate Regulatory Authority",
+    "coverageStart": "1970-01-01T08:00:00+08:00",
+    "coverageEnd": "2026-02-12T14:53:43+08:00",
+    "contactEmails": [
+      "shameem_mustaffa@acra.gov.sg"
+    ],
+    "datasetSize": 55988843,
+    "columnMetadata": {
+      "order": [
+        "c_9mq44gt9ckibwdmuh6nkr7n7i",
+        "c_88dni8ad6md243d7mr60zbcs",
+        "c_33lztesmwyy6ej9h4ctcmooag",
+        "c_c8o80q97jn49qxgy03yjapa7q",
+        "c_cykxwzc76zhtlt0ghel8w88hl",
+        "c_6vcfx4isg2bii8bwaq4cr0h5x",
+        "c_eb092abtf4a60mi41gtjlgovq",
+        "c_2r9nrqfusku9gw2kru6srfuwu",
+        "c_dn4m5m5c6pdgdh0fmr1jqw5cc",
+        "c_g3krkl48jmb6r1lcgky2fvx4",
+        "c_648jqnohwsg61t6krshufcmuq",
+        "c_2gunxw9ttf8lq08fag5syrmxt",
+        "c_65ls99emmxn785qvspcltyjp3",
+        "c_837hpt4x3dd32y8oqhokjscge",
+        "c_aslpoexwbmbgrjcu8lwcsjgr6",
+        "c_7tul1htbwszf28x8jhzp2ealb",
+        "c_5rwbpfre2ylhuuzvssso4hz62",
+        "c_4km13mfiep837b82e81kixpqs",
+        "c_7x2xyhofvch4e6bcz0nset0g4",
+        "c_ar1ydacm2e7xeu3mw3w0ie73v",
+        "c_24soulmmorem2g30p945qbqux",
+        "c_ew649a394l0nz78nisfzgx09p",
+        "c_56g6txjwgrfwak41myigmd9xk",
+        "c_c0om3z966xu573htu73tu8ktp",
+        "c_83f1dfl6btmr96xuxbi3wsv3u",
+        "c_ac4hrhqidp97agtts92e5m8f9",
+        "c_f4y55la6wmva914o2qbuwznu7",
+        "c_88o0ue96iwj4m19kme5uc27jr",
+        "c_9tf72e1sjep0un6mv071f573",
+        "c_al6ht5wbwmg4auu6dnzb1tp8b",
+        "c_147thudzhmx4q2s4uxgbfhhjc",
+        "c_1uakxe1mnbdy8gp8voig4n7zt",
+        "c_7tkxw4sw83c53o0yhnsk2bkk2",
+        "c_55rl4787wem11pi8ce3cu9sr4",
+        "c_2fpx5uworfq7adehb666rpi1",
+        "c_e97r8g5b6pnnzsp5cngifwq62",
+        "c_bj2w6ttmgejhy4n2h61w40u4n",
+        "c_3il1cmr8gcfi7iwh82v6mtdea",
+        "c_9ip89xk37lc9bctz8lk5k4cn4",
+        "c_3qukn4qmrsm1q9ygbw3lfxq12",
+        "c_ba6ois1ev4a1c1wqqxmc18dr3",
+        "c_7jhhati7dgr5n04yvsvwhg50o",
+        "c_bcnbjoz6c285tsrd0js4nrcme",
+        "c_d3hvu1bwlix1ju43uetxg6maq",
+        "c_cgx1hxpmu88gvmcgcxhlshkr6",
+        "c_58g9320pe50p29k5682xpg46o",
+        "c_43jeoejaoshldz7a79zl4q8do",
+        "c_cvkk70skodj0pl38pjpg8f2me",
+        "c_mia5hblbb0sm78d6gxnf8vak",
+        "c_egrbi8cncd1bl5w4xw6r6r5zx",
+        "c_23wgiimgk016qpmeul8jebv9x",
+        "c_co40wuh244k5hsv052r1kkfwc",
+        "c_4kvmise0fy294g3d38s6vfj7r"
+      ],
+      "map": {
+        "c_9mq44gt9ckibwdmuh6nkr7n7i": "uen",
+        "c_88dni8ad6md243d7mr60zbcs": "issuance_agency_id",
+        "c_33lztesmwyy6ej9h4ctcmooag": "entity_name",
+        "c_c8o80q97jn49qxgy03yjapa7q": "entity_type_description",
+        "c_cykxwzc76zhtlt0ghel8w88hl": "business_constitution_description",
+        "c_6vcfx4isg2bii8bwaq4cr0h5x": "company_type_description",
+        "c_eb092abtf4a60mi41gtjlgovq": "paf_constitution_description",
+        "c_2r9nrqfusku9gw2kru6srfuwu": "entity_status_description",
+        "c_dn4m5m5c6pdgdh0fmr1jqw5cc": "registration_incorporation_date",
+        "c_g3krkl48jmb6r1lcgky2fvx4": "uen_issue_date",
+        "c_648jqnohwsg61t6krshufcmuq": "address_type",
+        "c_2gunxw9ttf8lq08fag5syrmxt": "block",
+        "c_65ls99emmxn785qvspcltyjp3": "street_name",
+        "c_837hpt4x3dd32y8oqhokjscge": "level_no",
+        "c_aslpoexwbmbgrjcu8lwcsjgr6": "unit_no",
+        "c_7tul1htbwszf28x8jhzp2ealb": "building_name",
+        "c_5rwbpfre2ylhuuzvssso4hz62": "postal_code",
+        "c_4km13mfiep837b82e81kixpqs": "other_address_line1",
+        "c_7x2xyhofvch4e6bcz0nset0g4": "other_address_line2",
+        "c_ar1ydacm2e7xeu3mw3w0ie73v": "account_due_date",
+        "c_24soulmmorem2g30p945qbqux": "annual_return_date",
+        "c_ew649a394l0nz78nisfzgx09p": "primary_ssic_code",
+        "c_56g6txjwgrfwak41myigmd9xk": "primary_ssic_description",
+        "c_c0om3z966xu573htu73tu8ktp": "primary_user_described_activity",
+        "c_83f1dfl6btmr96xuxbi3wsv3u": "secondary_ssic_code",
+        "c_ac4hrhqidp97agtts92e5m8f9": "secondary_ssic_description",
+        "c_f4y55la6wmva914o2qbuwznu7": "secondary_user_described_activity",
+        "c_88o0ue96iwj4m19kme5uc27jr": "no_of_officers",
+        "c_9tf72e1sjep0un6mv071f573": "former_entity_name1",
+        "c_al6ht5wbwmg4auu6dnzb1tp8b": "former_entity_name2",
+        "c_147thudzhmx4q2s4uxgbfhhjc": "former_entity_name3",
+        "c_1uakxe1mnbdy8gp8voig4n7zt": "former_entity_name4",
+        "c_7tkxw4sw83c53o0yhnsk2bkk2": "former_entity_name5",
+        "c_55rl4787wem11pi8ce3cu9sr4": "former_entity_name6",
+        "c_2fpx5uworfq7adehb666rpi1": "former_entity_name7",
+        "c_e97r8g5b6pnnzsp5cngifwq62": "former_entity_name8",
+        "c_bj2w6ttmgejhy4n2h61w40u4n": "former_entity_name9",
+        "c_3il1cmr8gcfi7iwh82v6mtdea": "former_entity_name10",
+        "c_9ip89xk37lc9bctz8lk5k4cn4": "former_entity_name11",
+        "c_3qukn4qmrsm1q9ygbw3lfxq12": "former_entity_name12",
+        "c_ba6ois1ev4a1c1wqqxmc18dr3": "former_entity_name13",
+        "c_7jhhati7dgr5n04yvsvwhg50o": "former_entity_name14",
+        "c_bcnbjoz6c285tsrd0js4nrcme": "former_entity_name15",
+        "c_d3hvu1bwlix1ju43uetxg6maq": "uen_of_audit_firm1",
+        "c_cgx1hxpmu88gvmcgcxhlshkr6": "name_of_audit_firm1",
+        "c_58g9320pe50p29k5682xpg46o": "uen_of_audit_firm2",
+        "c_43jeoejaoshldz7a79zl4q8do": "name_of_audit_firm2",
+        "c_cvkk70skodj0pl38pjpg8f2me": "uen_of_audit_firm3",
+        "c_mia5hblbb0sm78d6gxnf8vak": "name_of_audit_firm3",
+        "c_egrbi8cncd1bl5w4xw6r6r5zx": "uen_of_audit_firm4",
+        "c_23wgiimgk016qpmeul8jebv9x": "name_of_audit_firm4",
+        "c_co40wuh244k5hsv052r1kkfwc": "uen_of_audit_firm5",
+        "c_4kvmise0fy294g3d38s6vfj7r": "name_of_audit_firm5"
+      },
+      "metaMapping": {
+        "c_9mq44gt9ckibwdmuh6nkr7n7i": {
+          "name": "uen",
+          "columnTitle": "Uen",
+          "dataType": "Text (UEN)",
+          "index": "0",
+          "isCategorical": false
+        },
+        "c_88dni8ad6md243d7mr60zbcs": {
+          "name": "issuance_agency_id",
+          "columnTitle": "Issuance Agency Id",
+          "dataType": "Text",
+          "index": "1",
+          "isCategorical": true
+        },
+        "c_33lztesmwyy6ej9h4ctcmooag": {
+          "name": "entity_name",
+          "columnTitle": "Entity Name",
+          "dataType": "Text",
+          "index": "2",
+          "isCategorical": false
+        },
+        "c_c8o80q97jn49qxgy03yjapa7q": {
+          "name": "entity_type_description",
+          "columnTitle": "Entity Type Description",
+          "dataType": "Text",
+          "index": "3",
+          "isCategorical": true
+        },
+        "c_cykxwzc76zhtlt0ghel8w88hl": {
+          "name": "business_constitution_description",
+          "columnTitle": "Business Constitution Description",
+          "dataType": "Text",
+          "index": "4",
+          "isCategorical": true
+        },
+        "c_6vcfx4isg2bii8bwaq4cr0h5x": {
+          "name": "company_type_description",
+          "columnTitle": "Company Type Description",
+          "dataType": "Text",
+          "index": "5",
+          "isCategorical": true
+        },
+        "c_eb092abtf4a60mi41gtjlgovq": {
+          "name": "paf_constitution_description",
+          "columnTitle": "Paf Constitution Description",
+          "dataType": "Text",
+          "index": "6",
+          "isCategorical": false
+        },
+        "c_2r9nrqfusku9gw2kru6srfuwu": {
+          "name": "entity_status_description",
+          "columnTitle": "Entity Status Description",
+          "dataType": "Text",
+          "index": "7",
+          "isCategorical": true
+        },
+        "c_dn4m5m5c6pdgdh0fmr1jqw5cc": {
+          "name": "registration_incorporation_date",
+          "columnTitle": "Registration Incorporation Date",
+          "dataType": "Date (YYYY-MM-DD)",
+          "index": "8",
+          "isCategorical": false
+        },
+        "c_g3krkl48jmb6r1lcgky2fvx4": {
+          "name": "uen_issue_date",
+          "columnTitle": "Uen Issue Date",
+          "dataType": "Date (YYYY-MM-DD)",
+          "index": "9",
+          "isCategorical": false
+        },
+        "c_648jqnohwsg61t6krshufcmuq": {
+          "name": "address_type",
+          "columnTitle": "Address Type",
+          "dataType": "Text",
+          "index": "10",
+          "isCategorical": true
+        },
+        "c_2gunxw9ttf8lq08fag5syrmxt": {
+          "name": "block",
+          "columnTitle": "Block",
+          "dataType": "Text",
+          "index": "11",
+          "isCategorical": true
+        },
+        "c_65ls99emmxn785qvspcltyjp3": {
+          "name": "street_name",
+          "columnTitle": "Street Name",
+          "dataType": "Text",
+          "index": "12",
+          "isCategorical": true
+        },
+        "c_837hpt4x3dd32y8oqhokjscge": {
+          "name": "level_no",
+          "columnTitle": "Level No",
+          "dataType": "Text",
+          "index": "13",
+          "isCategorical": true
+        },
+        "c_aslpoexwbmbgrjcu8lwcsjgr6": {
+          "name": "unit_no",
+          "columnTitle": "Unit No",
+          "dataType": "Text",
+          "index": "14",
+          "isCategorical": true
+        },
+        "c_7tul1htbwszf28x8jhzp2ealb": {
+          "name": "building_name",
+          "columnTitle": "Building Name",
+          "dataType": "Text",
+          "index": "15",
+          "isCategorical": true
+        },
+        "c_5rwbpfre2ylhuuzvssso4hz62": {
+          "name": "postal_code",
+          "columnTitle": "Postal Code",
+          "dataType": "Text",
+          "index": "16",
+          "isCategorical": true
+        },
+        "c_4km13mfiep837b82e81kixpqs": {
+          "name": "other_address_line1",
+          "columnTitle": "Other Address Line1",
+          "dataType": "Text",
+          "index": "17",
+          "isCategorical": false
+        },
+        "c_7x2xyhofvch4e6bcz0nset0g4": {
+          "name": "other_address_line2",
+          "columnTitle": "Other Address Line2",
+          "dataType": "Text",
+          "index": "18",
+          "isCategorical": false
+        },
+        "c_ar1ydacm2e7xeu3mw3w0ie73v": {
+          "name": "account_due_date",
+          "columnTitle": "Account Due Date",
+          "dataType": "Text",
+          "index": "19",
+          "isCategorical": true
+        },
+        "c_24soulmmorem2g30p945qbqux": {
+          "name": "annual_return_date",
+          "columnTitle": "Annual Return Date",
+          "dataType": "Text",
+          "index": "20",
+          "isCategorical": true
+        },
+        "c_ew649a394l0nz78nisfzgx09p": {
+          "name": "primary_ssic_code",
+          "columnTitle": "Primary Ssic Code",
+          "dataType": "Text",
+          "index": "21",
+          "isCategorical": true
+        },
+        "c_56g6txjwgrfwak41myigmd9xk": {
+          "name": "primary_ssic_description",
+          "columnTitle": "Primary Ssic Description",
+          "dataType": "Text",
+          "index": "22",
+          "isCategorical": false
+        },
+        "c_c0om3z966xu573htu73tu8ktp": {
+          "name": "primary_user_described_activity",
+          "columnTitle": "Primary User Described Activity",
+          "dataType": "Text",
+          "index": "23",
+          "isCategorical": false
+        },
+        "c_83f1dfl6btmr96xuxbi3wsv3u": {
+          "name": "secondary_ssic_code",
+          "columnTitle": "Secondary Ssic Code",
+          "dataType": "Text",
+          "index": "24",
+          "isCategorical": true
+        },
+        "c_ac4hrhqidp97agtts92e5m8f9": {
+          "name": "secondary_ssic_description",
+          "columnTitle": "Secondary Ssic Description",
+          "dataType": "Text",
+          "index": "25",
+          "isCategorical": false
+        },
+        "c_f4y55la6wmva914o2qbuwznu7": {
+          "name": "secondary_user_described_activity",
+          "columnTitle": "Secondary User Described Activity",
+          "dataType": "Text",
+          "index": "26",
+          "isCategorical": false
+        },
+        "c_88o0ue96iwj4m19kme5uc27jr": {
+          "name": "no_of_officers",
+          "columnTitle": "No Of Officers",
+          "dataType": "Text",
+          "index": "27",
+          "isCategorical": true
+        },
+        "c_9tf72e1sjep0un6mv071f573": {
+          "name": "former_entity_name1",
+          "columnTitle": "Former Entity Name1",
+          "dataType": "Text",
+          "index": "28",
+          "isCategorical": true
+        },
+        "c_al6ht5wbwmg4auu6dnzb1tp8b": {
+          "name": "former_entity_name2",
+          "columnTitle": "Former Entity Name2",
+          "dataType": "Text",
+          "index": "29",
+          "isCategorical": true
+        },
+        "c_147thudzhmx4q2s4uxgbfhhjc": {
+          "name": "former_entity_name3",
+          "columnTitle": "Former Entity Name3",
+          "dataType": "Text",
+          "index": "30",
+          "isCategorical": true
+        },
+        "c_1uakxe1mnbdy8gp8voig4n7zt": {
+          "name": "former_entity_name4",
+          "columnTitle": "Former Entity Name4",
+          "dataType": "Text",
+          "index": "31",
+          "isCategorical": true
+        },
+        "c_7tkxw4sw83c53o0yhnsk2bkk2": {
+          "name": "former_entity_name5",
+          "columnTitle": "Former Entity Name5",
+          "dataType": "Text",
+          "index": "32",
+          "isCategorical": true
+        },
+        "c_55rl4787wem11pi8ce3cu9sr4": {
+          "name": "former_entity_name6",
+          "columnTitle": "Former Entity Name6",
+          "dataType": "Text",
+          "index": "33",
+          "isCategorical": true
+        },
+        "c_2fpx5uworfq7adehb666rpi1": {
+          "name": "former_entity_name7",
+          "columnTitle": "Former Entity Name7",
+          "dataType": "Text",
+          "index": "34",
+          "isCategorical": true
+        },
+        "c_e97r8g5b6pnnzsp5cngifwq62": {
+          "name": "former_entity_name8",
+          "columnTitle": "Former Entity Name8",
+          "dataType": "Text",
+          "index": "35",
+          "isCategorical": true
+        },
+        "c_bj2w6ttmgejhy4n2h61w40u4n": {
+          "name": "former_entity_name9",
+          "columnTitle": "Former Entity Name9",
+          "dataType": "Text",
+          "index": "36",
+          "isCategorical": true
+        },
+        "c_3il1cmr8gcfi7iwh82v6mtdea": {
+          "name": "former_entity_name10",
+          "columnTitle": "Former Entity Name10",
+          "dataType": "Text",
+          "index": "37",
+          "isCategorical": true
+        },
+        "c_9ip89xk37lc9bctz8lk5k4cn4": {
+          "name": "former_entity_name11",
+          "columnTitle": "Former Entity Name11",
+          "dataType": "Text",
+          "index": "38",
+          "isCategorical": true
+        },
+        "c_3qukn4qmrsm1q9ygbw3lfxq12": {
+          "name": "former_entity_name12",
+          "columnTitle": "Former Entity Name12",
+          "dataType": "Text",
+          "index": "39",
+          "isCategorical": true
+        },
+        "c_ba6ois1ev4a1c1wqqxmc18dr3": {
+          "name": "former_entity_name13",
+          "columnTitle": "Former Entity Name13",
+          "dataType": "Text",
+          "index": "40",
+          "isCategorical": true
+        },
+        "c_7jhhati7dgr5n04yvsvwhg50o": {
+          "name": "former_entity_name14",
+          "columnTitle": "Former Entity Name14",
+          "dataType": "Text",
+          "index": "41",
+          "isCategorical": false
+        },
+        "c_bcnbjoz6c285tsrd0js4nrcme": {
+          "name": "former_entity_name15",
+          "columnTitle": "Former Entity Name15",
+          "dataType": "Text",
+          "index": "42",
+          "isCategorical": false
+        },
+        "c_d3hvu1bwlix1ju43uetxg6maq": {
+          "name": "uen_of_audit_firm1",
+          "columnTitle": "Uen Of Audit Firm1",
+          "dataType": "Text",
+          "index": "43",
+          "isCategorical": true
+        },
+        "c_cgx1hxpmu88gvmcgcxhlshkr6": {
+          "name": "name_of_audit_firm1",
+          "columnTitle": "Name Of Audit Firm1",
+          "dataType": "Text",
+          "index": "44",
+          "isCategorical": true
+        },
+        "c_58g9320pe50p29k5682xpg46o": {
+          "name": "uen_of_audit_firm2",
+          "columnTitle": "Uen Of Audit Firm2",
+          "dataType": "Text",
+          "index": "45",
+          "isCategorical": true
+        },
+        "c_43jeoejaoshldz7a79zl4q8do": {
+          "name": "name_of_audit_firm2",
+          "columnTitle": "Name Of Audit Firm2",
+          "dataType": "Text",
+          "index": "46",
+          "isCategorical": true
+        },
+        "c_cvkk70skodj0pl38pjpg8f2me": {
+          "name": "uen_of_audit_firm3",
+          "columnTitle": "Uen Of Audit Firm3",
+          "dataType": "Text",
+          "index": "47",
+          "isCategorical": true
+        },
+        "c_mia5hblbb0sm78d6gxnf8vak": {
+          "name": "name_of_audit_firm3",
+          "columnTitle": "Name Of Audit Firm3",
+          "dataType": "Text",
+          "index": "48",
+          "isCategorical": true
+        },
+        "c_egrbi8cncd1bl5w4xw6r6r5zx": {
+          "name": "uen_of_audit_firm4",
+          "columnTitle": "Uen Of Audit Firm4",
+          "dataType": "Text",
+          "index": "49",
+          "isCategorical": true
+        },
+        "c_23wgiimgk016qpmeul8jebv9x": {
+          "name": "name_of_audit_firm4",
+          "columnTitle": "Name Of Audit Firm4",
+          "dataType": "Text",
+          "index": "50",
+          "isCategorical": true
+        },
+        "c_co40wuh244k5hsv052r1kkfwc": {
+          "name": "uen_of_audit_firm5",
+          "columnTitle": "Uen Of Audit Firm5",
+          "dataType": "Text",
+          "index": "51",
+          "isCategorical": true
+        },
+        "c_4kvmise0fy294g3d38s6vfj7r": {
+          "name": "name_of_audit_firm5",
+          "columnTitle": "Name Of Audit Firm5",
+          "dataType": "Text",
+          "index": "52",
+          "isCategorical": true
+        }
+      }
+    }
+  },
+  "errorMsg": ""
+}

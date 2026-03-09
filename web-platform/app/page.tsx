@@ -1,5 +1,1 @@
-import { DashboardClient } from "@/components/dashboard/dashboard-client";
-
-export default function Page() {
-  return <DashboardClient view="all" />;
-}
+export default function Page() { return <h1>NTUC EWS</h1>; }

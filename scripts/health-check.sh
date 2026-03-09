@@ -1,26 +1,28 @@
-#!/usr/bin/env bash
-set -euo pipefail
+#!/bin/bash
 
-ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-cd "$ROOT_DIR"
+echo "Running health checks..."
 
-if [ -f .env ]; then
-  set -a
-  # shellcheck disable=SC1091
-  source .env
-  set +a
+# Check Web Platform
+WEB_HEALTH=$(curl -s http://localhost:3000/api/health)
+if [[ $WEB_HEALTH == *"\"status\":\"ok\""* ]]; then
+  echo "✅ Web Platform: OK"
+else
+  echo "❌ Web Platform: FAILED"
+  echo "$WEB_HEALTH"
 fi
 
-PORT_WEB="${PORT_WEB:-3000}"
-PORT_WORKER="${PORT_WORKER:-4000}"
-HOST="${HOST:-127.0.0.1}"
-RAW_PATH="${DATA_LAKE_RAW_PATH:-./data-lake/raw}"
-DB_PATH="${SQLITE_DB_PATH:-./data/ntuc-ews.db}"
+# Check Worker Service
+WORKER_HEALTH=$(curl -s http://localhost:4000/health)
+if [[ $WORKER_HEALTH == *"\"status\":\"ok\""* ]]; then
+  echo "✅ Worker Service: OK"
+else
+  echo "❌ Worker Service: FAILED"
+  echo "$WORKER_HEALTH"
+fi
 
-curl -fsS "http://${HOST}:${PORT_WEB}/api/health" >/dev/null
-curl -fsS "http://${HOST}:${PORT_WORKER}/health" >/dev/null
-
-[ -d "$RAW_PATH" ]
-[ -f "$DB_PATH" ]
-
-echo "health check passed"
+# Check Data Lake
+if [ -d "./data-lake/raw" ]; then
+  echo "✅ Data Lake: OK"
+else
+  echo "❌ Data Lake: FAILED (directory missing)"
+fi

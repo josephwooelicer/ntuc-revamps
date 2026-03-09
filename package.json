@@ -1,20 +1,13 @@
 {
-  "name": "ntuc-revamps",
-  "private": true,
-  "version": "0.1.0",
-  "workspaces": [
-    "web-platform",
-    "worker-service"
-  ],
-  "scripts": {
-    "setup": "bash ./scripts/setup-dev.sh",
-    "db:init": "npm --workspace worker-service run db:init",
-    "db:status": "npm --workspace worker-service run db:status",
-    "dev": "bash ./scripts/start-local.sh",
-    "dev:web": "npm --workspace web-platform run dev",
-    "dev:worker": "npm --workspace worker-service run dev",
-    "health": "bash ./scripts/health-check.sh",
-    "deps:down": "bash ./scripts/stop-local.sh",
-    "singstat:download-all": "node ./scripts/download-singstat-reports.mjs"
-  }
+    "name": "ntuc-ews",
+    "version": "0.1.0",
+    "private": true,
+    "scripts": {
+        "setup": "bash scripts/setup.sh",
+        "dev": "bash scripts/start-local.sh",
+        "health": "bash scripts/health-check.sh",
+        "db:init": "cd worker-service && npm run db:init",
+        "db:status": "cd worker-service && npm run db:status",
+        "deps:down": "pkill -f 'next-server' || true && pkill -f 'node worker-service' || true"
+    }
 }

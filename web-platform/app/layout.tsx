@@ -1,14 +1,1 @@
-import "./globals.css";
-
-export const metadata = {
-  title: "NTUC EWS",
-  description: "NTUC Retrenchment Early Warning System"
-};
-
-export default function RootLayout({ children }) {
-  return (
-    <html lang="en">
-      <body>{children}</body>
-    </html>
-  );
-}
+import type { Metadata } from "next"; import { Inter } from "next/font/google"; const inter = Inter({ subsets: ["latin"] }); export const metadata: Metadata = { title: "NTUC EWS", description: "Early Warning System" }; export default function RootLayout({ children }: { children: React.ReactNode }) { return ( <html lang="en"> <body className={inter.className}>{children}</body> </html> ); }
