@@ -3,6 +3,7 @@ import * as crypto from 'crypto';
 import * as fs from 'fs';
 import * as path from 'path';
 import { Connector, IngestionRange, IngestionResult, RawDocument } from '../types';
+import { getSGTComponents } from '../utils';
 
 /**
  * DataGovSgConnector is responsible for scraping and downloading datasets from data.gov.sg.
@@ -45,16 +46,22 @@ export class DataGovSgConnector implements Connector {
             const mStr = monthMap[options.month.toUpperCase()];
             if (mStr) {
                 const m = parseInt(mStr, 10) - 1;
-                const startDate = new Date(Date.UTC(year, m, 1));
+                // data.gov.sg expects coverage in Unix seconds
+                // We assume the user wants the full month in SGT.
+                // 2025-05-01 00:00:00 SGT to 2025-05-31 23:59:59 SGT
+                const startDate = new Date(Date.UTC(year, m, 1, 0, 0, 0));
                 const endDate = new Date(Date.UTC(year, m + 1, 0, 23, 59, 59));
-                startUnix = Math.floor(startDate.getTime() / 1000).toString();
-                endUnix = Math.floor(endDate.getTime() / 1000).toString();
+
+                // Adjust for 8 hour offset (SGT is UTC+8)
+                // To get the equivalent UTC timestamp for SGT 00:00:00, we subtract 8 hours from UTC 00:00:00
+                const OFFSET_SECONDS = 8 * 3600;
+                startUnix = (Math.floor(startDate.getTime() / 1000) - OFFSET_SECONDS).toString();
+                endUnix = (Math.floor(endDate.getTime() / 1000) - OFFSET_SECONDS).toString();
             }
         } else if (range) {
-            // Adjust for 8 hour offset (SGT is UTC+8)
             const OFFSET_SECONDS = 8 * 3600;
-            startUnix = (Math.floor(range.start.getTime() / 1000) - OFFSET_SECONDS).toString();
-            endUnix = (Math.floor(range.end.getTime() / 1000) - OFFSET_SECONDS).toString();
+            startUnix = (Math.floor(range.start.getTime() / 1000)).toString();
+            endUnix = (Math.floor(range.end.getTime() / 1000)).toString();
         }
 
         const formats = encodeURIComponent('CSV|XLSX|PDF');
@@ -150,9 +157,9 @@ export class DataGovSgConnector implements Connector {
                 let month = metadata.month;
 
                 if (!year || !month) {
-                    const dateToUse = range ? range.start : new Date();
-                    year = year || dateToUse.getUTCFullYear().toString();
-                    month = month || (dateToUse.getUTCMonth() + 1).toString().padStart(2, '0');
+                    const sgt = range ? getSGTComponents(range.start) : getSGTComponents(new Date());
+                    year = year || sgt.year.toString();
+                    month = month || sgt.month.toString().padStart(2, '0');
                 }
 
                 metadata.customDir = path.join(`${year}${month}`, agency);

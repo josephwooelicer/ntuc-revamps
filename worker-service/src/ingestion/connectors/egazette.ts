@@ -3,6 +3,7 @@ import crypto from 'crypto';
 import fs from 'fs';
 import path from 'path';
 import { Connector, IngestionRange, IngestionResult, RawDocument } from '../types';
+import { fromSGT, getSGTComponents } from '../utils';
 
 /**
  * EgazetteConnector is responsible for ingesting gazette notices from the Singapore
@@ -49,9 +50,9 @@ export class EgazetteConnector implements Connector {
         onDocument?: (doc: RawDocument) => Promise<void>,
         onRecord?: (record: any) => Promise<void>
     ): Promise<IngestionResult> {
-        const query: string = options?.query || '';
-        const month: number = options?.month ?? (range ? range.start.getUTCMonth() + 1 : new Date().getUTCMonth() + 1);
-        const year: number = options?.year ?? (range ? range.start.getUTCFullYear() : new Date().getUTCFullYear());
+        const sgt = range ? getSGTComponents(range.start) : getSGTComponents(new Date());
+        const month: number = options?.month ?? sgt.month;
+        const year: number = options?.year ?? sgt.year;
 
         // Slugify company name for the storage folder segment
         const companyFolder = query.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') || 'unknown';
@@ -110,7 +111,7 @@ export class EgazetteConnector implements Connector {
                         sourceId: this.id,
                         externalId: Buffer.from(pdfUrl).toString('base64').substring(0, 24),
                         fetchedAt: new Date().toISOString(),
-                        publishedAt: new Date(Date.UTC(year, month - 1, 1)).toISOString(),
+                        publishedAt: fromSGT(year, month, 1).toISOString(),
                         title: filename.replace(/\.pdf$/i, '').replace(/[-_]/g, ' '),
                         url: pdfUrl,
                         content: pdfBuffer,

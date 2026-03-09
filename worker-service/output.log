@@ -1,0 +1,1028 @@
+[Epic 4] Starting retrieval for jetstar asia checking 2025-05
+[Epic 4] Calculated 12-month range: 2024-5 to 2025-4
+[DEBUG] range.end is [object Date], typeof object, value:  2024-05-31T16:00:00.000Z
+
+--- Processing 2024-05 ---
+[Epic 4] [2024-05] Retrieving Data.gov.sg for 33 agencies...
+[IngestionEngine] Starting backfill for src-data-gov-sg
+[DataGovSgConnector] Pulling data.gov.sg for options: {"agency":"URA","year":"2024","month":"MAY","monthNumeric":"05"}
+Navigating to https://data.gov.sg/datasets?agencies=URA&formats=CSV%7CXLSX%7CPDF&coverage=1714492800%7C1717171199
+[DataGovSgConnector] Error: page.goto: net::ERR_NAME_NOT_RESOLVED at https://data.gov.sg/datasets?agencies=URA&formats=CSV%7CXLSX%7CPDF&coverage=1714492800%7C1717171199
+Call log:
+[2m  - navigating to "https://data.gov.sg/datasets?agencies=URA&formats=CSV%7CXLSX%7CPDF&coverage=1714492800%7C1717171199", waiting until "load"[22m
+
+[IngestionEngine] Backfill for src-data-gov-sg completed. Pulled 0 records.
+  - URA: 0 documents
+[IngestionEngine] Starting backfill for src-data-gov-sg
+[DataGovSgConnector] Pulling data.gov.sg for options: {"agency":"SINGSTAT","year":"2024","month":"MAY","monthNumeric":"05"}
+Navigating to https://data.gov.sg/datasets?agencies=SINGSTAT&formats=CSV%7CXLSX%7CPDF&coverage=1714492800%7C1717171199
+[DataGovSgConnector] Error: page.goto: net::ERR_NAME_NOT_RESOLVED at https://data.gov.sg/datasets?agencies=SINGSTAT&formats=CSV%7CXLSX%7CPDF&coverage=1714492800%7C1717171199
+Call log:
+[2m  - navigating to "https://data.gov.sg/datasets?agencies=SINGSTAT&formats=CSV%7CXLSX%7CPDF&coverage=1714492800%7C1717171199", waiting until "load"[22m
+
+[IngestionEngine] Backfill for src-data-gov-sg completed. Pulled 0 records.
+  - SINGSTAT: 0 documents
+[IngestionEngine] Starting backfill for src-data-gov-sg
+[DataGovSgConnector] Pulling data.gov.sg for options: {"agency":"MOM","year":"2024","month":"MAY","monthNumeric":"05"}
+Navigating to https://data.gov.sg/datasets?agencies=MOM&formats=CSV%7CXLSX%7CPDF&coverage=1714492800%7C1717171199
+[DataGovSgConnector] Error: page.goto: net::ERR_NAME_NOT_RESOLVED at https://data.gov.sg/datasets?agencies=MOM&formats=CSV%7CXLSX%7CPDF&coverage=1714492800%7C1717171199
+Call log:
+[2m  - navigating to "https://data.gov.sg/datasets?agencies=MOM&formats=CSV%7CXLSX%7CPDF&coverage=1714492800%7C1717171199", waiting until "load"[22m
+
+[IngestionEngine] Backfill for src-data-gov-sg completed. Pulled 0 records.
+  - MOM: 0 documents
+[IngestionEngine] Starting backfill for src-data-gov-sg
+[DataGovSgConnector] Pulling data.gov.sg for options: {"agency":"SSG","year":"2024","month":"MAY","monthNumeric":"05"}
+Navigating to https://data.gov.sg/datasets?agencies=SSG&formats=CSV%7CXLSX%7CPDF&coverage=1714492800%7C1717171199
+[DataGovSgConnector] Error: page.goto: net::ERR_NAME_NOT_RESOLVED at https://data.gov.sg/datasets?agencies=SSG&formats=CSV%7CXLSX%7CPDF&coverage=1714492800%7C1717171199
+Call log:
+[2m  - navigating to "https://data.gov.sg/datasets?agencies=SSG&formats=CSV%7CXLSX%7CPDF&coverage=1714492800%7C1717171199", waiting until "load"[22m
+
+[IngestionEngine] Backfill for src-data-gov-sg completed. Pulled 0 records.
+  - SSG: 0 documents
+[IngestionEngine] Starting backfill for src-data-gov-sg
+[DataGovSgConnector] Pulling data.gov.sg for options: {"agency":"WSG","year":"2024","month":"MAY","monthNumeric":"05"}
+Navigating to https://data.gov.sg/datasets?agencies=WSG&formats=CSV%7CXLSX%7CPDF&coverage=1714492800%7C1717171199
+[DataGovSgConnector] Error: page.goto: net::ERR_NAME_NOT_RESOLVED at https://data.gov.sg/datasets?agencies=WSG&formats=CSV%7CXLSX%7CPDF&coverage=1714492800%7C1717171199
+Call log:
+[2m  - navigating to "https://data.gov.sg/datasets?agencies=WSG&formats=CSV%7CXLSX%7CPDF&coverage=1714492800%7C1717171199", waiting until "load"[22m
+
+[IngestionEngine] Backfill for src-data-gov-sg completed. Pulled 0 records.
+  - WSG: 0 documents
+[IngestionEngine] Starting backfill for src-data-gov-sg
+[DataGovSgConnector] Pulling data.gov.sg for options: {"agency":"STB","year":"2024","month":"MAY","monthNumeric":"05"}
+Navigating to https://data.gov.sg/datasets?agencies=STB&formats=CSV%7CXLSX%7CPDF&coverage=1714492800%7C1717171199
+[DataGovSgConnector] Error: page.goto: net::ERR_NAME_NOT_RESOLVED at https://data.gov.sg/datasets?agencies=STB&formats=CSV%7CXLSX%7CPDF&coverage=1714492800%7C1717171199
+Call log:
+[2m  - navigating to "https://data.gov.sg/datasets?agencies=STB&formats=CSV%7CXLSX%7CPDF&coverage=1714492800%7C1717171199", waiting until "load"[22m
+
+[IngestionEngine] Backfill for src-data-gov-sg completed. Pulled 0 records.
+  - STB: 0 documents
+[IngestionEngine] Starting backfill for src-data-gov-sg
+[DataGovSgConnector] Pulling data.gov.sg for options: {"agency":"SLA","year":"2024","month":"MAY","monthNumeric":"05"}
+Navigating to https://data.gov.sg/datasets?agencies=SLA&formats=CSV%7CXLSX%7CPDF&coverage=1714492800%7C1717171199
+[DataGovSgConnector] Error: page.goto: net::ERR_NAME_NOT_RESOLVED at https://data.gov.sg/datasets?agencies=SLA&formats=CSV%7CXLSX%7CPDF&coverage=1714492800%7C1717171199
+Call log:
+[2m  - navigating to "https://data.gov.sg/datasets?agencies=SLA&formats=CSV%7CXLSX%7CPDF&coverage=1714492800%7C1717171199", waiting until "load"[22m
+
+[IngestionEngine] Backfill for src-data-gov-sg completed. Pulled 0 records.
+  - SLA: 0 documents
+[IngestionEngine] Starting backfill for src-data-gov-sg
+[DataGovSgConnector] Pulling data.gov.sg for options: {"agency":"CUSTOMS","year":"2024","month":"MAY","monthNumeric":"05"}
+Navigating to https://data.gov.sg/datasets?agencies=CUSTOMS&formats=CSV%7CXLSX%7CPDF&coverage=1714492800%7C1717171199
+[DataGovSgConnector] Error: page.goto: net::ERR_NAME_NOT_RESOLVED at https://data.gov.sg/datasets?agencies=CUSTOMS&formats=CSV%7CXLSX%7CPDF&coverage=1714492800%7C1717171199
+Call log:
+[2m  - navigating to "https://data.gov.sg/datasets?agencies=CUSTOMS&formats=CSV%7CXLSX%7CPDF&coverage=1714492800%7C1717171199", waiting until "load"[22m
+
+[IngestionEngine] Backfill for src-data-gov-sg completed. Pulled 0 records.
+  - CUSTOMS: 0 documents
+[IngestionEngine] Starting backfill for src-data-gov-sg
+[DataGovSgConnector] Pulling data.gov.sg for options: {"agency":"OGP","year":"2024","month":"MAY","monthNumeric":"05"}
+Navigating to https://data.gov.sg/datasets?agencies=OGP&formats=CSV%7CXLSX%7CPDF&coverage=1714492800%7C1717171199
+[DataGovSgConnector] Error: page.goto: net::ERR_NAME_NOT_RESOLVED at https://data.gov.sg/datasets?agencies=OGP&formats=CSV%7CXLSX%7CPDF&coverage=1714492800%7C1717171199
+Call log:
+[2m  - navigating to "https://data.gov.sg/datasets?agencies=OGP&formats=CSV%7CXLSX%7CPDF&coverage=1714492800%7C1717171199", waiting until "load"[22m
+
+[IngestionEngine] Backfill for src-data-gov-sg completed. Pulled 0 records.
+  - OGP: 0 documents
+[IngestionEngine] Starting backfill for src-data-gov-sg
+[DataGovSgConnector] Pulling data.gov.sg for options: {"agency":"NPARKS","year":"2024","month":"MAY","monthNumeric":"05"}
+Navigating to https://data.gov.sg/datasets?agencies=NPARKS&formats=CSV%7CXLSX%7CPDF&coverage=1714492800%7C1717171199
+[DataGovSgConnector] Error: page.goto: net::ERR_NAME_NOT_RESOLVED at https://data.gov.sg/datasets?agencies=NPARKS&formats=CSV%7CXLSX%7CPDF&coverage=1714492800%7C1717171199
+Call log:
+[2m  - navigating to "https://data.gov.sg/datasets?agencies=NPARKS&formats=CSV%7CXLSX%7CPDF&coverage=1714492800%7C1717171199", waiting until "load"[22m
+
+[IngestionEngine] Backfill for src-data-gov-sg completed. Pulled 0 records.
+  - NPARKS: 0 documents
+[IngestionEngine] Starting backfill for src-data-gov-sg
+[DataGovSgConnector] Pulling data.gov.sg for options: {"agency":"NHB","year":"2024","month":"MAY","monthNumeric":"05"}
+Navigating to https://data.gov.sg/datasets?agencies=NHB&formats=CSV%7CXLSX%7CPDF&coverage=1714492800%7C1717171199
+[DataGovSgConnector] Error: page.goto: net::ERR_NAME_NOT_RESOLVED at https://data.gov.sg/datasets?agencies=NHB&formats=CSV%7CXLSX%7CPDF&coverage=1714492800%7C1717171199
+Call log:
+[2m  - navigating to "https://data.gov.sg/datasets?agencies=NHB&formats=CSV%7CXLSX%7CPDF&coverage=1714492800%7C1717171199", waiting until "load"[22m
+
+[IngestionEngine] Backfill for src-data-gov-sg completed. Pulled 0 records.
+  - NHB: 0 documents
+[IngestionEngine] Starting backfill for src-data-gov-sg
+[DataGovSgConnector] Pulling data.gov.sg for options: {"agency":"MAS","year":"2024","month":"MAY","monthNumeric":"05"}
+Navigating to https://data.gov.sg/datasets?agencies=MAS&formats=CSV%7CXLSX%7CPDF&coverage=1714492800%7C1717171199
+[DataGovSgConnector] Error: page.goto: net::ERR_NAME_NOT_RESOLVED at https://data.gov.sg/datasets?agencies=MAS&formats=CSV%7CXLSX%7CPDF&coverage=1714492800%7C1717171199
+Call log:
+[2m  - navigating to "https://data.gov.sg/datasets?agencies=MAS&formats=CSV%7CXLSX%7CPDF&coverage=1714492800%7C1717171199", waiting until "load"[22m
+
+[IngestionEngine] Backfill for src-data-gov-sg completed. Pulled 0 records.
+  - MAS: 0 documents
+[IngestionEngine] Starting backfill for src-data-gov-sg
+[DataGovSgConnector] Pulling data.gov.sg for options: {"agency":"MOT","year":"2024","month":"MAY","monthNumeric":"05"}
+Navigating to https://data.gov.sg/datasets?agencies=MOT&formats=CSV%7CXLSX%7CPDF&coverage=1714492800%7C1717171199
+[DataGovSgConnector] Error: page.goto: net::ERR_NAME_NOT_RESOLVED at https://data.gov.sg/datasets?agencies=MOT&formats=CSV%7CXLSX%7CPDF&coverage=1714492800%7C1717171199
+Call log:
+[2m  - navigating to "https://data.gov.sg/datasets?agencies=MOT&formats=CSV%7CXLSX%7CPDF&coverage=1714492800%7C1717171199", waiting until "load"[22m
+
+[IngestionEngine] Backfill for src-data-gov-sg completed. Pulled 0 records.
+  - MOT: 0 documents
+[IngestionEngine] Starting backfill for src-data-gov-sg
+[DataGovSgConnector] Pulling data.gov.sg for options: {"agency":"MSF","year":"2024","month":"MAY","monthNumeric":"05"}
+Navigating to https://data.gov.sg/datasets?agencies=MSF&formats=CSV%7CXLSX%7CPDF&coverage=1714492800%7C1717171199
+[DataGovSgConnector] Error: page.goto: net::ERR_NAME_NOT_RESOLVED at https://data.gov.sg/datasets?agencies=MSF&formats=CSV%7CXLSX%7CPDF&coverage=1714492800%7C1717171199
+Call log:
+[2m  - navigating to "https://data.gov.sg/datasets?agencies=MSF&formats=CSV%7CXLSX%7CPDF&coverage=1714492800%7C1717171199", waiting until "load"[22m
+
+[IngestionEngine] Backfill for src-data-gov-sg completed. Pulled 0 records.
+  - MSF: 0 documents
+[IngestionEngine] Starting backfill for src-data-gov-sg
+[DataGovSgConnector] Pulling data.gov.sg for options: {"agency":"MLAW","year":"2024","month":"MAY","monthNumeric":"05"}
+Navigating to https://data.gov.sg/datasets?agencies=MLAW&formats=CSV%7CXLSX%7CPDF&coverage=1714492800%7C1717171199
+[DataGovSgConnector] Error: page.goto: net::ERR_NAME_NOT_RESOLVED at https://data.gov.sg/datasets?agencies=MLAW&formats=CSV%7CXLSX%7CPDF&coverage=1714492800%7C1717171199
+Call log:
+[2m  - navigating to "https://data.gov.sg/datasets?agencies=MLAW&formats=CSV%7CXLSX%7CPDF&coverage=1714492800%7C1717171199", waiting until "load"[22m
+
+[IngestionEngine] Backfill for src-data-gov-sg completed. Pulled 0 records.
+  - MLAW: 0 documents
+[IngestionEngine] Starting backfill for src-data-gov-sg
+[DataGovSgConnector] Pulling data.gov.sg for options: {"agency":"MFA","year":"2024","month":"MAY","monthNumeric":"05"}
+Navigating to https://data.gov.sg/datasets?agencies=MFA&formats=CSV%7CXLSX%7CPDF&coverage=1714492800%7C1717171199
+[DataGovSgConnector] Error: page.goto: net::ERR_NAME_NOT_RESOLVED at https://data.gov.sg/datasets?agencies=MFA&formats=CSV%7CXLSX%7CPDF&coverage=1714492800%7C1717171199
+Call log:
+[2m  - navigating to "https://data.gov.sg/datasets?agencies=MFA&formats=CSV%7CXLSX%7CPDF&coverage=1714492800%7C1717171199", waiting until "load"[22m
+
+[IngestionEngine] Backfill for src-data-gov-sg completed. Pulled 0 records.
+  - MFA: 0 documents
+[IngestionEngine] Starting backfill for src-data-gov-sg
+[DataGovSgConnector] Pulling data.gov.sg for options: {"agency":"MOF","year":"2024","month":"MAY","monthNumeric":"05"}
+Navigating to https://data.gov.sg/datasets?agencies=MOF&formats=CSV%7CXLSX%7CPDF&coverage=1714492800%7C1717171199
+[DataGovSgConnector] Error: page.goto: net::ERR_NAME_NOT_RESOLVED at https://data.gov.sg/datasets?agencies=MOF&formats=CSV%7CXLSX%7CPDF&coverage=1714492800%7C1717171199
+Call log:
+[2m  - navigating to "https://data.gov.sg/datasets?agencies=MOF&formats=CSV%7CXLSX%7CPDF&coverage=1714492800%7C1717171199", waiting until "load"[22m
+
+[IngestionEngine] Backfill for src-data-gov-sg completed. Pulled 0 records.
+  - MOF: 0 documents
+[IngestionEngine] Starting backfill for src-data-gov-sg
+[DataGovSgConnector] Pulling data.gov.sg for options: {"agency":"MPA","year":"2024","month":"MAY","monthNumeric":"05"}
+Navigating to https://data.gov.sg/datasets?agencies=MPA&formats=CSV%7CXLSX%7CPDF&coverage=1714492800%7C1717171199
+[DataGovSgConnector] Error: page.goto: net::ERR_NAME_NOT_RESOLVED at https://data.gov.sg/datasets?agencies=MPA&formats=CSV%7CXLSX%7CPDF&coverage=1714492800%7C1717171199
+Call log:
+[2m  - navigating to "https://data.gov.sg/datasets?agencies=MPA&formats=CSV%7CXLSX%7CPDF&coverage=1714492800%7C1717171199", waiting until "load"[22m
+
+[IngestionEngine] Backfill for src-data-gov-sg completed. Pulled 0 records.
+  - MPA: 0 documents
+[IngestionEngine] Starting backfill for src-data-gov-sg
+[DataGovSgConnector] Pulling data.gov.sg for options: {"agency":"STATECOURTS","year":"2024","month":"MAY","monthNumeric":"05"}
+Navigating to https://data.gov.sg/datasets?agencies=STATECOURTS&formats=CSV%7CXLSX%7CPDF&coverage=1714492800%7C1717171199
+[DataGovSgConnector] Error: page.goto: net::ERR_NAME_NOT_RESOLVED at https://data.gov.sg/datasets?agencies=STATECOURTS&formats=CSV%7CXLSX%7CPDF&coverage=1714492800%7C1717171199
+Call log:
+[2m  - navigating to "https://data.gov.sg/datasets?agencies=STATECOURTS&formats=CSV%7CXLSX%7CPDF&coverage=1714492800%7C1717171199", waiting until "load"[22m
+
+[IngestionEngine] Backfill for src-data-gov-sg completed. Pulled 0 records.
+  - STATECOURTS: 0 documents
+[IngestionEngine] Starting backfill for src-data-gov-sg
+[DataGovSgConnector] Pulling data.gov.sg for options: {"agency":"IMDA","year":"2024","month":"MAY","monthNumeric":"05"}
+Navigating to https://data.gov.sg/datasets?agencies=IMDA&formats=CSV%7CXLSX%7CPDF&coverage=1714492800%7C1717171199
+[DataGovSgConnector] Error: page.goto: net::ERR_NAME_NOT_RESOLVED at https://data.gov.sg/datasets?agencies=IMDA&formats=CSV%7CXLSX%7CPDF&coverage=1714492800%7C1717171199
+Call log:
+[2m  - navigating to "https://data.gov.sg/datasets?agencies=IMDA&formats=CSV%7CXLSX%7CPDF&coverage=1714492800%7C1717171199", waiting until "load"[22m
+
+[IngestionEngine] Backfill for src-data-gov-sg completed. Pulled 0 records.
+  - IMDA: 0 documents
+[IngestionEngine] Starting backfill for src-data-gov-sg
+[DataGovSgConnector] Pulling data.gov.sg for options: {"agency":"IRAS","year":"2024","month":"MAY","monthNumeric":"05"}
+Navigating to https://data.gov.sg/datasets?agencies=IRAS&formats=CSV%7CXLSX%7CPDF&coverage=1714492800%7C1717171199
+[DataGovSgConnector] Error: page.goto: net::ERR_NAME_NOT_RESOLVED at https://data.gov.sg/datasets?agencies=IRAS&formats=CSV%7CXLSX%7CPDF&coverage=1714492800%7C1717171199
+Call log:
+[2m  - navigating to "https://data.gov.sg/datasets?agencies=IRAS&formats=CSV%7CXLSX%7CPDF&coverage=1714492800%7C1717171199", waiting until "load"[22m
+
+[IngestionEngine] Backfill for src-data-gov-sg completed. Pulled 0 records.
+  - IRAS: 0 documents
+[IngestionEngine] Starting backfill for src-data-gov-sg
+[DataGovSgConnector] Pulling data.gov.sg for options: {"agency":"ICA","year":"2024","month":"MAY","monthNumeric":"05"}
+Navigating to https://data.gov.sg/datasets?agencies=ICA&formats=CSV%7CXLSX%7CPDF&coverage=1714492800%7C1717171199
+[DataGovSgConnector] Error: page.goto: net::ERR_NAME_NOT_RESOLVED at https://data.gov.sg/datasets?agencies=ICA&formats=CSV%7CXLSX%7CPDF&coverage=1714492800%7C1717171199
+Call log:
+[2m  - navigating to "https://data.gov.sg/datasets?agencies=ICA&formats=CSV%7CXLSX%7CPDF&coverage=1714492800%7C1717171199", waiting until "load"[22m
+
+[IngestionEngine] Backfill for src-data-gov-sg completed. Pulled 0 records.
+  - ICA: 0 documents
+[IngestionEngine] Starting backfill for src-data-gov-sg
+[DataGovSgConnector] Pulling data.gov.sg for options: {"agency":"HLB","year":"2024","month":"MAY","monthNumeric":"05"}
+Navigating to https://data.gov.sg/datasets?agencies=HLB&formats=CSV%7CXLSX%7CPDF&coverage=1714492800%7C1717171199
+[DataGovSgConnector] Error: page.goto: net::ERR_NAME_NOT_RESOLVED at https://data.gov.sg/datasets?agencies=HLB&formats=CSV%7CXLSX%7CPDF&coverage=1714492800%7C1717171199
+Call log:
+[2m  - navigating to "https://data.gov.sg/datasets?agencies=HLB&formats=CSV%7CXLSX%7CPDF&coverage=1714492800%7C1717171199", waiting until "load"[22m
+
+[IngestionEngine] Backfill for src-data-gov-sg completed. Pulled 0 records.
+  - HLB: 0 documents
+[IngestionEngine] Starting backfill for src-data-gov-sg
+[DataGovSgConnector] Pulling data.gov.sg for options: {"agency":"NEA","year":"2024","month":"MAY","monthNumeric":"05"}
+Navigating to https://data.gov.sg/datasets?agencies=NEA&formats=CSV%7CXLSX%7CPDF&coverage=1714492800%7C1717171199
+[DataGovSgConnector] Error: page.goto: net::ERR_NAME_NOT_RESOLVED at https://data.gov.sg/datasets?agencies=NEA&formats=CSV%7CXLSX%7CPDF&coverage=1714492800%7C1717171199
+Call log:
+[2m  - navigating to "https://data.gov.sg/datasets?agencies=NEA&formats=CSV%7CXLSX%7CPDF&coverage=1714492800%7C1717171199", waiting until "load"[22m
+
+[IngestionEngine] Backfill for src-data-gov-sg completed. Pulled 0 records.
+  - NEA: 0 documents
+[IngestionEngine] Starting backfill for src-data-gov-sg
+[DataGovSgConnector] Pulling data.gov.sg for options: {"agency":"A*STAR","year":"2024","month":"MAY","monthNumeric":"05"}
+Navigating to https://data.gov.sg/datasets?agencies=A*STAR&formats=CSV%7CXLSX%7CPDF&coverage=1714492800%7C1717171199
+[DataGovSgConnector] Error: page.goto: net::ERR_NAME_NOT_RESOLVED at https://data.gov.sg/datasets?agencies=A*STAR&formats=CSV%7CXLSX%7CPDF&coverage=1714492800%7C1717171199
+Call log:
+[2m  - navigating to "https://data.gov.sg/datasets?agencies=A*STAR&formats=CSV%7CXLSX%7CPDF&coverage=1714492800%7C1717171199", waiting until "load"[22m
+
+[IngestionEngine] Backfill for src-data-gov-sg completed. Pulled 0 records.
+  - A*STAR: 0 documents
+[IngestionEngine] Starting backfill for src-data-gov-sg
+[DataGovSgConnector] Pulling data.gov.sg for options: {"agency":"CPF","year":"2024","month":"MAY","monthNumeric":"05"}
+Navigating to https://data.gov.sg/datasets?agencies=CPF&formats=CSV%7CXLSX%7CPDF&coverage=1714492800%7C1717171199
+[DataGovSgConnector] Error: page.goto: net::ERR_NAME_NOT_RESOLVED at https://data.gov.sg/datasets?agencies=CPF&formats=CSV%7CXLSX%7CPDF&coverage=1714492800%7C1717171199
+Call log:
+[2m  - navigating to "https://data.gov.sg/datasets?agencies=CPF&formats=CSV%7CXLSX%7CPDF&coverage=1714492800%7C1717171199", waiting until "load"[22m
+
+[IngestionEngine] Backfill for src-data-gov-sg completed. Pulled 0 records.
+  - CPF: 0 documents
+[IngestionEngine] Starting backfill for src-data-gov-sg
+[DataGovSgConnector] Pulling data.gov.sg for options: {"agency":"CAAS","year":"2024","month":"MAY","monthNumeric":"05"}
+Navigating to https://data.gov.sg/datasets?agencies=CAAS&formats=CSV%7CXLSX%7CPDF&coverage=1714492800%7C1717171199
+[DataGovSgConnector] Error: page.goto: net::ERR_NAME_NOT_RESOLVED at https://data.gov.sg/datasets?agencies=CAAS&formats=CSV%7CXLSX%7CPDF&coverage=1714492800%7C1717171199
+Call log:
+[2m  - navigating to "https://data.gov.sg/datasets?agencies=CAAS&formats=CSV%7CXLSX%7CPDF&coverage=1714492800%7C1717171199", waiting until "load"[22m
+
+[IngestionEngine] Backfill for src-data-gov-sg completed. Pulled 0 records.
+  - CAAS: 0 documents
+[IngestionEngine] Starting backfill for src-data-gov-sg
+[DataGovSgConnector] Pulling data.gov.sg for options: {"agency":"CCCS","year":"2024","month":"MAY","monthNumeric":"05"}
+Navigating to https://data.gov.sg/datasets?agencies=CCCS&formats=CSV%7CXLSX%7CPDF&coverage=1714492800%7C1717171199
+[DataGovSgConnector] Error: page.goto: net::ERR_NAME_NOT_RESOLVED at https://data.gov.sg/datasets?agencies=CCCS&formats=CSV%7CXLSX%7CPDF&coverage=1714492800%7C1717171199
+Call log:
+[2m  - navigating to "https://data.gov.sg/datasets?agencies=CCCS&formats=CSV%7CXLSX%7CPDF&coverage=1714492800%7C1717171199", waiting until "load"[22m
+
+[IngestionEngine] Backfill for src-data-gov-sg completed. Pulled 0 records.
+  - CCCS: 0 documents
+[IngestionEngine] Starting backfill for src-data-gov-sg
+[DataGovSgConnector] Pulling data.gov.sg for options: {"agency":"EDB","year":"2024","month":"MAY","monthNumeric":"05"}
+Navigating to https://data.gov.sg/datasets?agencies=EDB&formats=CSV%7CXLSX%7CPDF&coverage=1714492800%7C1717171199
+[DataGovSgConnector] Error: page.goto: net::ERR_NAME_NOT_RESOLVED at https://data.gov.sg/datasets?agencies=EDB&formats=CSV%7CXLSX%7CPDF&coverage=1714492800%7C1717171199
+Call log:
+[2m  - navigating to "https://data.gov.sg/datasets?agencies=EDB&formats=CSV%7CXLSX%7CPDF&coverage=1714492800%7C1717171199", waiting until "load"[22m
+
+[IngestionEngine] Backfill for src-data-gov-sg completed. Pulled 0 records.
+  - EDB: 0 documents
+[IngestionEngine] Starting backfill for src-data-gov-sg
+[DataGovSgConnector] Pulling data.gov.sg for options: {"agency":"ENTERPRISESG","year":"2024","month":"MAY","monthNumeric":"05"}
+Navigating to https://data.gov.sg/datasets?agencies=ENTERPRISESG&formats=CSV%7CXLSX%7CPDF&coverage=1714492800%7C1717171199
+[DataGovSgConnector] Error: page.goto: net::ERR_NAME_NOT_RESOLVED at https://data.gov.sg/datasets?agencies=ENTERPRISESG&formats=CSV%7CXLSX%7CPDF&coverage=1714492800%7C1717171199
+Call log:
+[2m  - navigating to "https://data.gov.sg/datasets?agencies=ENTERPRISESG&formats=CSV%7CXLSX%7CPDF&coverage=1714492800%7C1717171199", waiting until "load"[22m
+
+[IngestionEngine] Backfill for src-data-gov-sg completed. Pulled 0 records.
+  - ENTERPRISESG: 0 documents
+[IngestionEngine] Starting backfill for src-data-gov-sg
+[DataGovSgConnector] Pulling data.gov.sg for options: {"agency":"GovTech","year":"2024","month":"MAY","monthNumeric":"05"}
+Navigating to https://data.gov.sg/datasets?agencies=GovTech&formats=CSV%7CXLSX%7CPDF&coverage=1714492800%7C1717171199
+[DataGovSgConnector] Error: page.goto: net::ERR_NAME_NOT_RESOLVED at https://data.gov.sg/datasets?agencies=GovTech&formats=CSV%7CXLSX%7CPDF&coverage=1714492800%7C1717171199
+Call log:
+[2m  - navigating to "https://data.gov.sg/datasets?agencies=GovTech&formats=CSV%7CXLSX%7CPDF&coverage=1714492800%7C1717171199", waiting until "load"[22m
+
+[IngestionEngine] Backfill for src-data-gov-sg completed. Pulled 0 records.
+  - GovTech: 0 documents
+[IngestionEngine] Starting backfill for src-data-gov-sg
+[DataGovSgConnector] Pulling data.gov.sg for options: {"agency":"HSA","year":"2024","month":"MAY","monthNumeric":"05"}
+Navigating to https://data.gov.sg/datasets?agencies=HSA&formats=CSV%7CXLSX%7CPDF&coverage=1714492800%7C1717171199
+[DataGovSgConnector] Error: page.goto: net::ERR_NAME_NOT_RESOLVED at https://data.gov.sg/datasets?agencies=HSA&formats=CSV%7CXLSX%7CPDF&coverage=1714492800%7C1717171199
+Call log:
+[2m  - navigating to "https://data.gov.sg/datasets?agencies=HSA&formats=CSV%7CXLSX%7CPDF&coverage=1714492800%7C1717171199", waiting until "load"[22m
+
+[IngestionEngine] Backfill for src-data-gov-sg completed. Pulled 0 records.
+  - HSA: 0 documents
+[IngestionEngine] Starting backfill for src-data-gov-sg
+[DataGovSgConnector] Pulling data.gov.sg for options: {"agency":"HPB","year":"2024","month":"MAY","monthNumeric":"05"}
+Navigating to https://data.gov.sg/datasets?agencies=HPB&formats=CSV%7CXLSX%7CPDF&coverage=1714492800%7C1717171199
+[DataGovSgConnector] Error: page.goto: net::ERR_NAME_NOT_RESOLVED at https://data.gov.sg/datasets?agencies=HPB&formats=CSV%7CXLSX%7CPDF&coverage=1714492800%7C1717171199
+Call log:
+[2m  - navigating to "https://data.gov.sg/datasets?agencies=HPB&formats=CSV%7CXLSX%7CPDF&coverage=1714492800%7C1717171199", waiting until "load"[22m
+
+[IngestionEngine] Backfill for src-data-gov-sg completed. Pulled 0 records.
+  - HPB: 0 documents
+[2024-05] Retrieving Company Data for "jetstar asia"...
+[IngestionEngine] Starting backfill for src-egazette
+[IngestionEngine] Error during backfill for src-egazette: ReferenceError: query is not defined
+    at EgazetteConnector.pull (/Users/joseph/Downloads/ELICE/Git/ntuc-revamps/worker-service/src/ingestion/connectors/egazette.ts:58:31)
+    at IngestionEngine.runBackfill (/Users/joseph/Downloads/ELICE/Git/ntuc-revamps/worker-service/src/ingestion/engine.ts:80:48)
+    at async runEpic4Retrieval (/Users/joseph/Downloads/ELICE/Git/ntuc-revamps/worker-service/company-retrieval.test.ts:88:33)
+  - Egazette Error: query is not defined
+[IngestionEngine] Starting backfill for src-news
+[NewsGoogleSearchConnector] Pulling for jetstar asia (straitstimes.com) in range 2024-04-30T16:00:00.000Z to 2024-05-31T16:00:00.000Z
+[NewsGoogleSearchConnector] Trying Google for: jetstar asia after:2024-05-01 before:2024-06-01 site:straitstimes.com
+[NewsGoogleSearchConnector] No site-specific results, trying simple Google search...
+[IngestionEngine] [src-news] Saved document "Search Results CSV" to /Users/joseph/Downloads/ELICE/Git/ntuc-revamps/data-lake/raw/src-news/202405/jetstar asia/straitstimes.com/data.csv
+[NewsGoogleSearchConnector] Found total 0 results. Saved in: 202405/jetstar asia/straitstimes.com
+[IngestionEngine] Backfill for src-news completed. Pulled 1 records.
+  - News: 1 documents
+[IngestionEngine] Starting backfill for src-news
+[NewsGoogleSearchConnector] Pulling for jetstar asia (channelnewsasia.com) in range 2024-04-30T16:00:00.000Z to 2024-05-31T16:00:00.000Z
+[NewsGoogleSearchConnector] Trying Google for: jetstar asia after:2024-05-01 before:2024-06-01 site:channelnewsasia.com
+[NewsGoogleSearchConnector] No site-specific results, trying simple Google search...
+[IngestionEngine] [src-news] Saved document "Search Results CSV" to /Users/joseph/Downloads/ELICE/Git/ntuc-revamps/data-lake/raw/src-news/202405/jetstar asia/channelnewsasia.com/data.csv
+[NewsGoogleSearchConnector] Found total 0 results. Saved in: 202405/jetstar asia/channelnewsasia.com
+[IngestionEngine] Backfill for src-news completed. Pulled 1 records.
+  - News: 1 documents
+[IngestionEngine] Starting backfill for src-news
+[NewsGoogleSearchConnector] Pulling for jetstar asia (todayonline.com) in range 2024-04-30T16:00:00.000Z to 2024-05-31T16:00:00.000Z
+[NewsGoogleSearchConnector] Trying Google for: jetstar asia after:2024-05-01 before:2024-06-01 site:todayonline.com
+[NewsGoogleSearchConnector] No site-specific results, trying simple Google search...
+[IngestionEngine] [src-news] Saved document "Search Results CSV" to /Users/joseph/Downloads/ELICE/Git/ntuc-revamps/data-lake/raw/src-news/202405/jetstar asia/todayonline.com/data.csv
+[NewsGoogleSearchConnector] Found total 0 results. Saved in: 202405/jetstar asia/todayonline.com
+[IngestionEngine] Backfill for src-news completed. Pulled 1 records.
+  - News: 1 documents
+[IngestionEngine] Starting backfill for src-news
+[NewsGoogleSearchConnector] Pulling for jetstar asia (businesstimes.com.sg) in range 2024-04-30T16:00:00.000Z to 2024-05-31T16:00:00.000Z
+[NewsGoogleSearchConnector] Trying Google for: jetstar asia after:2024-05-01 before:2024-06-01 site:businesstimes.com.sg
+[NewsGoogleSearchConnector] No site-specific results, trying simple Google search...
+[IngestionEngine] [src-news] Saved document "Search Results CSV" to /Users/joseph/Downloads/ELICE/Git/ntuc-revamps/data-lake/raw/src-news/202405/jetstar asia/businesstimes.com.sg/data.csv
+[NewsGoogleSearchConnector] Found total 0 results. Saved in: 202405/jetstar asia/businesstimes.com.sg
+[IngestionEngine] Backfill for src-news completed. Pulled 1 records.
+  - News: 1 documents
+[IngestionEngine] Starting backfill for src-reddit-sentiment
+[RedditSentimentConnector] Pulling for jetstar asia
+[RedditSentimentConnector] Searching Google:  jetstar asia after:2024-05-01 before:2024-06-01 site:reddit.com/r/Singapore
+[RedditSentimentConnector] Found 0 Reddit posts.
+[IngestionEngine] Backfill for src-reddit-sentiment completed. Pulled 0 records.
+  - Reddit: 0 documents
+[DEBUG] range.end is [object Date], typeof object, value:  2024-06-30T16:00:00.000Z
+
+--- Processing 2024-06 ---
+[Epic 4] [2024-06] Retrieving Data.gov.sg for 33 agencies...
+[IngestionEngine] Starting backfill for src-data-gov-sg
+[DataGovSgConnector] Pulling data.gov.sg for options: {"agency":"URA","year":"2024","month":"JUN","monthNumeric":"06"}
+Navigating to https://data.gov.sg/datasets?agencies=URA&formats=CSV%7CXLSX%7CPDF&coverage=1717171200%7C1719763199
+[DataGovSgConnector] Error: page.goto: net::ERR_NAME_NOT_RESOLVED at https://data.gov.sg/datasets?agencies=URA&formats=CSV%7CXLSX%7CPDF&coverage=1717171200%7C1719763199
+Call log:
+[2m  - navigating to "https://data.gov.sg/datasets?agencies=URA&formats=CSV%7CXLSX%7CPDF&coverage=1717171200%7C1719763199", waiting until "load"[22m
+
+[IngestionEngine] Backfill for src-data-gov-sg completed. Pulled 0 records.
+  - URA: 0 documents
+[IngestionEngine] Starting backfill for src-data-gov-sg
+[DataGovSgConnector] Pulling data.gov.sg for options: {"agency":"SINGSTAT","year":"2024","month":"JUN","monthNumeric":"06"}
+Navigating to https://data.gov.sg/datasets?agencies=SINGSTAT&formats=CSV%7CXLSX%7CPDF&coverage=1717171200%7C1719763199
+[DataGovSgConnector] Error: page.goto: net::ERR_NAME_NOT_RESOLVED at https://data.gov.sg/datasets?agencies=SINGSTAT&formats=CSV%7CXLSX%7CPDF&coverage=1717171200%7C1719763199
+Call log:
+[2m  - navigating to "https://data.gov.sg/datasets?agencies=SINGSTAT&formats=CSV%7CXLSX%7CPDF&coverage=1717171200%7C1719763199", waiting until "load"[22m
+
+[IngestionEngine] Backfill for src-data-gov-sg completed. Pulled 0 records.
+  - SINGSTAT: 0 documents
+[IngestionEngine] Starting backfill for src-data-gov-sg
+[DataGovSgConnector] Pulling data.gov.sg for options: {"agency":"MOM","year":"2024","month":"JUN","monthNumeric":"06"}
+Navigating to https://data.gov.sg/datasets?agencies=MOM&formats=CSV%7CXLSX%7CPDF&coverage=1717171200%7C1719763199
+[DataGovSgConnector] Error: page.goto: net::ERR_NAME_NOT_RESOLVED at https://data.gov.sg/datasets?agencies=MOM&formats=CSV%7CXLSX%7CPDF&coverage=1717171200%7C1719763199
+Call log:
+[2m  - navigating to "https://data.gov.sg/datasets?agencies=MOM&formats=CSV%7CXLSX%7CPDF&coverage=1717171200%7C1719763199", waiting until "load"[22m
+
+[IngestionEngine] Backfill for src-data-gov-sg completed. Pulled 0 records.
+  - MOM: 0 documents
+[IngestionEngine] Starting backfill for src-data-gov-sg
+[DataGovSgConnector] Pulling data.gov.sg for options: {"agency":"SSG","year":"2024","month":"JUN","monthNumeric":"06"}
+Navigating to https://data.gov.sg/datasets?agencies=SSG&formats=CSV%7CXLSX%7CPDF&coverage=1717171200%7C1719763199
+[DataGovSgConnector] Error: page.goto: net::ERR_NAME_NOT_RESOLVED at https://data.gov.sg/datasets?agencies=SSG&formats=CSV%7CXLSX%7CPDF&coverage=1717171200%7C1719763199
+Call log:
+[2m  - navigating to "https://data.gov.sg/datasets?agencies=SSG&formats=CSV%7CXLSX%7CPDF&coverage=1717171200%7C1719763199", waiting until "load"[22m
+
+[IngestionEngine] Backfill for src-data-gov-sg completed. Pulled 0 records.
+  - SSG: 0 documents
+[IngestionEngine] Starting backfill for src-data-gov-sg
+[DataGovSgConnector] Pulling data.gov.sg for options: {"agency":"WSG","year":"2024","month":"JUN","monthNumeric":"06"}
+Navigating to https://data.gov.sg/datasets?agencies=WSG&formats=CSV%7CXLSX%7CPDF&coverage=1717171200%7C1719763199
+[DataGovSgConnector] Error: page.goto: net::ERR_NAME_NOT_RESOLVED at https://data.gov.sg/datasets?agencies=WSG&formats=CSV%7CXLSX%7CPDF&coverage=1717171200%7C1719763199
+Call log:
+[2m  - navigating to "https://data.gov.sg/datasets?agencies=WSG&formats=CSV%7CXLSX%7CPDF&coverage=1717171200%7C1719763199", waiting until "load"[22m
+
+[IngestionEngine] Backfill for src-data-gov-sg completed. Pulled 0 records.
+  - WSG: 0 documents
+[IngestionEngine] Starting backfill for src-data-gov-sg
+[DataGovSgConnector] Pulling data.gov.sg for options: {"agency":"STB","year":"2024","month":"JUN","monthNumeric":"06"}
+Navigating to https://data.gov.sg/datasets?agencies=STB&formats=CSV%7CXLSX%7CPDF&coverage=1717171200%7C1719763199
+[DataGovSgConnector] Error: page.goto: net::ERR_NAME_NOT_RESOLVED at https://data.gov.sg/datasets?agencies=STB&formats=CSV%7CXLSX%7CPDF&coverage=1717171200%7C1719763199
+Call log:
+[2m  - navigating to "https://data.gov.sg/datasets?agencies=STB&formats=CSV%7CXLSX%7CPDF&coverage=1717171200%7C1719763199", waiting until "load"[22m
+
+[IngestionEngine] Backfill for src-data-gov-sg completed. Pulled 0 records.
+  - STB: 0 documents
+[IngestionEngine] Starting backfill for src-data-gov-sg
+[DataGovSgConnector] Pulling data.gov.sg for options: {"agency":"SLA","year":"2024","month":"JUN","monthNumeric":"06"}
+Navigating to https://data.gov.sg/datasets?agencies=SLA&formats=CSV%7CXLSX%7CPDF&coverage=1717171200%7C1719763199
+[DataGovSgConnector] Error: page.goto: net::ERR_NAME_NOT_RESOLVED at https://data.gov.sg/datasets?agencies=SLA&formats=CSV%7CXLSX%7CPDF&coverage=1717171200%7C1719763199
+Call log:
+[2m  - navigating to "https://data.gov.sg/datasets?agencies=SLA&formats=CSV%7CXLSX%7CPDF&coverage=1717171200%7C1719763199", waiting until "load"[22m
+
+[IngestionEngine] Backfill for src-data-gov-sg completed. Pulled 0 records.
+  - SLA: 0 documents
+[IngestionEngine] Starting backfill for src-data-gov-sg
+[DataGovSgConnector] Pulling data.gov.sg for options: {"agency":"CUSTOMS","year":"2024","month":"JUN","monthNumeric":"06"}
+Navigating to https://data.gov.sg/datasets?agencies=CUSTOMS&formats=CSV%7CXLSX%7CPDF&coverage=1717171200%7C1719763199
+[DataGovSgConnector] Error: page.goto: net::ERR_NAME_NOT_RESOLVED at https://data.gov.sg/datasets?agencies=CUSTOMS&formats=CSV%7CXLSX%7CPDF&coverage=1717171200%7C1719763199
+Call log:
+[2m  - navigating to "https://data.gov.sg/datasets?agencies=CUSTOMS&formats=CSV%7CXLSX%7CPDF&coverage=1717171200%7C1719763199", waiting until "load"[22m
+
+[IngestionEngine] Backfill for src-data-gov-sg completed. Pulled 0 records.
+  - CUSTOMS: 0 documents
+[IngestionEngine] Starting backfill for src-data-gov-sg
+[DataGovSgConnector] Pulling data.gov.sg for options: {"agency":"OGP","year":"2024","month":"JUN","monthNumeric":"06"}
+Navigating to https://data.gov.sg/datasets?agencies=OGP&formats=CSV%7CXLSX%7CPDF&coverage=1717171200%7C1719763199
+[DataGovSgConnector] Error: page.goto: net::ERR_NAME_NOT_RESOLVED at https://data.gov.sg/datasets?agencies=OGP&formats=CSV%7CXLSX%7CPDF&coverage=1717171200%7C1719763199
+Call log:
+[2m  - navigating to "https://data.gov.sg/datasets?agencies=OGP&formats=CSV%7CXLSX%7CPDF&coverage=1717171200%7C1719763199", waiting until "load"[22m
+
+[IngestionEngine] Backfill for src-data-gov-sg completed. Pulled 0 records.
+  - OGP: 0 documents
+[IngestionEngine] Starting backfill for src-data-gov-sg
+[DataGovSgConnector] Pulling data.gov.sg for options: {"agency":"NPARKS","year":"2024","month":"JUN","monthNumeric":"06"}
+Navigating to https://data.gov.sg/datasets?agencies=NPARKS&formats=CSV%7CXLSX%7CPDF&coverage=1717171200%7C1719763199
+[DataGovSgConnector] Error: page.goto: net::ERR_NAME_NOT_RESOLVED at https://data.gov.sg/datasets?agencies=NPARKS&formats=CSV%7CXLSX%7CPDF&coverage=1717171200%7C1719763199
+Call log:
+[2m  - navigating to "https://data.gov.sg/datasets?agencies=NPARKS&formats=CSV%7CXLSX%7CPDF&coverage=1717171200%7C1719763199", waiting until "load"[22m
+
+[IngestionEngine] Backfill for src-data-gov-sg completed. Pulled 0 records.
+  - NPARKS: 0 documents
+[IngestionEngine] Starting backfill for src-data-gov-sg
+[DataGovSgConnector] Pulling data.gov.sg for options: {"agency":"NHB","year":"2024","month":"JUN","monthNumeric":"06"}
+Navigating to https://data.gov.sg/datasets?agencies=NHB&formats=CSV%7CXLSX%7CPDF&coverage=1717171200%7C1719763199
+[DataGovSgConnector] Error: page.goto: net::ERR_NAME_NOT_RESOLVED at https://data.gov.sg/datasets?agencies=NHB&formats=CSV%7CXLSX%7CPDF&coverage=1717171200%7C1719763199
+Call log:
+[2m  - navigating to "https://data.gov.sg/datasets?agencies=NHB&formats=CSV%7CXLSX%7CPDF&coverage=1717171200%7C1719763199", waiting until "load"[22m
+
+[IngestionEngine] Backfill for src-data-gov-sg completed. Pulled 0 records.
+  - NHB: 0 documents
+[IngestionEngine] Starting backfill for src-data-gov-sg
+[DataGovSgConnector] Pulling data.gov.sg for options: {"agency":"MAS","year":"2024","month":"JUN","monthNumeric":"06"}
+Navigating to https://data.gov.sg/datasets?agencies=MAS&formats=CSV%7CXLSX%7CPDF&coverage=1717171200%7C1719763199
+[DataGovSgConnector] Error: page.goto: net::ERR_NAME_NOT_RESOLVED at https://data.gov.sg/datasets?agencies=MAS&formats=CSV%7CXLSX%7CPDF&coverage=1717171200%7C1719763199
+Call log:
+[2m  - navigating to "https://data.gov.sg/datasets?agencies=MAS&formats=CSV%7CXLSX%7CPDF&coverage=1717171200%7C1719763199", waiting until "load"[22m
+
+[IngestionEngine] Backfill for src-data-gov-sg completed. Pulled 0 records.
+  - MAS: 0 documents
+[IngestionEngine] Starting backfill for src-data-gov-sg
+[DataGovSgConnector] Pulling data.gov.sg for options: {"agency":"MOT","year":"2024","month":"JUN","monthNumeric":"06"}
+Navigating to https://data.gov.sg/datasets?agencies=MOT&formats=CSV%7CXLSX%7CPDF&coverage=1717171200%7C1719763199
+[DataGovSgConnector] Error: page.goto: net::ERR_NAME_NOT_RESOLVED at https://data.gov.sg/datasets?agencies=MOT&formats=CSV%7CXLSX%7CPDF&coverage=1717171200%7C1719763199
+Call log:
+[2m  - navigating to "https://data.gov.sg/datasets?agencies=MOT&formats=CSV%7CXLSX%7CPDF&coverage=1717171200%7C1719763199", waiting until "load"[22m
+
+[IngestionEngine] Backfill for src-data-gov-sg completed. Pulled 0 records.
+  - MOT: 0 documents
+[IngestionEngine] Starting backfill for src-data-gov-sg
+[DataGovSgConnector] Pulling data.gov.sg for options: {"agency":"MSF","year":"2024","month":"JUN","monthNumeric":"06"}
+Navigating to https://data.gov.sg/datasets?agencies=MSF&formats=CSV%7CXLSX%7CPDF&coverage=1717171200%7C1719763199
+[DataGovSgConnector] Error: page.goto: net::ERR_NAME_NOT_RESOLVED at https://data.gov.sg/datasets?agencies=MSF&formats=CSV%7CXLSX%7CPDF&coverage=1717171200%7C1719763199
+Call log:
+[2m  - navigating to "https://data.gov.sg/datasets?agencies=MSF&formats=CSV%7CXLSX%7CPDF&coverage=1717171200%7C1719763199", waiting until "load"[22m
+
+[IngestionEngine] Backfill for src-data-gov-sg completed. Pulled 0 records.
+  - MSF: 0 documents
+[IngestionEngine] Starting backfill for src-data-gov-sg
+[DataGovSgConnector] Pulling data.gov.sg for options: {"agency":"MLAW","year":"2024","month":"JUN","monthNumeric":"06"}
+Navigating to https://data.gov.sg/datasets?agencies=MLAW&formats=CSV%7CXLSX%7CPDF&coverage=1717171200%7C1719763199
+[DataGovSgConnector] Error: page.goto: net::ERR_NAME_NOT_RESOLVED at https://data.gov.sg/datasets?agencies=MLAW&formats=CSV%7CXLSX%7CPDF&coverage=1717171200%7C1719763199
+Call log:
+[2m  - navigating to "https://data.gov.sg/datasets?agencies=MLAW&formats=CSV%7CXLSX%7CPDF&coverage=1717171200%7C1719763199", waiting until "load"[22m
+
+[IngestionEngine] Backfill for src-data-gov-sg completed. Pulled 0 records.
+  - MLAW: 0 documents
+[IngestionEngine] Starting backfill for src-data-gov-sg
+[DataGovSgConnector] Pulling data.gov.sg for options: {"agency":"MFA","year":"2024","month":"JUN","monthNumeric":"06"}
+Navigating to https://data.gov.sg/datasets?agencies=MFA&formats=CSV%7CXLSX%7CPDF&coverage=1717171200%7C1719763199
+[DataGovSgConnector] Error: page.goto: net::ERR_NAME_NOT_RESOLVED at https://data.gov.sg/datasets?agencies=MFA&formats=CSV%7CXLSX%7CPDF&coverage=1717171200%7C1719763199
+Call log:
+[2m  - navigating to "https://data.gov.sg/datasets?agencies=MFA&formats=CSV%7CXLSX%7CPDF&coverage=1717171200%7C1719763199", waiting until "load"[22m
+
+[IngestionEngine] Backfill for src-data-gov-sg completed. Pulled 0 records.
+  - MFA: 0 documents
+[IngestionEngine] Starting backfill for src-data-gov-sg
+[DataGovSgConnector] Pulling data.gov.sg for options: {"agency":"MOF","year":"2024","month":"JUN","monthNumeric":"06"}
+Navigating to https://data.gov.sg/datasets?agencies=MOF&formats=CSV%7CXLSX%7CPDF&coverage=1717171200%7C1719763199
+[DataGovSgConnector] Error: page.goto: net::ERR_NAME_NOT_RESOLVED at https://data.gov.sg/datasets?agencies=MOF&formats=CSV%7CXLSX%7CPDF&coverage=1717171200%7C1719763199
+Call log:
+[2m  - navigating to "https://data.gov.sg/datasets?agencies=MOF&formats=CSV%7CXLSX%7CPDF&coverage=1717171200%7C1719763199", waiting until "load"[22m
+
+[IngestionEngine] Backfill for src-data-gov-sg completed. Pulled 0 records.
+  - MOF: 0 documents
+[IngestionEngine] Starting backfill for src-data-gov-sg
+[DataGovSgConnector] Pulling data.gov.sg for options: {"agency":"MPA","year":"2024","month":"JUN","monthNumeric":"06"}
+Navigating to https://data.gov.sg/datasets?agencies=MPA&formats=CSV%7CXLSX%7CPDF&coverage=1717171200%7C1719763199
+[DataGovSgConnector] Error: page.goto: net::ERR_NAME_NOT_RESOLVED at https://data.gov.sg/datasets?agencies=MPA&formats=CSV%7CXLSX%7CPDF&coverage=1717171200%7C1719763199
+Call log:
+[2m  - navigating to "https://data.gov.sg/datasets?agencies=MPA&formats=CSV%7CXLSX%7CPDF&coverage=1717171200%7C1719763199", waiting until "load"[22m
+
+[IngestionEngine] Backfill for src-data-gov-sg completed. Pulled 0 records.
+  - MPA: 0 documents
+[IngestionEngine] Starting backfill for src-data-gov-sg
+[DataGovSgConnector] Pulling data.gov.sg for options: {"agency":"STATECOURTS","year":"2024","month":"JUN","monthNumeric":"06"}
+Navigating to https://data.gov.sg/datasets?agencies=STATECOURTS&formats=CSV%7CXLSX%7CPDF&coverage=1717171200%7C1719763199
+[DataGovSgConnector] Error: page.goto: net::ERR_NAME_NOT_RESOLVED at https://data.gov.sg/datasets?agencies=STATECOURTS&formats=CSV%7CXLSX%7CPDF&coverage=1717171200%7C1719763199
+Call log:
+[2m  - navigating to "https://data.gov.sg/datasets?agencies=STATECOURTS&formats=CSV%7CXLSX%7CPDF&coverage=1717171200%7C1719763199", waiting until "load"[22m
+
+[IngestionEngine] Backfill for src-data-gov-sg completed. Pulled 0 records.
+  - STATECOURTS: 0 documents
+[IngestionEngine] Starting backfill for src-data-gov-sg
+[DataGovSgConnector] Pulling data.gov.sg for options: {"agency":"IMDA","year":"2024","month":"JUN","monthNumeric":"06"}
+Navigating to https://data.gov.sg/datasets?agencies=IMDA&formats=CSV%7CXLSX%7CPDF&coverage=1717171200%7C1719763199
+[DataGovSgConnector] Error: page.goto: net::ERR_NAME_NOT_RESOLVED at https://data.gov.sg/datasets?agencies=IMDA&formats=CSV%7CXLSX%7CPDF&coverage=1717171200%7C1719763199
+Call log:
+[2m  - navigating to "https://data.gov.sg/datasets?agencies=IMDA&formats=CSV%7CXLSX%7CPDF&coverage=1717171200%7C1719763199", waiting until "load"[22m
+
+[IngestionEngine] Backfill for src-data-gov-sg completed. Pulled 0 records.
+  - IMDA: 0 documents
+[IngestionEngine] Starting backfill for src-data-gov-sg
+[DataGovSgConnector] Pulling data.gov.sg for options: {"agency":"IRAS","year":"2024","month":"JUN","monthNumeric":"06"}
+Navigating to https://data.gov.sg/datasets?agencies=IRAS&formats=CSV%7CXLSX%7CPDF&coverage=1717171200%7C1719763199
+[DataGovSgConnector] Error: page.goto: net::ERR_NAME_NOT_RESOLVED at https://data.gov.sg/datasets?agencies=IRAS&formats=CSV%7CXLSX%7CPDF&coverage=1717171200%7C1719763199
+Call log:
+[2m  - navigating to "https://data.gov.sg/datasets?agencies=IRAS&formats=CSV%7CXLSX%7CPDF&coverage=1717171200%7C1719763199", waiting until "load"[22m
+
+[IngestionEngine] Backfill for src-data-gov-sg completed. Pulled 0 records.
+  - IRAS: 0 documents
+[IngestionEngine] Starting backfill for src-data-gov-sg
+[DataGovSgConnector] Pulling data.gov.sg for options: {"agency":"ICA","year":"2024","month":"JUN","monthNumeric":"06"}
+Navigating to https://data.gov.sg/datasets?agencies=ICA&formats=CSV%7CXLSX%7CPDF&coverage=1717171200%7C1719763199
+[DataGovSgConnector] Error: page.goto: net::ERR_NAME_NOT_RESOLVED at https://data.gov.sg/datasets?agencies=ICA&formats=CSV%7CXLSX%7CPDF&coverage=1717171200%7C1719763199
+Call log:
+[2m  - navigating to "https://data.gov.sg/datasets?agencies=ICA&formats=CSV%7CXLSX%7CPDF&coverage=1717171200%7C1719763199", waiting until "load"[22m
+
+[IngestionEngine] Backfill for src-data-gov-sg completed. Pulled 0 records.
+  - ICA: 0 documents
+[IngestionEngine] Starting backfill for src-data-gov-sg
+[DataGovSgConnector] Pulling data.gov.sg for options: {"agency":"HLB","year":"2024","month":"JUN","monthNumeric":"06"}
+Navigating to https://data.gov.sg/datasets?agencies=HLB&formats=CSV%7CXLSX%7CPDF&coverage=1717171200%7C1719763199
+[DataGovSgConnector] Error: page.goto: net::ERR_NAME_NOT_RESOLVED at https://data.gov.sg/datasets?agencies=HLB&formats=CSV%7CXLSX%7CPDF&coverage=1717171200%7C1719763199
+Call log:
+[2m  - navigating to "https://data.gov.sg/datasets?agencies=HLB&formats=CSV%7CXLSX%7CPDF&coverage=1717171200%7C1719763199", waiting until "load"[22m
+
+[IngestionEngine] Backfill for src-data-gov-sg completed. Pulled 0 records.
+  - HLB: 0 documents
+[IngestionEngine] Starting backfill for src-data-gov-sg
+[DataGovSgConnector] Pulling data.gov.sg for options: {"agency":"NEA","year":"2024","month":"JUN","monthNumeric":"06"}
+Navigating to https://data.gov.sg/datasets?agencies=NEA&formats=CSV%7CXLSX%7CPDF&coverage=1717171200%7C1719763199
+[DataGovSgConnector] Error: page.goto: net::ERR_NAME_NOT_RESOLVED at https://data.gov.sg/datasets?agencies=NEA&formats=CSV%7CXLSX%7CPDF&coverage=1717171200%7C1719763199
+Call log:
+[2m  - navigating to "https://data.gov.sg/datasets?agencies=NEA&formats=CSV%7CXLSX%7CPDF&coverage=1717171200%7C1719763199", waiting until "load"[22m
+
+[IngestionEngine] Backfill for src-data-gov-sg completed. Pulled 0 records.
+  - NEA: 0 documents
+[IngestionEngine] Starting backfill for src-data-gov-sg
+[DataGovSgConnector] Pulling data.gov.sg for options: {"agency":"A*STAR","year":"2024","month":"JUN","monthNumeric":"06"}
+Navigating to https://data.gov.sg/datasets?agencies=A*STAR&formats=CSV%7CXLSX%7CPDF&coverage=1717171200%7C1719763199
+[DataGovSgConnector] Error: page.goto: net::ERR_NAME_NOT_RESOLVED at https://data.gov.sg/datasets?agencies=A*STAR&formats=CSV%7CXLSX%7CPDF&coverage=1717171200%7C1719763199
+Call log:
+[2m  - navigating to "https://data.gov.sg/datasets?agencies=A*STAR&formats=CSV%7CXLSX%7CPDF&coverage=1717171200%7C1719763199", waiting until "load"[22m
+
+[IngestionEngine] Backfill for src-data-gov-sg completed. Pulled 0 records.
+  - A*STAR: 0 documents
+[IngestionEngine] Starting backfill for src-data-gov-sg
+[DataGovSgConnector] Pulling data.gov.sg for options: {"agency":"CPF","year":"2024","month":"JUN","monthNumeric":"06"}
+Navigating to https://data.gov.sg/datasets?agencies=CPF&formats=CSV%7CXLSX%7CPDF&coverage=1717171200%7C1719763199
+[DataGovSgConnector] Error: page.goto: net::ERR_NAME_NOT_RESOLVED at https://data.gov.sg/datasets?agencies=CPF&formats=CSV%7CXLSX%7CPDF&coverage=1717171200%7C1719763199
+Call log:
+[2m  - navigating to "https://data.gov.sg/datasets?agencies=CPF&formats=CSV%7CXLSX%7CPDF&coverage=1717171200%7C1719763199", waiting until "load"[22m
+
+[IngestionEngine] Backfill for src-data-gov-sg completed. Pulled 0 records.
+  - CPF: 0 documents
+[IngestionEngine] Starting backfill for src-data-gov-sg
+[DataGovSgConnector] Pulling data.gov.sg for options: {"agency":"CAAS","year":"2024","month":"JUN","monthNumeric":"06"}
+Navigating to https://data.gov.sg/datasets?agencies=CAAS&formats=CSV%7CXLSX%7CPDF&coverage=1717171200%7C1719763199
+[DataGovSgConnector] Error: page.goto: net::ERR_NAME_NOT_RESOLVED at https://data.gov.sg/datasets?agencies=CAAS&formats=CSV%7CXLSX%7CPDF&coverage=1717171200%7C1719763199
+Call log:
+[2m  - navigating to "https://data.gov.sg/datasets?agencies=CAAS&formats=CSV%7CXLSX%7CPDF&coverage=1717171200%7C1719763199", waiting until "load"[22m
+
+[IngestionEngine] Backfill for src-data-gov-sg completed. Pulled 0 records.
+  - CAAS: 0 documents
+[IngestionEngine] Starting backfill for src-data-gov-sg
+[DataGovSgConnector] Pulling data.gov.sg for options: {"agency":"CCCS","year":"2024","month":"JUN","monthNumeric":"06"}
+Navigating to https://data.gov.sg/datasets?agencies=CCCS&formats=CSV%7CXLSX%7CPDF&coverage=1717171200%7C1719763199
+[DataGovSgConnector] Error: page.goto: net::ERR_NAME_NOT_RESOLVED at https://data.gov.sg/datasets?agencies=CCCS&formats=CSV%7CXLSX%7CPDF&coverage=1717171200%7C1719763199
+Call log:
+[2m  - navigating to "https://data.gov.sg/datasets?agencies=CCCS&formats=CSV%7CXLSX%7CPDF&coverage=1717171200%7C1719763199", waiting until "load"[22m
+
+[IngestionEngine] Backfill for src-data-gov-sg completed. Pulled 0 records.
+  - CCCS: 0 documents
+[IngestionEngine] Starting backfill for src-data-gov-sg
+[DataGovSgConnector] Pulling data.gov.sg for options: {"agency":"EDB","year":"2024","month":"JUN","monthNumeric":"06"}
+Navigating to https://data.gov.sg/datasets?agencies=EDB&formats=CSV%7CXLSX%7CPDF&coverage=1717171200%7C1719763199
+[DataGovSgConnector] Error: page.goto: net::ERR_NAME_NOT_RESOLVED at https://data.gov.sg/datasets?agencies=EDB&formats=CSV%7CXLSX%7CPDF&coverage=1717171200%7C1719763199
+Call log:
+[2m  - navigating to "https://data.gov.sg/datasets?agencies=EDB&formats=CSV%7CXLSX%7CPDF&coverage=1717171200%7C1719763199", waiting until "load"[22m
+
+[IngestionEngine] Backfill for src-data-gov-sg completed. Pulled 0 records.
+  - EDB: 0 documents
+[IngestionEngine] Starting backfill for src-data-gov-sg
+[DataGovSgConnector] Pulling data.gov.sg for options: {"agency":"ENTERPRISESG","year":"2024","month":"JUN","monthNumeric":"06"}
+Navigating to https://data.gov.sg/datasets?agencies=ENTERPRISESG&formats=CSV%7CXLSX%7CPDF&coverage=1717171200%7C1719763199
+[DataGovSgConnector] Error: page.goto: net::ERR_NAME_NOT_RESOLVED at https://data.gov.sg/datasets?agencies=ENTERPRISESG&formats=CSV%7CXLSX%7CPDF&coverage=1717171200%7C1719763199
+Call log:
+[2m  - navigating to "https://data.gov.sg/datasets?agencies=ENTERPRISESG&formats=CSV%7CXLSX%7CPDF&coverage=1717171200%7C1719763199", waiting until "load"[22m
+
+[IngestionEngine] Backfill for src-data-gov-sg completed. Pulled 0 records.
+  - ENTERPRISESG: 0 documents
+[IngestionEngine] Starting backfill for src-data-gov-sg
+[DataGovSgConnector] Pulling data.gov.sg for options: {"agency":"GovTech","year":"2024","month":"JUN","monthNumeric":"06"}
+Navigating to https://data.gov.sg/datasets?agencies=GovTech&formats=CSV%7CXLSX%7CPDF&coverage=1717171200%7C1719763199
+[DataGovSgConnector] Error: page.goto: net::ERR_NAME_NOT_RESOLVED at https://data.gov.sg/datasets?agencies=GovTech&formats=CSV%7CXLSX%7CPDF&coverage=1717171200%7C1719763199
+Call log:
+[2m  - navigating to "https://data.gov.sg/datasets?agencies=GovTech&formats=CSV%7CXLSX%7CPDF&coverage=1717171200%7C1719763199", waiting until "load"[22m
+
+[IngestionEngine] Backfill for src-data-gov-sg completed. Pulled 0 records.
+  - GovTech: 0 documents
+[IngestionEngine] Starting backfill for src-data-gov-sg
+[DataGovSgConnector] Pulling data.gov.sg for options: {"agency":"HSA","year":"2024","month":"JUN","monthNumeric":"06"}
+Navigating to https://data.gov.sg/datasets?agencies=HSA&formats=CSV%7CXLSX%7CPDF&coverage=1717171200%7C1719763199
+[DataGovSgConnector] Error: page.goto: net::ERR_NAME_NOT_RESOLVED at https://data.gov.sg/datasets?agencies=HSA&formats=CSV%7CXLSX%7CPDF&coverage=1717171200%7C1719763199
+Call log:
+[2m  - navigating to "https://data.gov.sg/datasets?agencies=HSA&formats=CSV%7CXLSX%7CPDF&coverage=1717171200%7C1719763199", waiting until "load"[22m
+
+[IngestionEngine] Backfill for src-data-gov-sg completed. Pulled 0 records.
+  - HSA: 0 documents
+[IngestionEngine] Starting backfill for src-data-gov-sg
+[DataGovSgConnector] Pulling data.gov.sg for options: {"agency":"HPB","year":"2024","month":"JUN","monthNumeric":"06"}
+Navigating to https://data.gov.sg/datasets?agencies=HPB&formats=CSV%7CXLSX%7CPDF&coverage=1717171200%7C1719763199
+[DataGovSgConnector] Error: page.goto: net::ERR_NAME_NOT_RESOLVED at https://data.gov.sg/datasets?agencies=HPB&formats=CSV%7CXLSX%7CPDF&coverage=1717171200%7C1719763199
+Call log:
+[2m  - navigating to "https://data.gov.sg/datasets?agencies=HPB&formats=CSV%7CXLSX%7CPDF&coverage=1717171200%7C1719763199", waiting until "load"[22m
+
+[IngestionEngine] Backfill for src-data-gov-sg completed. Pulled 0 records.
+  - HPB: 0 documents
+[2024-06] Retrieving Company Data for "jetstar asia"...
+[IngestionEngine] Starting backfill for src-egazette
+[IngestionEngine] Error during backfill for src-egazette: ReferenceError: query is not defined
+    at EgazetteConnector.pull (/Users/joseph/Downloads/ELICE/Git/ntuc-revamps/worker-service/src/ingestion/connectors/egazette.ts:58:31)
+    at IngestionEngine.runBackfill (/Users/joseph/Downloads/ELICE/Git/ntuc-revamps/worker-service/src/ingestion/engine.ts:80:48)
+    at async runEpic4Retrieval (/Users/joseph/Downloads/ELICE/Git/ntuc-revamps/worker-service/company-retrieval.test.ts:88:33)
+  - Egazette Error: query is not defined
+[IngestionEngine] Starting backfill for src-news
+[NewsGoogleSearchConnector] Pulling for jetstar asia (straitstimes.com) in range 2024-05-31T16:00:00.000Z to 2024-06-30T16:00:00.000Z
+[NewsGoogleSearchConnector] Trying Google for: jetstar asia after:2024-06-01 before:2024-07-01 site:straitstimes.com
+[NewsGoogleSearchConnector] No site-specific results, trying simple Google search...
+[IngestionEngine] [src-news] Saved document "Search Results CSV" to /Users/joseph/Downloads/ELICE/Git/ntuc-revamps/data-lake/raw/src-news/202406/jetstar asia/straitstimes.com/data.csv
+[NewsGoogleSearchConnector] Found total 0 results. Saved in: 202406/jetstar asia/straitstimes.com
+[IngestionEngine] Backfill for src-news completed. Pulled 1 records.
+  - News: 1 documents
+[IngestionEngine] Starting backfill for src-news
+[NewsGoogleSearchConnector] Pulling for jetstar asia (channelnewsasia.com) in range 2024-05-31T16:00:00.000Z to 2024-06-30T16:00:00.000Z
+[NewsGoogleSearchConnector] Trying Google for: jetstar asia after:2024-06-01 before:2024-07-01 site:channelnewsasia.com
+[NewsGoogleSearchConnector] No site-specific results, trying simple Google search...
+[IngestionEngine] [src-news] Saved document "Search Results CSV" to /Users/joseph/Downloads/ELICE/Git/ntuc-revamps/data-lake/raw/src-news/202406/jetstar asia/channelnewsasia.com/data.csv
+[NewsGoogleSearchConnector] Found total 0 results. Saved in: 202406/jetstar asia/channelnewsasia.com
+[IngestionEngine] Backfill for src-news completed. Pulled 1 records.
+  - News: 1 documents
+[IngestionEngine] Starting backfill for src-news
+[NewsGoogleSearchConnector] Pulling for jetstar asia (todayonline.com) in range 2024-05-31T16:00:00.000Z to 2024-06-30T16:00:00.000Z
+[NewsGoogleSearchConnector] Trying Google for: jetstar asia after:2024-06-01 before:2024-07-01 site:todayonline.com
+[NewsGoogleSearchConnector] No site-specific results, trying simple Google search...
+[IngestionEngine] [src-news] Saved document "Search Results CSV" to /Users/joseph/Downloads/ELICE/Git/ntuc-revamps/data-lake/raw/src-news/202406/jetstar asia/todayonline.com/data.csv
+[NewsGoogleSearchConnector] Found total 0 results. Saved in: 202406/jetstar asia/todayonline.com
+[IngestionEngine] Backfill for src-news completed. Pulled 1 records.
+  - News: 1 documents
+[IngestionEngine] Starting backfill for src-news
+[NewsGoogleSearchConnector] Pulling for jetstar asia (businesstimes.com.sg) in range 2024-05-31T16:00:00.000Z to 2024-06-30T16:00:00.000Z
+[NewsGoogleSearchConnector] Trying Google for: jetstar asia after:2024-06-01 before:2024-07-01 site:businesstimes.com.sg
+[NewsGoogleSearchConnector] No site-specific results, trying simple Google search...
+[IngestionEngine] [src-news] Saved document "Search Results CSV" to /Users/joseph/Downloads/ELICE/Git/ntuc-revamps/data-lake/raw/src-news/202406/jetstar asia/businesstimes.com.sg/data.csv
+[NewsGoogleSearchConnector] Found total 0 results. Saved in: 202406/jetstar asia/businesstimes.com.sg
+[IngestionEngine] Backfill for src-news completed. Pulled 1 records.
+  - News: 1 documents
+[IngestionEngine] Starting backfill for src-reddit-sentiment
+[RedditSentimentConnector] Pulling for jetstar asia
+[RedditSentimentConnector] Searching Google:  jetstar asia after:2024-06-01 before:2024-07-01 site:reddit.com/r/Singapore
+[RedditSentimentConnector] Found 0 Reddit posts.
+[IngestionEngine] Backfill for src-reddit-sentiment completed. Pulled 0 records.
+  - Reddit: 0 documents
+[DEBUG] range.end is [object Date], typeof object, value:  2024-07-31T16:00:00.000Z
+
+--- Processing 2024-07 ---
+[Epic 4] [2024-07] Retrieving Data.gov.sg for 33 agencies...
+[IngestionEngine] Starting backfill for src-data-gov-sg
+[DataGovSgConnector] Pulling data.gov.sg for options: {"agency":"URA","year":"2024","month":"JUL","monthNumeric":"07"}
+Navigating to https://data.gov.sg/datasets?agencies=URA&formats=CSV%7CXLSX%7CPDF&coverage=1719763200%7C1722441599
+[DataGovSgConnector] Error: page.goto: net::ERR_NAME_NOT_RESOLVED at https://data.gov.sg/datasets?agencies=URA&formats=CSV%7CXLSX%7CPDF&coverage=1719763200%7C1722441599
+Call log:
+[2m  - navigating to "https://data.gov.sg/datasets?agencies=URA&formats=CSV%7CXLSX%7CPDF&coverage=1719763200%7C1722441599", waiting until "load"[22m
+
+[IngestionEngine] Backfill for src-data-gov-sg completed. Pulled 0 records.
+  - URA: 0 documents
+[IngestionEngine] Starting backfill for src-data-gov-sg
+[DataGovSgConnector] Pulling data.gov.sg for options: {"agency":"SINGSTAT","year":"2024","month":"JUL","monthNumeric":"07"}
+Navigating to https://data.gov.sg/datasets?agencies=SINGSTAT&formats=CSV%7CXLSX%7CPDF&coverage=1719763200%7C1722441599
+[DataGovSgConnector] Error: page.goto: net::ERR_NAME_NOT_RESOLVED at https://data.gov.sg/datasets?agencies=SINGSTAT&formats=CSV%7CXLSX%7CPDF&coverage=1719763200%7C1722441599
+Call log:
+[2m  - navigating to "https://data.gov.sg/datasets?agencies=SINGSTAT&formats=CSV%7CXLSX%7CPDF&coverage=1719763200%7C1722441599", waiting until "load"[22m
+
+[IngestionEngine] Backfill for src-data-gov-sg completed. Pulled 0 records.
+  - SINGSTAT: 0 documents
+[IngestionEngine] Starting backfill for src-data-gov-sg
+[DataGovSgConnector] Pulling data.gov.sg for options: {"agency":"MOM","year":"2024","month":"JUL","monthNumeric":"07"}
+Navigating to https://data.gov.sg/datasets?agencies=MOM&formats=CSV%7CXLSX%7CPDF&coverage=1719763200%7C1722441599
+[DataGovSgConnector] Error: page.goto: net::ERR_NAME_NOT_RESOLVED at https://data.gov.sg/datasets?agencies=MOM&formats=CSV%7CXLSX%7CPDF&coverage=1719763200%7C1722441599
+Call log:
+[2m  - navigating to "https://data.gov.sg/datasets?agencies=MOM&formats=CSV%7CXLSX%7CPDF&coverage=1719763200%7C1722441599", waiting until "load"[22m
+
+[IngestionEngine] Backfill for src-data-gov-sg completed. Pulled 0 records.
+  - MOM: 0 documents
+[IngestionEngine] Starting backfill for src-data-gov-sg
+[DataGovSgConnector] Pulling data.gov.sg for options: {"agency":"SSG","year":"2024","month":"JUL","monthNumeric":"07"}
+Navigating to https://data.gov.sg/datasets?agencies=SSG&formats=CSV%7CXLSX%7CPDF&coverage=1719763200%7C1722441599
+[DataGovSgConnector] Error: page.goto: net::ERR_NAME_NOT_RESOLVED at https://data.gov.sg/datasets?agencies=SSG&formats=CSV%7CXLSX%7CPDF&coverage=1719763200%7C1722441599
+Call log:
+[2m  - navigating to "https://data.gov.sg/datasets?agencies=SSG&formats=CSV%7CXLSX%7CPDF&coverage=1719763200%7C1722441599", waiting until "load"[22m
+
+[IngestionEngine] Backfill for src-data-gov-sg completed. Pulled 0 records.
+  - SSG: 0 documents
+[IngestionEngine] Starting backfill for src-data-gov-sg
+[DataGovSgConnector] Pulling data.gov.sg for options: {"agency":"WSG","year":"2024","month":"JUL","monthNumeric":"07"}
+Navigating to https://data.gov.sg/datasets?agencies=WSG&formats=CSV%7CXLSX%7CPDF&coverage=1719763200%7C1722441599
+[DataGovSgConnector] Error: page.goto: net::ERR_NAME_NOT_RESOLVED at https://data.gov.sg/datasets?agencies=WSG&formats=CSV%7CXLSX%7CPDF&coverage=1719763200%7C1722441599
+Call log:
+[2m  - navigating to "https://data.gov.sg/datasets?agencies=WSG&formats=CSV%7CXLSX%7CPDF&coverage=1719763200%7C1722441599", waiting until "load"[22m
+
+[IngestionEngine] Backfill for src-data-gov-sg completed. Pulled 0 records.
+  - WSG: 0 documents
+[IngestionEngine] Starting backfill for src-data-gov-sg
+[DataGovSgConnector] Pulling data.gov.sg for options: {"agency":"STB","year":"2024","month":"JUL","monthNumeric":"07"}
+Navigating to https://data.gov.sg/datasets?agencies=STB&formats=CSV%7CXLSX%7CPDF&coverage=1719763200%7C1722441599
+[DataGovSgConnector] Error: page.goto: net::ERR_NAME_NOT_RESOLVED at https://data.gov.sg/datasets?agencies=STB&formats=CSV%7CXLSX%7CPDF&coverage=1719763200%7C1722441599
+Call log:
+[2m  - navigating to "https://data.gov.sg/datasets?agencies=STB&formats=CSV%7CXLSX%7CPDF&coverage=1719763200%7C1722441599", waiting until "load"[22m
+
+[IngestionEngine] Backfill for src-data-gov-sg completed. Pulled 0 records.
+  - STB: 0 documents
+[IngestionEngine] Starting backfill for src-data-gov-sg
+[DataGovSgConnector] Pulling data.gov.sg for options: {"agency":"SLA","year":"2024","month":"JUL","monthNumeric":"07"}
+Navigating to https://data.gov.sg/datasets?agencies=SLA&formats=CSV%7CXLSX%7CPDF&coverage=1719763200%7C1722441599
+[DataGovSgConnector] Error: page.goto: net::ERR_NAME_NOT_RESOLVED at https://data.gov.sg/datasets?agencies=SLA&formats=CSV%7CXLSX%7CPDF&coverage=1719763200%7C1722441599
+Call log:
+[2m  - navigating to "https://data.gov.sg/datasets?agencies=SLA&formats=CSV%7CXLSX%7CPDF&coverage=1719763200%7C1722441599", waiting until "load"[22m
+
+[IngestionEngine] Backfill for src-data-gov-sg completed. Pulled 0 records.
+  - SLA: 0 documents
+[IngestionEngine] Starting backfill for src-data-gov-sg
+[DataGovSgConnector] Pulling data.gov.sg for options: {"agency":"CUSTOMS","year":"2024","month":"JUL","monthNumeric":"07"}
+Navigating to https://data.gov.sg/datasets?agencies=CUSTOMS&formats=CSV%7CXLSX%7CPDF&coverage=1719763200%7C1722441599
+[DataGovSgConnector] Error: page.goto: net::ERR_NAME_NOT_RESOLVED at https://data.gov.sg/datasets?agencies=CUSTOMS&formats=CSV%7CXLSX%7CPDF&coverage=1719763200%7C1722441599
+Call log:
+[2m  - navigating to "https://data.gov.sg/datasets?agencies=CUSTOMS&formats=CSV%7CXLSX%7CPDF&coverage=1719763200%7C1722441599", waiting until "load"[22m
+
+[IngestionEngine] Backfill for src-data-gov-sg completed. Pulled 0 records.
+  - CUSTOMS: 0 documents
+[IngestionEngine] Starting backfill for src-data-gov-sg
+[DataGovSgConnector] Pulling data.gov.sg for options: {"agency":"OGP","year":"2024","month":"JUL","monthNumeric":"07"}
+Navigating to https://data.gov.sg/datasets?agencies=OGP&formats=CSV%7CXLSX%7CPDF&coverage=1719763200%7C1722441599
+[DataGovSgConnector] Error: page.goto: net::ERR_NAME_NOT_RESOLVED at https://data.gov.sg/datasets?agencies=OGP&formats=CSV%7CXLSX%7CPDF&coverage=1719763200%7C1722441599
+Call log:
+[2m  - navigating to "https://data.gov.sg/datasets?agencies=OGP&formats=CSV%7CXLSX%7CPDF&coverage=1719763200%7C1722441599", waiting until "load"[22m
+
+[IngestionEngine] Backfill for src-data-gov-sg completed. Pulled 0 records.
+  - OGP: 0 documents
+[IngestionEngine] Starting backfill for src-data-gov-sg
+[DataGovSgConnector] Pulling data.gov.sg for options: {"agency":"NPARKS","year":"2024","month":"JUL","monthNumeric":"07"}
+Navigating to https://data.gov.sg/datasets?agencies=NPARKS&formats=CSV%7CXLSX%7CPDF&coverage=1719763200%7C1722441599
+[DataGovSgConnector] Error: page.goto: net::ERR_NAME_NOT_RESOLVED at https://data.gov.sg/datasets?agencies=NPARKS&formats=CSV%7CXLSX%7CPDF&coverage=1719763200%7C1722441599
+Call log:
+[2m  - navigating to "https://data.gov.sg/datasets?agencies=NPARKS&formats=CSV%7CXLSX%7CPDF&coverage=1719763200%7C1722441599", waiting until "load"[22m
+
+[IngestionEngine] Backfill for src-data-gov-sg completed. Pulled 0 records.
+  - NPARKS: 0 documents
+[IngestionEngine] Starting backfill for src-data-gov-sg
+[DataGovSgConnector] Pulling data.gov.sg for options: {"agency":"NHB","year":"2024","month":"JUL","monthNumeric":"07"}
+Navigating to https://data.gov.sg/datasets?agencies=NHB&formats=CSV%7CXLSX%7CPDF&coverage=1719763200%7C1722441599
+[DataGovSgConnector] Error: page.goto: net::ERR_NAME_NOT_RESOLVED at https://data.gov.sg/datasets?agencies=NHB&formats=CSV%7CXLSX%7CPDF&coverage=1719763200%7C1722441599
+Call log:
+[2m  - navigating to "https://data.gov.sg/datasets?agencies=NHB&formats=CSV%7CXLSX%7CPDF&coverage=1719763200%7C1722441599", waiting until "load"[22m
+
+[IngestionEngine] Backfill for src-data-gov-sg completed. Pulled 0 records.
+  - NHB: 0 documents
+[IngestionEngine] Starting backfill for src-data-gov-sg
+[DataGovSgConnector] Pulling data.gov.sg for options: {"agency":"MAS","year":"2024","month":"JUL","monthNumeric":"07"}
+Navigating to https://data.gov.sg/datasets?agencies=MAS&formats=CSV%7CXLSX%7CPDF&coverage=1719763200%7C1722441599
+[DataGovSgConnector] Error: page.goto: net::ERR_NAME_NOT_RESOLVED at https://data.gov.sg/datasets?agencies=MAS&formats=CSV%7CXLSX%7CPDF&coverage=1719763200%7C1722441599
+Call log:
+[2m  - navigating to "https://data.gov.sg/datasets?agencies=MAS&formats=CSV%7CXLSX%7CPDF&coverage=1719763200%7C1722441599", waiting until "load"[22m
+
+[IngestionEngine] Backfill for src-data-gov-sg completed. Pulled 0 records.
+  - MAS: 0 documents
+[IngestionEngine] Starting backfill for src-data-gov-sg
+[DataGovSgConnector] Pulling data.gov.sg for options: {"agency":"MOT","year":"2024","month":"JUL","monthNumeric":"07"}
+Navigating to https://data.gov.sg/datasets?agencies=MOT&formats=CSV%7CXLSX%7CPDF&coverage=1719763200%7C1722441599
+[DataGovSgConnector] Error: page.goto: net::ERR_NAME_NOT_RESOLVED at https://data.gov.sg/datasets?agencies=MOT&formats=CSV%7CXLSX%7CPDF&coverage=1719763200%7C1722441599
+Call log:
+[2m  - navigating to "https://data.gov.sg/datasets?agencies=MOT&formats=CSV%7CXLSX%7CPDF&coverage=1719763200%7C1722441599", waiting until "load"[22m
+
+[IngestionEngine] Backfill for src-data-gov-sg completed. Pulled 0 records.
+  - MOT: 0 documents
+[IngestionEngine] Starting backfill for src-data-gov-sg
+[DataGovSgConnector] Pulling data.gov.sg for options: {"agency":"MSF","year":"2024","month":"JUL","monthNumeric":"07"}
+Navigating to https://data.gov.sg/datasets?agencies=MSF&formats=CSV%7CXLSX%7CPDF&coverage=1719763200%7C1722441599
+[DataGovSgConnector] Error: page.goto: net::ERR_NAME_NOT_RESOLVED at https://data.gov.sg/datasets?agencies=MSF&formats=CSV%7CXLSX%7CPDF&coverage=1719763200%7C1722441599
+Call log:
+[2m  - navigating to "https://data.gov.sg/datasets?agencies=MSF&formats=CSV%7CXLSX%7CPDF&coverage=1719763200%7C1722441599", waiting until "load"[22m
+
+[IngestionEngine] Backfill for src-data-gov-sg completed. Pulled 0 records.
+  - MSF: 0 documents
+[IngestionEngine] Starting backfill for src-data-gov-sg
+[DataGovSgConnector] Pulling data.gov.sg for options: {"agency":"MLAW","year":"2024","month":"JUL","monthNumeric":"07"}
+Navigating to https://data.gov.sg/datasets?agencies=MLAW&formats=CSV%7CXLSX%7CPDF&coverage=1719763200%7C1722441599
+[DataGovSgConnector] Error: page.goto: net::ERR_NAME_NOT_RESOLVED at https://data.gov.sg/datasets?agencies=MLAW&formats=CSV%7CXLSX%7CPDF&coverage=1719763200%7C1722441599
+Call log:
+[2m  - navigating to "https://data.gov.sg/datasets?agencies=MLAW&formats=CSV%7CXLSX%7CPDF&coverage=1719763200%7C1722441599", waiting until "load"[22m
+
+[IngestionEngine] Backfill for src-data-gov-sg completed. Pulled 0 records.
+  - MLAW: 0 documents
+[IngestionEngine] Starting backfill for src-data-gov-sg
+[DataGovSgConnector] Pulling data.gov.sg for options: {"agency":"MFA","year":"2024","month":"JUL","monthNumeric":"07"}
+Navigating to https://data.gov.sg/datasets?agencies=MFA&formats=CSV%7CXLSX%7CPDF&coverage=1719763200%7C1722441599
+[DataGovSgConnector] Error: page.goto: net::ERR_NAME_NOT_RESOLVED at https://data.gov.sg/datasets?agencies=MFA&formats=CSV%7CXLSX%7CPDF&coverage=1719763200%7C1722441599
+Call log:
+[2m  - navigating to "https://data.gov.sg/datasets?agencies=MFA&formats=CSV%7CXLSX%7CPDF&coverage=1719763200%7C1722441599", waiting until "load"[22m
+
+[IngestionEngine] Backfill for src-data-gov-sg completed. Pulled 0 records.
+  - MFA: 0 documents
+[IngestionEngine] Starting backfill for src-data-gov-sg
+[DataGovSgConnector] Pulling data.gov.sg for options: {"agency":"MOF","year":"2024","month":"JUL","monthNumeric":"07"}
+Navigating to https://data.gov.sg/datasets?agencies=MOF&formats=CSV%7CXLSX%7CPDF&coverage=1719763200%7C1722441599
+[DataGovSgConnector] Error: page.goto: net::ERR_NAME_NOT_RESOLVED at https://data.gov.sg/datasets?agencies=MOF&formats=CSV%7CXLSX%7CPDF&coverage=1719763200%7C1722441599
+Call log:
+[2m  - navigating to "https://data.gov.sg/datasets?agencies=MOF&formats=CSV%7CXLSX%7CPDF&coverage=1719763200%7C1722441599", waiting until "load"[22m
+
+[IngestionEngine] Backfill for src-data-gov-sg completed. Pulled 0 records.
+  - MOF: 0 documents
+[IngestionEngine] Starting backfill for src-data-gov-sg
+[DataGovSgConnector] Pulling data.gov.sg for options: {"agency":"MPA","year":"2024","month":"JUL","monthNumeric":"07"}
+Navigating to https://data.gov.sg/datasets?agencies=MPA&formats=CSV%7CXLSX%7CPDF&coverage=1719763200%7C1722441599
+[DataGovSgConnector] Error: page.goto: net::ERR_NAME_NOT_RESOLVED at https://data.gov.sg/datasets?agencies=MPA&formats=CSV%7CXLSX%7CPDF&coverage=1719763200%7C1722441599
+Call log:
+[2m  - navigating to "https://data.gov.sg/datasets?agencies=MPA&formats=CSV%7CXLSX%7CPDF&coverage=1719763200%7C1722441599", waiting until "load"[22m
+
+[IngestionEngine] Backfill for src-data-gov-sg completed. Pulled 0 records.
+  - MPA: 0 documents
+[IngestionEngine] Starting backfill for src-data-gov-sg
+[DataGovSgConnector] Pulling data.gov.sg for options: {"agency":"STATECOURTS","year":"2024","month":"JUL","monthNumeric":"07"}
+Navigating to https://data.gov.sg/datasets?agencies=STATECOURTS&formats=CSV%7CXLSX%7CPDF&coverage=1719763200%7C1722441599
+[DataGovSgConnector] Error: page.goto: net::ERR_NAME_NOT_RESOLVED at https://data.gov.sg/datasets?agencies=STATECOURTS&formats=CSV%7CXLSX%7CPDF&coverage=1719763200%7C1722441599
+Call log:
+[2m  - navigating to "https://data.gov.sg/datasets?agencies=STATECOURTS&formats=CSV%7CXLSX%7CPDF&coverage=1719763200%7C1722441599", waiting until "load"[22m
+
+[IngestionEngine] Backfill for src-data-gov-sg completed. Pulled 0 records.
+  - STATECOURTS: 0 documents
+[IngestionEngine] Starting backfill for src-data-gov-sg
+[DataGovSgConnector] Pulling data.gov.sg for options: {"agency":"IMDA","year":"2024","month":"JUL","monthNumeric":"07"}
+Navigating to https://data.gov.sg/datasets?agencies=IMDA&formats=CSV%7CXLSX%7CPDF&coverage=1719763200%7C1722441599
+[DataGovSgConnector] Error: page.goto: net::ERR_NAME_NOT_RESOLVED at https://data.gov.sg/datasets?agencies=IMDA&formats=CSV%7CXLSX%7CPDF&coverage=1719763200%7C1722441599
+Call log:
+[2m  - navigating to "https://data.gov.sg/datasets?agencies=IMDA&formats=CSV%7CXLSX%7CPDF&coverage=1719763200%7C1722441599", waiting until "load"[22m
+
+[IngestionEngine] Backfill for src-data-gov-sg completed. Pulled 0 records.
+  - IMDA: 0 documents
+[IngestionEngine] Starting backfill for src-data-gov-sg
+[DataGovSgConnector] Pulling data.gov.sg for options: {"agency":"IRAS","year":"2024","month":"JUL","monthNumeric":"07"}
+Navigating to https://data.gov.sg/datasets?agencies=IRAS&formats=CSV%7CXLSX%7CPDF&coverage=1719763200%7C1722441599
+[DataGovSgConnector] Error: page.goto: net::ERR_NAME_NOT_RESOLVED at https://data.gov.sg/datasets?agencies=IRAS&formats=CSV%7CXLSX%7CPDF&coverage=1719763200%7C1722441599
+Call log:
+[2m  - navigating to "https://data.gov.sg/datasets?agencies=IRAS&formats=CSV%7CXLSX%7CPDF&coverage=1719763200%7C1722441599", waiting until "load"[22m
+
+[IngestionEngine] Backfill for src-data-gov-sg completed. Pulled 0 records.
+  - IRAS: 0 documents
+[IngestionEngine] Starting backfill for src-data-gov-sg
+[DataGovSgConnector] Pulling data.gov.sg for options: {"agency":"ICA","year":"2024","month":"JUL","monthNumeric":"07"}
+Navigating to https://data.gov.sg/datasets?agencies=ICA&formats=CSV%7CXLSX%7CPDF&coverage=1719763200%7C1722441599
+[DataGovSgConnector] Error: page.goto: net::ERR_NAME_NOT_RESOLVED at https://data.gov.sg/datasets?agencies=ICA&formats=CSV%7CXLSX%7CPDF&coverage=1719763200%7C1722441599
+Call log:
+[2m  - navigating to "https://data.gov.sg/datasets?agencies=ICA&formats=CSV%7CXLSX%7CPDF&coverage=1719763200%7C1722441599", waiting until "load"[22m
+
+[IngestionEngine] Backfill for src-data-gov-sg completed. Pulled 0 records.
+  - ICA: 0 documents
+[IngestionEngine] Starting backfill for src-data-gov-sg
+[DataGovSgConnector] Pulling data.gov.sg for options: {"agency":"HLB","year":"2024","month":"JUL","monthNumeric":"07"}
+Navigating to https://data.gov.sg/datasets?agencies=HLB&formats=CSV%7CXLSX%7CPDF&coverage=1719763200%7C1722441599
+[DataGovSgConnector] Error: page.goto: net::ERR_NAME_NOT_RESOLVED at https://data.gov.sg/datasets?agencies=HLB&formats=CSV%7CXLSX%7CPDF&coverage=1719763200%7C1722441599
+Call log:
+[2m  - navigating to "https://data.gov.sg/datasets?agencies=HLB&formats=CSV%7CXLSX%7CPDF&coverage=1719763200%7C1722441599", waiting until "load"[22m
+
+[IngestionEngine] Backfill for src-data-gov-sg completed. Pulled 0 records.
+  - HLB: 0 documents
+[IngestionEngine] Starting backfill for src-data-gov-sg
+[DataGovSgConnector] Pulling data.gov.sg for options: {"agency":"NEA","year":"2024","month":"JUL","monthNumeric":"07"}
+Navigating to https://data.gov.sg/datasets?agencies=NEA&formats=CSV%7CXLSX%7CPDF&coverage=1719763200%7C1722441599
+[DataGovSgConnector] Error: page.goto: net::ERR_NAME_NOT_RESOLVED at https://data.gov.sg/datasets?agencies=NEA&formats=CSV%7CXLSX%7CPDF&coverage=1719763200%7C1722441599
+Call log:
+[2m  - navigating to "https://data.gov.sg/datasets?agencies=NEA&formats=CSV%7CXLSX%7CPDF&coverage=1719763200%7C1722441599", waiting until "load"[22m
+
+[IngestionEngine] Backfill for src-data-gov-sg completed. Pulled 0 records.
+  - NEA: 0 documents
+[IngestionEngine] Starting backfill for src-data-gov-sg
+[DataGovSgConnector] Pulling data.gov.sg for options: {"agency":"A*STAR","year":"2024","month":"JUL","monthNumeric":"07"}
+Navigating to https://data.gov.sg/datasets?agencies=A*STAR&formats=CSV%7CXLSX%7CPDF&coverage=1719763200%7C1722441599
+[DataGovSgConnector] Error: page.goto: net::ERR_NAME_NOT_RESOLVED at https://data.gov.sg/datasets?agencies=A*STAR&formats=CSV%7CXLSX%7CPDF&coverage=1719763200%7C1722441599
+Call log:
+[2m  - navigating to "https://data.gov.sg/datasets?agencies=A*STAR&formats=CSV%7CXLSX%7CPDF&coverage=1719763200%7C1722441599", waiting until "load"[22m
+
+[IngestionEngine] Backfill for src-data-gov-sg completed. Pulled 0 records.
+  - A*STAR: 0 documents
+[IngestionEngine] Starting backfill for src-data-gov-sg
+[DataGovSgConnector] Pulling data.gov.sg for options: {"agency":"CPF","year":"2024","month":"JUL","monthNumeric":"07"}
+Navigating to https://data.gov.sg/datasets?agencies=CPF&formats=CSV%7CXLSX%7CPDF&coverage=1719763200%7C1722441599
+[DataGovSgConnector] Error: page.goto: net::ERR_NAME_NOT_RESOLVED at https://data.gov.sg/datasets?agencies=CPF&formats=CSV%7CXLSX%7CPDF&coverage=1719763200%7C1722441599
+Call log:
+[2m  - navigating to "https://data.gov.sg/datasets?agencies=CPF&formats=CSV%7CXLSX%7CPDF&coverage=1719763200%7C1722441599", waiting until "load"[22m
+
+[IngestionEngine] Backfill for src-data-gov-sg completed. Pulled 0 records.
+  - CPF: 0 documents
+[IngestionEngine] Starting backfill for src-data-gov-sg
+[DataGovSgConnector] Pulling data.gov.sg for options: {"agency":"CAAS","year":"2024","month":"JUL","monthNumeric":"07"}
+Navigating to https://data.gov.sg/datasets?agencies=CAAS&formats=CSV%7CXLSX%7CPDF&coverage=1719763200%7C1722441599
+[DataGovSgConnector] Error: page.goto: net::ERR_NAME_NOT_RESOLVED at https://data.gov.sg/datasets?agencies=CAAS&formats=CSV%7CXLSX%7CPDF&coverage=1719763200%7C1722441599
+Call log:
+[2m  - navigating to "https://data.gov.sg/datasets?agencies=CAAS&formats=CSV%7CXLSX%7CPDF&coverage=1719763200%7C1722441599", waiting until "load"[22m
+
+[IngestionEngine] Backfill for src-data-gov-sg completed. Pulled 0 records.
+  - CAAS: 0 documents
+[IngestionEngine] Starting backfill for src-data-gov-sg
+[DataGovSgConnector] Pulling data.gov.sg for options: {"agency":"CCCS","year":"2024","month":"JUL","monthNumeric":"07"}
+Navigating to https://data.gov.sg/datasets?agencies=CCCS&formats=CSV%7CXLSX%7CPDF&coverage=1719763200%7C1722441599
+[DataGovSgConnector] Error: page.goto: net::ERR_NAME_NOT_RESOLVED at https://data.gov.sg/datasets?agencies=CCCS&formats=CSV%7CXLSX%7CPDF&coverage=1719763200%7C1722441599
+Call log:
+[2m  - navigating to "https://data.gov.sg/datasets?agencies=CCCS&formats=CSV%7CXLSX%7CPDF&coverage=1719763200%7C1722441599", waiting until "load"[22m
+
+[IngestionEngine] Backfill for src-data-gov-sg completed. Pulled 0 records.
+  - CCCS: 0 documents
+[IngestionEngine] Starting backfill for src-data-gov-sg
+[DataGovSgConnector] Pulling data.gov.sg for options: {"agency":"EDB","year":"2024","month":"JUL","monthNumeric":"07"}
+Navigating to https://data.gov.sg/datasets?agencies=EDB&formats=CSV%7CXLSX%7CPDF&coverage=1719763200%7C1722441599
+[DataGovSgConnector] Error: page.goto: net::ERR_NAME_NOT_RESOLVED at https://data.gov.sg/datasets?agencies=EDB&formats=CSV%7CXLSX%7CPDF&coverage=1719763200%7C1722441599
+Call log:
+[2m  - navigating to "https://data.gov.sg/datasets?agencies=EDB&formats=CSV%7CXLSX%7CPDF&coverage=1719763200%7C1722441599", waiting until "load"[22m
+
+[IngestionEngine] Backfill for src-data-gov-sg completed. Pulled 0 records.
+  - EDB: 0 documents
+[IngestionEngine] Starting backfill for src-data-gov-sg
+[DataGovSgConnector] Pulling data.gov.sg for options: {"agency":"ENTERPRISESG","year":"2024","month":"JUL","monthNumeric":"07"}
+Navigating to https://data.gov.sg/datasets?agencies=ENTERPRISESG&formats=CSV%7CXLSX%7CPDF&coverage=1719763200%7C1722441599
+[DataGovSgConnector] Error: page.goto: net::ERR_NAME_NOT_RESOLVED at https://data.gov.sg/datasets?agencies=ENTERPRISESG&formats=CSV%7CXLSX%7CPDF&coverage=1719763200%7C1722441599
+Call log:
+[2m  - navigating to "https://data.gov.sg/datasets?agencies=ENTERPRISESG&formats=CSV%7CXLSX%7CPDF&coverage=1719763200%7C1722441599", waiting until "load"[22m
+
+[IngestionEngine] Backfill for src-data-gov-sg completed. Pulled 0 records.
+  - ENTERPRISESG: 0 documents
+[IngestionEngine] Starting backfill for src-data-gov-sg
+[DataGovSgConnector] Pulling data.gov.sg for options: {"agency":"GovTech","year":"2024","month":"JUL","monthNumeric":"07"}
+Navigating to https://data.gov.sg/datasets?agencies=GovTech&formats=CSV%7CXLSX%7CPDF&coverage=1719763200%7C1722441599
+[DataGovSgConnector] Error: page.goto: net::ERR_NAME_NOT_RESOLVED at https://data.gov.sg/datasets?agencies=GovTech&formats=CSV%7CXLSX%7CPDF&coverage=1719763200%7C1722441599
+Call log:
+[2m  - navigating to "https://data.gov.sg/datasets?agencies=GovTech&formats=CSV%7CXLSX%7CPDF&coverage=1719763200%7C1722441599", waiting until "load"[22m
+
+[IngestionEngine] Backfill for src-data-gov-sg completed. Pulled 0 records.
+  - GovTech: 0 documents
+[IngestionEngine] Starting backfill for src-data-gov-sg
+[DataGovSgConnector] Pulling data.gov.sg for options: {"agency":"HSA","year":"2024","month":"JUL","monthNumeric":"07"}
+Navigating to https://data.gov.sg/datasets?agencies=HSA&formats=CSV%7CXLSX%7CPDF&coverage=1719763200%7C1722441599
+[DataGovSgConnector] Error: page.goto: net::ERR_NAME_NOT_RESOLVED at https://data.gov.sg/datasets?agencies=HSA&formats=CSV%7CXLSX%7CPDF&coverage=1719763200%7C1722441599
+Call log:
+[2m  - navigating to "https://data.gov.sg/datasets?agencies=HSA&formats=CSV%7CXLSX%7CPDF&coverage=1719763200%7C1722441599", waiting until "load"[22m
+
+[IngestionEngine] Backfill for src-data-gov-sg completed. Pulled 0 records.
+  - HSA: 0 documents
+[IngestionEngine] Starting backfill for src-data-gov-sg
+[DataGovSgConnector] Pulling data.gov.sg for options: {"agency":"HPB","year":"2024","month":"JUL","monthNumeric":"07"}
+Navigating to https://data.gov.sg/datasets?agencies=HPB&formats=CSV%7CXLSX%7CPDF&coverage=1719763200%7C1722441599
+[DataGovSgConnector] Error: page.goto: net::ERR_NAME_NOT_RESOLVED at https://data.gov.sg/datasets?agencies=HPB&formats=CSV%7CXLSX%7CPDF&coverage=1719763200%7C1722441599
+Call log:
+[2m  - navigating to "https://data.gov.sg/datasets?agencies=HPB&formats=CSV%7CXLSX%7CPDF&coverage=1719763200%7C1722441599", waiting until "load"[22m
+
+[IngestionEngine] Backfill for src-data-gov-sg completed. Pulled 0 records.
+  - HPB: 0 documents
+[2024-07] Retrieving Company Data for "jetstar asia"...
+[IngestionEngine] Starting backfill for src-egazette
+[IngestionEngine] Error during backfill for src-egazette: ReferenceError: query is not defined
+    at EgazetteConnector.pull (/Users/joseph/Downloads/ELICE/Git/ntuc-revamps/worker-service/src/ingestion/connectors/egazette.ts:58:31)
+    at IngestionEngine.runBackfill (/Users/joseph/Downloads/ELICE/Git/ntuc-revamps/worker-service/src/ingestion/engine.ts:80:48)
+    at async runEpic4Retrieval (/Users/joseph/Downloads/ELICE/Git/ntuc-revamps/worker-service/company-retrieval.test.ts:88:33)
+  - Egazette Error: query is not defined
+[IngestionEngine] Starting backfill for src-news
+[NewsGoogleSearchConnector] Pulling for jetstar asia (straitstimes.com) in range 2024-06-30T16:00:00.000Z to 2024-07-31T16:00:00.000Z
+[NewsGoogleSearchConnector] Trying Google for: jetstar asia after:2024-07-01 before:2024-08-01 site:straitstimes.com
+[NewsGoogleSearchConnector] No site-specific results, trying simple Google search...
+[IngestionEngine] [src-news] Saved document "Search Results CSV" to /Users/joseph/Downloads/ELICE/Git/ntuc-revamps/data-lake/raw/src-news/202407/jetstar asia/straitstimes.com/data.csv
+[NewsGoogleSearchConnector] Found total 0 results. Saved in: 202407/jetstar asia/straitstimes.com
+[IngestionEngine] Backfill for src-news completed. Pulled 1 records.
+  - News: 1 documents
+[IngestionEngine] Starting backfill for src-news
+[NewsGoogleSearchConnector] Pulling for jetstar asia (channelnewsasia.com) in range 2024-06-30T16:00:00.000Z to 2024-07-31T16:00:00.000Z
+[NewsGoogleSearchConnector] Trying Google for: jetstar asia after:2024-07-01 before:2024-08-01 site:channelnewsasia.com
+[NewsGoogleSearchConnector] No site-specific results, trying simple Google search...
+[IngestionEngine] [src-news] Saved document "Search Results CSV" to /Users/joseph/Downloads/ELICE/Git/ntuc-revamps/data-lake/raw/src-news/202407/jetstar asia/channelnewsasia.com/data.csv
+[NewsGoogleSearchConnector] Found total 0 results. Saved in: 202407/jetstar asia/channelnewsasia.com
+[IngestionEngine] Backfill for src-news completed. Pulled 1 records.
+  - News: 1 documents
+[IngestionEngine] Starting backfill for src-news
+[NewsGoogleSearchConnector] Pulling for jetstar asia (todayonline.com) in range 2024-06-30T16:00:00.000Z to 2024-07-31T16:00:00.000Z
+[NewsGoogleSearchConnector] Trying Google for: jetstar asia after:2024-07-01 before:2024-08-01 site:todayonline.com
+[NewsGoogleSearchConnector] No site-specific results, trying simple Google search...
+[IngestionEngine] [src-news] Saved document "Search Results CSV" to /Users/joseph/Downloads/ELICE/Git/ntuc-revamps/data-lake/raw/src-news/202407/jetstar asia/todayonline.com/data.csv
+[NewsGoogleSearchConnector] Found total 0 results. Saved in: 202407/jetstar asia/todayonline.com
+[IngestionEngine] Backfill for src-news completed. Pulled 1 records.
+  - News: 1 documents
+[IngestionEngine] Starting backfill for src-news
+[NewsGoogleSearchConnector] Pulling for jetstar asia (businesstimes.com.sg) in range 2024-06-30T16:00:00.000Z to 2024-07-31T16:00:00.000Z

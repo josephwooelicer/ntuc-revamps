@@ -5,6 +5,7 @@ import { EgazetteConnector } from './src/ingestion/connectors/egazette';
 import { RedditSentimentConnector } from './src/ingestion/connectors/reddit-sentiment';
 import { IngestionRange } from './src/ingestion/types';
 import path from 'path';
+import { fromSGT } from './src/ingestion/utils';
 
 /**
  * Epic 4: Raw Data Retrieval Test
@@ -32,9 +33,10 @@ async function runEpic4Retrieval(targetYear: number, targetMonth: number, compan
     engine.registerConnector(new EgazetteConnector());
     engine.registerConnector(new RedditSentimentConnector());
 
-    // Generate month-by-month ranges for the previous 12 months
+    // Generate month-by-month ranges for the previous 12 months using SGT
     const months: { year: number, month: number }[] = [];
     for (let i = 12; i >= 1; i--) {
+        // Create SGT date for the first day of the target month, then subtract i months
         const d = new Date(Date.UTC(targetYear, targetMonth - 1 - i, 1));
         months.push({
             year: d.getUTCFullYear(),
@@ -47,13 +49,17 @@ async function runEpic4Retrieval(targetYear: number, targetMonth: number, compan
     for (const m of months) {
         const monthStr = m.month.toString().padStart(2, '0');
         const yearStr = m.year.toString();
-        const firstDay = new Date(Date.UTC(m.year, m.month - 1, 1));
-        const lastDay = new Date(Date.UTC(m.year, m.month, 0, 23, 59, 59));
+
+        // Boundaries in SGT
+        const firstDay = fromSGT(m.year, m.month, 1, 0, 0, 0);
+        const lastDay = fromSGT(m.year, m.month + 1, 1, 0, 0, 0);
 
         const range: IngestionRange = {
             start: firstDay,
             end: lastDay
         };
+
+        console.log(`[DEBUG] range.end is ${Object.prototype.toString.call(range.end)}, typeof ${typeof range.end}, value: `, range.end);
 
         console.log(`\n--- Processing ${yearStr}-${monthStr} ---`);
 
@@ -90,7 +96,41 @@ async function runEpic4Retrieval(targetYear: number, targetMonth: number, compan
         // News (Google Search)
         try {
             const resNews = await engine.runBackfill('src-news', range, {
-                company_name: companyName
+                company_name: companyName,
+                news_site: 'straitstimes.com'
+            });
+            console.log(`  - News: ${resNews.recordsPulled} documents`);
+        } catch (e: any) {
+            console.error(`  - News Error: ${e.message}`);
+        }
+
+        // News (Google Search)
+        try {
+            const resNews = await engine.runBackfill('src-news', range, {
+                company_name: companyName,
+                news_site: 'channelnewsasia.com'
+            });
+            console.log(`  - News: ${resNews.recordsPulled} documents`);
+        } catch (e: any) {
+            console.error(`  - News Error: ${e.message}`);
+        }
+
+        // News (Google Search)
+        try {
+            const resNews = await engine.runBackfill('src-news', range, {
+                company_name: companyName,
+                news_site: 'todayonline.com'
+            });
+            console.log(`  - News: ${resNews.recordsPulled} documents`);
+        } catch (e: any) {
+            console.error(`  - News Error: ${e.message}`);
+        }
+
+        // News (Google Search)
+        try {
+            const resNews = await engine.runBackfill('src-news', range, {
+                company_name: companyName,
+                news_site: 'businesstimes.com.sg'
             });
             console.log(`  - News: ${resNews.recordsPulled} documents`);
         } catch (e: any) {

@@ -3,6 +3,7 @@ import crypto from 'crypto';
 import path from 'path';
 import fs from 'fs';
 import { Connector, IngestionRange, IngestionResult, RawDocument } from '../types';
+import { getSGTComponents } from '../utils';
 
 export class RedditSentimentConnector implements Connector {
     id = 'src-reddit-sentiment';
@@ -21,10 +22,8 @@ export class RedditSentimentConnector implements Connector {
 
         let customDir = '';
         if (range) {
-            const year = range.start.getUTCFullYear();
-            const month = (range.start.getUTCMonth() + 1).toString().padStart(2, '0');
-            const yyyymm = `${year}${month}`;
-            customDir = path.join(yyyymm, companyName);
+            const sgt = getSGTComponents(range.start);
+            customDir = path.join(sgt.yyyymm, companyName);
         } else {
             customDir = companyName;
         }
@@ -48,9 +47,9 @@ export class RedditSentimentConnector implements Connector {
             let searchQuery = ` ${companyName}`;
 
             if (range) {
-                const startStr = range.start.toISOString().split('T')[0];
-                const endStr = range.end.toISOString().split('T')[0];
-                searchQuery += ` after:${startStr} before:${endStr}`;
+                const startSgt = getSGTComponents(range.start);
+                const endSgt = getSGTComponents(range.end);
+                searchQuery += ` after:${startSgt.isoDate} before:${endSgt.isoDate}`;
             }
 
             searchQuery += ` site:reddit.com/r/Singapore`;
