@@ -17,13 +17,6 @@ import { fromSGT } from './src/ingestion/utils';
  * 2. Company data using Egazette, News, and Reddit connectors.
  */
 
-const AGENCIES = [
-    'URA', 'SINGSTAT', 'MOM', 'SSG', 'WSG', 'STB', 'SLA', 'CUSTOMS', 'OGP', 'NPARKS',
-    'NHB', 'MAS', 'MOT', 'MSF', 'MLAW', 'MFA', 'MOF', 'MPA', 'STATECOURTS', 'IMDA',
-    'IRAS', 'ICA', 'HLB', 'NEA', 'A*STAR', 'CPF', 'CAAS', 'CCCS', 'EDB', 'ENTERPRISESG',
-    'GovTech', 'HSA', 'HPB'
-];
-
 async function runEpic4Retrieval(targetYear: number, targetMonth: number, companyName: string) {
     console.log(`[Epic 4] Starting retrieval for ${companyName} checking ${targetYear}-${targetMonth.toString().padStart(2, '0')}`);
 
@@ -59,26 +52,7 @@ async function runEpic4Retrieval(targetYear: number, targetMonth: number, compan
             end: lastDay
         };
 
-        console.log(`[DEBUG] range.end is ${Object.prototype.toString.call(range.end)}, typeof ${typeof range.end}, value: `, range.end);
-
         console.log(`\n--- Processing ${yearStr}-${monthStr} ---`);
-
-        // 1. Industry Data (Data.gov.sg) - All Agencies
-        console.log(`[Epic 4] [${yearStr}-${monthStr}] Retrieving Data.gov.sg for ${AGENCIES.length} agencies...`);
-        for (const agency of AGENCIES) {
-            try {
-                // Note: We use the options format expected by DataGovSgConnector
-                const res = await engine.runBackfill('src-data-gov-sg', range, {
-                    agency: agency,
-                    year: yearStr,
-                    month: getMonthName(m.month),
-                    monthNumeric: monthStr
-                });
-                console.log(`  - ${agency}: ${res.recordsPulled} documents`);
-            } catch (e: any) {
-                console.error(`  - ${agency} Error: ${e.message}`);
-            }
-        }
 
         // 2. Company Data (Egazette, News, Reddit)
         console.log(`[${yearStr}-${monthStr}] Retrieving Company Data for "${companyName}"...`);
@@ -97,40 +71,6 @@ async function runEpic4Retrieval(targetYear: number, targetMonth: number, compan
         try {
             const resNews = await engine.runBackfill('src-news', range, {
                 company_name: companyName,
-                news_site: 'straitstimes.com'
-            });
-            console.log(`  - News: ${resNews.recordsPulled} documents`);
-        } catch (e: any) {
-            console.error(`  - News Error: ${e.message}`);
-        }
-
-        // News (Google Search)
-        try {
-            const resNews = await engine.runBackfill('src-news', range, {
-                company_name: companyName,
-                news_site: 'channelnewsasia.com'
-            });
-            console.log(`  - News: ${resNews.recordsPulled} documents`);
-        } catch (e: any) {
-            console.error(`  - News Error: ${e.message}`);
-        }
-
-        // News (Google Search)
-        try {
-            const resNews = await engine.runBackfill('src-news', range, {
-                company_name: companyName,
-                news_site: 'todayonline.com'
-            });
-            console.log(`  - News: ${resNews.recordsPulled} documents`);
-        } catch (e: any) {
-            console.error(`  - News Error: ${e.message}`);
-        }
-
-        // News (Google Search)
-        try {
-            const resNews = await engine.runBackfill('src-news', range, {
-                company_name: companyName,
-                news_site: 'businesstimes.com.sg'
             });
             console.log(`  - News: ${resNews.recordsPulled} documents`);
         } catch (e: any) {
@@ -157,8 +97,8 @@ function getMonthName(m: number): string {
 }
 
 // Execution
-const targetMonthYm = process.argv[2] || '2025-05';
-const companyToSearch = process.argv[3] || 'jetstar asia';
+const targetMonthYm = process.argv[2] || '2025-08';
+const companyToSearch = process.argv[3] || 'agoda';
 
 const [tYear, tMonth] = targetMonthYm.split('-').map(Number);
 

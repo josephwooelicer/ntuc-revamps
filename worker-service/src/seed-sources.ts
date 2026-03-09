@@ -60,6 +60,16 @@ async function seed() {
             reliabilityWeight: 1.0,
             supportsBackfill: 1,
             isActive: 1
+        },
+        {
+            id: 'src-annual-reports-listed',
+            name: 'Listed Company Annual Reports',
+            sourceType: 'filing',
+            accessMode: 'scrape',
+            category: 'Company Financial',
+            reliabilityWeight: 0.9,
+            supportsBackfill: 1,
+            isActive: 1
         }
     ];
 

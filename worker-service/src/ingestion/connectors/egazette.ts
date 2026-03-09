@@ -1,7 +1,7 @@
 import { chromium } from 'playwright';
-import crypto from 'crypto';
-import fs from 'fs';
-import path from 'path';
+import * as crypto from 'crypto';
+import * as fs from 'fs';
+import * as path from 'path';
 import { Connector, IngestionRange, IngestionResult, RawDocument } from '../types';
 import { fromSGT, getSGTComponents } from '../utils';
 
@@ -25,10 +25,44 @@ import { fromSGT, getSGTComponents } from '../utils';
  *   - minMonth  Start month (1–12, no leading zero).
  *   - maxMonth  End month (1–12, no leading zero).
  *
- * Storage path: data-lake/raw/src-egazette/<company>/<year>/<month>/<filename>.pdf
+ * Storage path: data-lake/raw/src-egazette/<company>/<YYYYMM>/<filename>.pdf
  */
 export class EgazetteConnector implements Connector {
     id = 'src-egazette';
+
+    private buildSearchUrls(query: string, year: number, month: number): string[] {
+        const q = encodeURIComponent(query);
+        const params = `q=${q}&minYear=${year}&maxYear=${year}&minMonth=${month}&maxMonth=${month}`;
+        return [
+            `https://www.egazette.gov.sg/egazette-search/?${params}`,
+            `https://egazette.gov.sg/egazette-search/?${params}`
+        ];
+    }
+
+    private async gotoWithFallback(page: any, urls: string[]): Promise<string> {
+        let lastErr: any;
+
+        for (const url of urls) {
+            for (let attempt = 1; attempt <= 3; attempt += 1) {
+                try {
+                    await page.goto(url, { waitUntil: 'networkidle', timeout: 60000 });
+                    return url;
+                } catch (err: any) {
+                    lastErr = err;
+                    const msg = String(err?.message ?? '');
+                    const retriable =
+                        msg.includes('ERR_NAME_NOT_RESOLVED') ||
+                        msg.includes('ERR_CONNECTION_RESET') ||
+                        msg.includes('ERR_CONNECTION_TIMED_OUT') ||
+                        msg.includes('Timeout');
+                    if (!retriable || attempt === 3) break;
+                    await page.waitForTimeout(1000 * attempt);
+                }
+            }
+        }
+
+        throw lastErr ?? new Error('Failed to open eGazette search URL');
+    }
 
     /**
      * Executes the pull operation for egazette.gov.sg.
@@ -51,15 +85,17 @@ export class EgazetteConnector implements Connector {
         onRecord?: (record: any) => Promise<void>
     ): Promise<IngestionResult> {
         const sgt = range ? getSGTComponents(range.start) : getSGTComponents(new Date());
+        const query: string = options?.query ?? '';
         const month: number = options?.month ?? sgt.month;
         const year: number = options?.year ?? sgt.year;
 
         // Slugify company name for the storage folder segment
         const companyFolder = query.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') || 'unknown';
 
-        const searchUrl = `https://www.egazette.gov.sg/egazette-search/?q=${encodeURIComponent(query)}&minYear=${year}&maxYear=${year}&minMonth=${month}&maxMonth=${month}`;
+        const yyyymm = `${year}${month.toString().padStart(2, '0')}`;
 
-        console.log(`[EgazetteConnector] Searching: ${searchUrl}`);
+        const searchUrls = this.buildSearchUrls(query, year, month);
+        console.log(`[EgazetteConnector] Searching: ${searchUrls[0]}`);
 
         const documents: RawDocument[] = [];
         const browser = await chromium.launch({
@@ -75,7 +111,10 @@ export class EgazetteConnector implements Connector {
             const context = await browser.newContext();
             const page = await context.newPage();
 
-            await page.goto(searchUrl, { waitUntil: 'networkidle', timeout: 60000 });
+            const resolvedUrl = await this.gotoWithFallback(page, searchUrls);
+            if (resolvedUrl !== searchUrls[0]) {
+                console.log(`[EgazetteConnector] Fallback URL used: ${resolvedUrl}`);
+            }
 
             // Wait for Algolia to hydrate and render the hits list
             await page.waitForSelector('.ais-Hits, .ais-InfiniteHits', { timeout: 15000 }).catch(() => {
@@ -116,6 +155,7 @@ export class EgazetteConnector implements Connector {
                         url: pdfUrl,
                         content: pdfBuffer,
                         metadata: {
+                            customSubDir: path.join(companyFolder, yyyymm),
                             company: companyFolder,
                             query,
                             year: year.toString(),

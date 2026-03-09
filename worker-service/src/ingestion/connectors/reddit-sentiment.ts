@@ -1,7 +1,6 @@
 import { chromium, Browser, Page } from 'playwright';
-import crypto from 'crypto';
-import path from 'path';
-import fs from 'fs';
+import * as crypto from 'crypto';
+import * as path from 'path';
 import { Connector, IngestionRange, IngestionResult, RawDocument } from '../types';
 import { getSGTComponents } from '../utils';
 

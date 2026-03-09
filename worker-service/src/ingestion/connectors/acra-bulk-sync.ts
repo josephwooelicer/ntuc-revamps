@@ -1,8 +1,8 @@
-import crypto from 'crypto';
-import sqlite3 from 'sqlite3';
+import * as crypto from 'crypto';
+import * as sqlite3 from 'sqlite3';
 import { open } from 'sqlite';
-import path from 'path';
-import fs from 'fs';
+import * as path from 'path';
+import * as fs from 'fs';
 import { chromium } from 'playwright';
 import { Connector, IngestionRange, IngestionResult, RawDocument } from '../types';
 

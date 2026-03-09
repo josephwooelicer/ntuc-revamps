@@ -1,7 +1,7 @@
-import sqlite3 from 'sqlite3';
+import * as sqlite3 from 'sqlite3';
 import { open, Database } from 'sqlite';
-import path from 'path';
-import crypto from 'crypto';
+import * as path from 'path';
+import * as crypto from 'crypto';
 import { Connector, IngestionRange } from './types';
 import { LocalFileStorage } from '../storage/local-file-storage';
 
