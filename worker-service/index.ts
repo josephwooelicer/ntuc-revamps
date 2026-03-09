@@ -10,7 +10,6 @@ import { NewsGoogleSearchConnector } from './src/ingestion/connectors/news-googl
 import { LayoffsFyiConnector } from './src/ingestion/connectors/layoffs-fyi';
 import { EgazetteConnector } from './src/ingestion/connectors/egazette';
 import { AcraBulkSyncConnector, AcraLocalSearchConnector } from './src/ingestion/connectors/acra-bulk-sync';
-import { ListedCompanyAnnualReportsConnector } from './src/ingestion/connectors/listed-company-annual-reports';
 
 dotenv.config({ path: path.resolve(__dirname, '../.env') });
 
@@ -25,7 +24,6 @@ ingestionEngine.registerConnector(new LayoffsFyiConnector());
 ingestionEngine.registerConnector(new EgazetteConnector());
 ingestionEngine.registerConnector(new AcraBulkSyncConnector());
 ingestionEngine.registerConnector(new AcraLocalSearchConnector());
-ingestionEngine.registerConnector(new ListedCompanyAnnualReportsConnector());
 
 // Resolve paths relative to root directory
 const rootDir = path.resolve(__dirname, '..');

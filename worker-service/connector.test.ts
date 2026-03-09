@@ -5,7 +5,6 @@ import { LayoffsFyiConnector } from './src/ingestion/connectors/layoffs-fyi';
 import { EgazetteConnector } from './src/ingestion/connectors/egazette';
 import { AcraBulkSyncConnector, AcraLocalSearchConnector } from './src/ingestion/connectors/acra-bulk-sync';
 import { RedditSentimentConnector } from './src/ingestion/connectors/reddit-sentiment';
-import { ListedCompanyAnnualReportsConnector } from './src/ingestion/connectors/listed-company-annual-reports';
 import * as sqlite3 from 'sqlite3';
 import { open } from 'sqlite';
 import * as path from 'path';
@@ -37,11 +36,6 @@ async function ensureBizfileSourceSeeded() {
          VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
         ['src-reddit-sentiment', 'Reddit Sentiment', 'news', 'scraping', 'Social Media', 0.8, 1, 1]
     );
-    await db.run(
-        `INSERT OR REPLACE INTO sources (id, name, sourceType, accessMode, category, reliabilityWeight, supportsBackfill, isActive)
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
-        ['src-annual-reports-listed', 'Listed Company Annual Reports', 'filing', 'scraping', 'Company Financial', 0.9, 1, 1]
-    );
     await db.close();
 }
 
@@ -56,7 +50,6 @@ async function test() {
     engine.registerConnector(new AcraBulkSyncConnector());
     engine.registerConnector(new AcraLocalSearchConnector());
     engine.registerConnector(new RedditSentimentConnector());
-    engine.registerConnector(new ListedCompanyAnnualReportsConnector());
 
 
     // console.log('Testing Layoffs.fyi Connector (Singapore)...');
@@ -146,19 +139,7 @@ async function test() {
     //     console.error('Egazette Error:', e);
     // }
 
-    console.log('Testing Listed Company Annual Reports (DBS, Singtel)...');
-    try {
-        const range = {
-            start: new Date('2023-01-01T00:00:00Z'),
-            end: new Date('2026-01-01T00:00:00Z')
-        };
-        const resAnnualReports = await engine.runBackfill('src-annual-reports-listed', range, {
-            company_names: ['Singtel']
-        });
-        console.log(`Listed Company Annual Reports Result: ${resAnnualReports.recordsPulled} documents found (runId: ${resAnnualReports.runId})`);
-    } catch (e) {
-        console.error('Listed Company Annual Reports Error:', e);
-    }
+
 }
 
 test();
