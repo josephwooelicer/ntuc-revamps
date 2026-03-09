@@ -12,7 +12,6 @@ This document describes all connectors under `worker-service/src/ingestion/conne
 | `EgazetteConnector` | `src-egazette` | `egazette.ts` | Singapore e-Gazette search | `documents[]` (PDF buffers) |
 | `AcraBulkSyncConnector` | `src-acra-bulk-sync` | `acra-bulk-sync.ts` | data.gov.sg ACRA bulk datasets | DB side-effect (`acra_entities` upsert), no docs |
 | `AcraLocalSearchConnector` | `src-acra-data-gov-sg` | `acra-bulk-sync.ts` | Local SQLite `acra_entities` | `records[]` (UEN/entity_name) |
-| `ListedCompanyAnnualReportsConnector` | `src-annual-reports-listed` | `listed-company-annual-reports.ts` | Google Search for annual report PDFs | `documents[]` (CSV) |
 | `RedditSentimentConnector` | `src-reddit-sentiment` | `reddit-sentiment.ts` | Google Search + Reddit JSON | `documents[]` (post comments CSVs) |
 
 ## Registration status in worker-service
@@ -24,7 +23,6 @@ Registered in `worker-service/index.ts`:
 - `EgazetteConnector`
 - `AcraBulkSyncConnector`
 - `AcraLocalSearchConnector`
-- `ListedCompanyAnnualReportsConnector`
 
 Present in source but currently not registered in `index.ts`:
 - `RedditSentimentConnector`
@@ -198,31 +196,7 @@ Output:
 - `entity_name`
 - No `documents` produced.
 
-### 7) `ListedCompanyAnnualReportsConnector` (`src-annual-reports-listed`)
-
-File: `listed-company-annual-reports.ts`
-
-Purpose:
-- Finds annual-report PDFs for listed companies using Google search.
-
-Key options:
-- `company_name` (single) and/or `company_names` (array)
-
-Range usage:
-- Adds `after:` / `before:` filters when `range` is provided.
-
-Behavior:
-- Builds query targeting report hosts:
-- `site:links.sgx.com OR site:sgx.com OR site:annualreports.com`
-- Scans first 3 Google results pages (`start=0,10,20`).
-- Stops on Google 429 or empty page.
-- Extracts title/url/snippet/source/query and de-duplicates by normalized URL.
-
-Output:
-- One CSV `RawDocument` per company (`annual_reports.csv`).
-- Metadata includes `company_name`, `query`, `result_count`, `customDir`.
-
-### 8) `RedditSentimentConnector` (`src-reddit-sentiment`)
+### 7) `RedditSentimentConnector` (`src-reddit-sentiment`)
 
 File: `reddit-sentiment.ts`
 
@@ -250,7 +224,7 @@ Output:
 ## Operational caveats
 
 - Several connectors rely on Playwright selectors tied to third-party DOMs (Google/Airtable/eGazette/data.gov.sg). Selector drift can break ingestion.
-- Google-based connectors (`src-news`, `src-annual-reports-listed`, `src-reddit-sentiment`) are rate-limit/challenge-prone and should be run with pacing.
+- Google-based connectors (`src-news`, `src-reddit-sentiment`) are rate-limit/challenge-prone and should be run with pacing.
 - `LayoffsFyiConnector` currently uses headed mode (`headless: false`), which affects CI/remote execution.
 - `AcraBulkSyncConnector` and `AcraLocalSearchConnector` assume SQLite DB path `data/ntuc-ews.db` relative to repo root.
 

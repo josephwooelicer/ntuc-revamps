@@ -11,9 +11,12 @@ import { NewsGoogleSearchConnector } from './src/ingestion/connectors/news-googl
 import { LayoffsFyiConnector } from './src/ingestion/connectors/layoffs-fyi';
 import { EgazetteConnector } from './src/ingestion/connectors/egazette';
 import { AcraBulkSyncConnector, AcraLocalSearchConnector } from './src/ingestion/connectors/acra-bulk-sync';
+<<<<<<< HEAD
 import { ListedCompanyAnnualReportsConnector } from './src/ingestion/connectors/listed-company-annual-reports';
 import { RedditSentimentConnector } from './src/ingestion/connectors/reddit-sentiment';
 import { ProcessingEngine } from './src/processing/engine';
+=======
+>>>>>>> c1e5815 (feat: Remove `ListedCompanyAnnualReportsConnector` along with its documentation and test files.)
 
 dotenv.config({ path: path.resolve(__dirname, '../.env') });
 
@@ -29,8 +32,12 @@ ingestionEngine.registerConnector(new LayoffsFyiConnector());
 ingestionEngine.registerConnector(new EgazetteConnector());
 ingestionEngine.registerConnector(new AcraBulkSyncConnector());
 ingestionEngine.registerConnector(new AcraLocalSearchConnector());
+<<<<<<< HEAD
 ingestionEngine.registerConnector(new ListedCompanyAnnualReportsConnector());
 ingestionEngine.registerConnector(new RedditSentimentConnector());
+=======
+
+>>>>>>> c1e5815 (feat: Remove `ListedCompanyAnnualReportsConnector` along with its documentation and test files.)
 
 // Resolve paths relative to root directory
 const rootDir = path.resolve(__dirname, '..');
