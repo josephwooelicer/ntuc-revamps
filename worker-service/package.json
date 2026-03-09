@@ -7,7 +7,7 @@
     "start": "tsx index.ts",
     "test": "echo \"Error: no test specified\" && exit 1",
     "db:init": "tsx migrate.ts",
-    "db:status": "sqlite3 ../dev.db 'SELECT * FROM migrations;' || echo \"Migrations table not found.\""
+    "db:status": "sqlite3 ../data/ntuc-ews.db 'SELECT * FROM migrations;' || echo \"Migrations table not found.\""
   },
   "keywords": [],
   "author": "",

@@ -13,7 +13,7 @@ import { Connector, IngestionRange, IngestionResult, RawDocument } from '../type
  */
 export class AcraBulkSyncConnector implements Connector {
     id = 'src-acra-bulk-sync';
-    private dbPath = path.resolve(__dirname, '../../../../dev.db');
+    private dbPath = path.resolve(__dirname, '../../../../data/ntuc-ews.db');
 
     // Dataset IDs for the 27 ACRA bulk CSVs
     private datasetIds = [
@@ -168,7 +168,7 @@ export class AcraBulkSyncConnector implements Connector {
  */
 export class AcraLocalSearchConnector implements Connector {
     id = 'src-acra-data-gov-sg';
-    private dbPath = path.resolve(__dirname, '../../../../dev.db');
+    private dbPath = path.resolve(__dirname, '../../../../data/ntuc-ews.db');
 
     async pull(range?: IngestionRange, cursor?: string, options?: Record<string, any>): Promise<IngestionResult> {
         const query = (options?.companyName || options?.query || '').toString().trim();

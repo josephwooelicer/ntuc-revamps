@@ -28,7 +28,7 @@ ingestionEngine.registerConnector(new AcraLocalSearchConnector());
 // Resolve paths relative to root directory
 const rootDir = path.resolve(__dirname, '..');
 const dataLakePath = path.resolve(rootDir, process.env.DATA_LAKE_PATH || 'data-lake/raw');
-const dbPath = path.resolve(rootDir, (process.env.DATABASE_URL || 'file:dev.db').replace('file:', ''));
+const dbPath = path.resolve(rootDir, (process.env.DATABASE_URL || 'file:data/ntuc-ews.db').replace('file:', ''));
 
 app.get('/health', async (req: Request, res: Response) => {
     const checks = {

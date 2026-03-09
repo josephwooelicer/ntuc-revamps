@@ -11,7 +11,7 @@ import path from 'path';
 import fs from 'fs';
 
 async function ensureBizfileSourceSeeded() {
-    const dbPath = path.resolve(__dirname, '../dev.db');
+    const dbPath = path.resolve(__dirname, '../data/ntuc-ews.db');
     const db = await open({
         filename: dbPath,
         driver: sqlite3.Database
@@ -76,20 +76,20 @@ async function test() {
     //     console.error('ACRA Bulk Sync Error:', e);
     // }
 
-    // console.log('Testing ACRA Local Search (lazada)...');
-    // try {
-    //     const resLocalSearch = await engine.runBackfill('src-acra-data-gov-sg', range, {
-    //         companyName: 'lazada'
-    //     });
-    //     console.log(`ACRA Local Search Result: ${resLocalSearch.recordsPulled} records pulled (runId: ${resLocalSearch.runId})`);
+    console.log('Testing ACRA Local Search (lazada)...');
+    try {
+        const resLocalSearch = await engine.runBackfill('src-acra-data-gov-sg', range, {
+            companyName: 'lazada'
+        });
+        console.log(`ACRA Local Search Result: ${resLocalSearch.recordsPulled} records pulled (runId: ${resLocalSearch.runId})`);
 
-    //     if (resLocalSearch.records && resLocalSearch.records.length > 0) {
-    //         console.log('Returned JSON Result:');
-    //         console.log(JSON.stringify(resLocalSearch.records, null, 2));
-    //     }
-    // } catch (e) {
-    //     console.error('ACRA Local Search Error:', e);
-    // }
+        if (resLocalSearch.records && resLocalSearch.records.length > 0) {
+            console.log('Returned JSON Result:');
+            console.log(JSON.stringify(resLocalSearch.records, null, 2));
+        }
+    } catch (e) {
+        console.error('ACRA Local Search Error:', e);
+    }
 
     // console.log('Testing News Google Search (twelve cupcakes)...');
     // try {
@@ -102,15 +102,15 @@ async function test() {
     //     console.error('News Google Search Error:', e);
     // }
 
-    console.log('Testing Reddit Sentiment (twelve cupcakes)...');
-    try {
-        const resReddit = await engine.runBackfill('src-reddit-sentiment', range, {
-            company_name: 'twelve cupcakes'
-        });
-        console.log(`Reddit Sentiment Result: ${resReddit.recordsPulled} documents found (runId: ${resReddit.runId})`);
-    } catch (e) {
-        console.error('Reddit Sentiment Error:', e);
-    }
+    // console.log('Testing Reddit Sentiment (twelve cupcakes)...');
+    // try {
+    //     const resReddit = await engine.runBackfill('src-reddit-sentiment', range, {
+    //         company_name: 'twelve cupcakes'
+    //     });
+    //     console.log(`Reddit Sentiment Result: ${resReddit.recordsPulled} documents found (runId: ${resReddit.runId})`);
+    // } catch (e) {
+    //     console.error('Reddit Sentiment Error:', e);
+    // }
 }
 
 test();

@@ -5,7 +5,7 @@ import fs from 'fs';
 
 async function migrate() {
     const db = await open({
-        filename: path.join(__dirname, '../dev.db'),
+        filename: path.join(__dirname, '../data/ntuc-ews.db'),
         driver: sqlite3.Database
     });
 

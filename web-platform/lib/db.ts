@@ -8,7 +8,7 @@ export async function getDb() {
     if (db) return db;
 
     db = await open({
-        filename: path.join(process.cwd(), '../dev.db'),
+        filename: path.join(process.cwd(), '../data/ntuc-ews.db'),
         driver: sqlite3.Database
     });
 

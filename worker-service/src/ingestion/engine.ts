@@ -11,7 +11,7 @@ export class IngestionEngine {
     private connectors: Map<string, Connector> = new Map();
 
     constructor() {
-        this.dbPath = path.resolve(__dirname, '../../../dev.db');
+        this.dbPath = path.resolve(__dirname, '../../../data/ntuc-ews.db');
         this.storage = new LocalFileStorage(path.resolve(__dirname, '../../../data-lake/raw'));
     }
 

@@ -4,7 +4,7 @@ import path from 'path';
 
 async function logAudit(action: string, entityType: string, entityId: string, oldValue: any, newValue: any, actorUserId: string, reason: string) {
     const db = await open({
-        filename: path.join(__dirname, '../dev.db'),
+        filename: path.join(__dirname, '../data/ntuc-ews.db'),
         driver: sqlite3.Database
     });
 
