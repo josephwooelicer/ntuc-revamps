@@ -10,11 +10,15 @@ import { NewsGoogleSearchConnector } from './src/ingestion/connectors/news-googl
 import { LayoffsFyiConnector } from './src/ingestion/connectors/layoffs-fyi';
 import { EgazetteConnector } from './src/ingestion/connectors/egazette';
 import { AcraBulkSyncConnector, AcraLocalSearchConnector } from './src/ingestion/connectors/acra-bulk-sync';
+import { runDatagovAllAgencies } from './src/ingestion/jobs/datagov-all-agencies';
+import { runEpic4Retrieval } from './src/ingestion/jobs/company-retrieval';
+import cors from 'cors';
 
 dotenv.config({ path: path.resolve(__dirname, '../.env') });
 
 const app = express();
 app.use(express.json());
+app.use(cors());
 const port = process.env.WORKER_PORT || 4000;
 
 const ingestionEngine = new IngestionEngine();
@@ -106,6 +110,51 @@ app.post('/api/v1/ingestion/backfill/news', async (req: Request, res: Response) 
             start: new Date(rangeStart),
             end: new Date(rangeEnd)
         }, req.body);
+        res.json(result);
+    } catch (err: any) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+app.post('/api/v1/jobs/datagov-all-agencies', async (req: Request, res: Response) => {
+    const { startMonth, startYear, endMonth, endYear } = req.body;
+    if (!startMonth || !startYear || !endMonth || !endYear) {
+        return res.status(400).json({ error: 'Missing startMonth, startYear, endMonth, or endYear' });
+    }
+
+    try {
+        const result = await runDatagovAllAgencies(startMonth, startYear, endMonth, endYear);
+        res.json(result);
+    } catch (err: any) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+app.post('/api/v1/jobs/company-retrieval', async (req: Request, res: Response) => {
+    const { targetYear, targetMonth, companyName } = req.body;
+    if (!targetYear || !targetMonth || !companyName) {
+        return res.status(400).json({ error: 'Missing targetYear, targetMonth, or companyName' });
+    }
+
+    try {
+        const result = await runEpic4Retrieval(targetYear, targetMonth, companyName);
+        res.json(result);
+    } catch (err: any) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+app.post('/api/v1/jobs/connector', async (req: Request, res: Response) => {
+    const { sourceId, rangeStart, rangeEnd, params } = req.body;
+    if (!sourceId || !rangeStart || !rangeEnd) {
+        return res.status(400).json({ error: 'Missing sourceId, rangeStart, or rangeEnd' });
+    }
+
+    try {
+        const result = await ingestionEngine.runBackfill(sourceId, {
+            start: new Date(rangeStart),
+            end: new Date(rangeEnd)
+        }, params || {});
         res.json(result);
     } catch (err: any) {
         res.status(500).json({ error: err.message });

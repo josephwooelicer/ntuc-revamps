@@ -16,8 +16,10 @@
   "license": "ISC",
   "type": "commonjs",
   "dependencies": {
+    "@types/cors": "^2.8.19",
     "axios": "1.13.6",
     "cheerio": "1.2.0",
+    "cors": "^2.8.6",
     "dotenv": "16.4.7",
     "express": "4.22.1",
     "playwright": "1.58.2",
