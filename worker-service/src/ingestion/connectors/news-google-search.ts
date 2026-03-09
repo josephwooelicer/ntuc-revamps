@@ -6,7 +6,7 @@ import { getSGTComponents } from '../utils';
 
 export class NewsGoogleSearchConnector implements Connector {
     id = 'src-news';
-    toScreenshot = true;
+    toScreenshot = false;
     private readonly maxSearchRetries = 3;
     private readonly googleHosts = ['https://www.google.com', 'https://www.google.com.sg'];
     private readonly userAgents = [
@@ -83,12 +83,15 @@ export class NewsGoogleSearchConnector implements Connector {
             const screenshot = this.toScreenshot ? await page.screenshot({ fullPage: true }) : null;
 
             // Construct custom directory path
-            let customDir = '';
+            const customDir = companyName;
+            let filePrefix = 'data';
+            let filenameCsv = 'data.csv';
+            let filenameScreenshot = 'screenshot.png';
             if (range) {
                 const sgt = getSGTComponents(range.start);
-                customDir = path.join(companyName, sgt.yyyymm);
-            } else {
-                customDir = companyName;
+                filePrefix = sgt.yyyymm;
+                filenameCsv = `${sgt.yyyymm}.csv`;
+                filenameScreenshot = `${sgt.yyyymm}.png`;
             }
             // Generate CSV
             const csvHeader = 'Title,URL,Snippet,Outlet\n';
@@ -106,7 +109,7 @@ export class NewsGoogleSearchConnector implements Connector {
             // 1. CSV Document — only save if there are results
             if (dedupedResults.length > 0) {
                 const csvDoc: RawDocument = {
-                    id: crypto.createHash('sha256').update(this.id + 'csv' + customDir).digest('hex'),
+                    id: crypto.createHash('sha256').update(this.id + 'csv' + customDir + filePrefix).digest('hex'),
                     sourceId: this.id,
                     externalId: 'search_results_csv',
                     fetchedAt: new Date().toISOString(),
@@ -116,7 +119,7 @@ export class NewsGoogleSearchConnector implements Connector {
                     metadata: {
                         company_name: companyName,
                         customDir: customDir,
-                        filename: 'data.csv'
+                        filename: filenameCsv
                     }
                 };
                 if (onDocument) {
@@ -128,7 +131,7 @@ export class NewsGoogleSearchConnector implements Connector {
             // 2. Screenshot Document
             if (this.toScreenshot) {
                 const screenshotDoc: RawDocument = {
-                    id: crypto.createHash('sha256').update(this.id + 'screenshot' + customDir).digest('hex'),
+                    id: crypto.createHash('sha256').update(this.id + 'screenshot' + customDir + filePrefix).digest('hex'),
                     sourceId: this.id,
                     externalId: 'search_results_screenshot',
                     fetchedAt: new Date().toISOString(),
@@ -138,7 +141,7 @@ export class NewsGoogleSearchConnector implements Connector {
                     metadata: {
                         company_name: companyName,
                         customDir: customDir,
-                        filename: 'screenshot.png'
+                        filename: filenameScreenshot
                     }
                 };
                 if (onDocument) {

@@ -6,8 +6,8 @@ import path from 'path';
 
 const AGENCIES = [
     // 'URA',
-    'MOM',
-    // 'SINGSTATS',
+    // 'MOM',
+    'SINGSTAT',
     // 'SSG', 'WSG', 'STB', 'SLA', 'CUSTOMS', 'OGP',
     // 'NHB', 'MAS', 'MOT', 'MSF', 'MLAW', 'MFA', 'MOF', 'MPA', 'STATECOURTS', 'IMDA',
     // 'IRAS', 'ICA', 'HLB', 'A*STAR', 'CPF', 'CAAS', 'CCCS', 'EDB', 'ENTERPRISESG',
@@ -39,7 +39,7 @@ async function runAllAgencies() {
     console.log(`\n[DataGov All-Agencies Test] Starting for ${AGENCIES.length} agencies...\n`);
 
     const summary: { agency: string; docs: number; error?: string }[] = [];
-    const MAX_RETRIES = 2;
+    const MAX_RETRIES = 3;
 
     for (const agency of AGENCIES) {
         console.log(`\n--- [${agency}] ---`);
