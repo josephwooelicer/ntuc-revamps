@@ -15,6 +15,7 @@ Files:
 - [ ] Extract normalized fields:
   - `entity_name`, `uen` (if found), `event_type`, `signal_category`, `occurred_at`, `summary`
 - [ ] Keep parser confidence and parser version in output.
+- [x] Connector rollout: `src-news` (first connector in sequence).
 
 Files:
 - `worker-service/src/processing/*` (new)
@@ -27,6 +28,7 @@ Files:
   - source URL/local path
   - query/filter metadata snapshot
 - [ ] Flag uncertain mappings for review queue.
+- [x] Connector rollout: `src-news` (first connector in sequence).
 
 Files:
 - `worker-service/src/processing/*`
