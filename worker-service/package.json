@@ -6,6 +6,7 @@
   "scripts": {
     "start": "tsx index.ts",
     "test": "echo \"Error: no test specified\" && exit 1",
+    "test:epic4": "npm run db:init && tsx --test epic4-section6.test.ts",
     "db:init": "tsx migrate.ts",
     "db:status": "sqlite3 ../data/ntuc-ews.db 'SELECT * FROM migrations;' || echo \"Migrations table not found.\"",
     "typecheck": "tsc --noEmit -p tsconfig.json",

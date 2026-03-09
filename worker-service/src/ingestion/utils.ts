@@ -4,6 +4,41 @@ export function getSGTDate(date: Date): Date {
     return new Date(utc + (3600000 * 8));
 }
 
+export function normalizeRangeToSgtDayBounds(start: Date, end: Date) {
+    const startSgt = getSGTComponents(start);
+    const endSgt = getSGTComponents(end);
+    const normalizedStart = fromSGT(startSgt.year, startSgt.month, startSgt.day, 0, 0, 0);
+    const normalizedEnd = fromSGT(endSgt.year, endSgt.month, endSgt.day, 23, 59, 59);
+    return { start: normalizedStart, end: normalizedEnd };
+}
+
+export function splitRangeByMonthInSgt(start: Date, end: Date): Array<{ start: Date; end: Date }> {
+    const startSgt = getSGTComponents(start);
+    const endSgt = getSGTComponents(end);
+    const result: Array<{ start: Date; end: Date }> = [];
+
+    let year = startSgt.year;
+    let month = startSgt.month;
+
+    while (year < endSgt.year || (year === endSgt.year && month <= endSgt.month)) {
+        const monthStart = fromSGT(year, month, 1, 0, 0, 0);
+        const nextMonthYear = month === 12 ? year + 1 : year;
+        const nextMonth = month === 12 ? 1 : month + 1;
+        const monthEnd = new Date(fromSGT(nextMonthYear, nextMonth, 1, 0, 0, 0).getTime() - 1000);
+
+        const boundedStart = monthStart < start ? start : monthStart;
+        const boundedEnd = monthEnd > end ? end : monthEnd;
+        if (boundedStart <= boundedEnd) {
+            result.push({ start: boundedStart, end: boundedEnd });
+        }
+
+        year = nextMonthYear;
+        month = nextMonth;
+    }
+
+    return result;
+}
+
 export function toSGT(date: Date): Date {
     // Treat the incoming Date as UTC and shift it to SGT representation
     return new Date(date.getTime() + (8 * 60 * 60 * 1000));

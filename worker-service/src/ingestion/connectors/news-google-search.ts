@@ -2,12 +2,13 @@ import { chromium, Browser, Page } from 'playwright';
 import * as crypto from 'crypto';
 import * as path from 'path';
 import { Connector, IngestionRange, IngestionResult, RawDocument } from '../types';
-import { getSGTComponents } from '../utils';
+import { getSGTComponents, splitRangeByMonthInSgt } from '../utils';
 
 export class NewsGoogleSearchConnector implements Connector {
     id = 'src-news';
     toScreenshot = true;
     private readonly maxSearchRetries = 3;
+    private readonly maxGooglePages = 1;
     private readonly googleHosts = ['https://www.google.com', 'https://www.google.com.sg'];
     private readonly userAgents = [
         'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36',
@@ -34,6 +35,7 @@ export class NewsGoogleSearchConnector implements Connector {
 
         const newsSites = this.defaultNewsSites;
         const results: any[] = [];
+        const executedQueries: string[] = [];
 
         const browser: Browser = await chromium.launch({
             headless: true,
@@ -47,30 +49,34 @@ export class NewsGoogleSearchConnector implements Connector {
         let page: Page = await context.newPage();
 
         try {
-            let siteQuery = `${companyName}`;
+            const monthlyRanges = range ? splitRangeByMonthInSgt(range.start, range.end) : [undefined];
 
-            if (range) {
-                const startSgt = getSGTComponents(range.start);
-                const endSgt = getSGTComponents(range.end);
-                siteQuery += ` after:${startSgt.isoDate} before:${endSgt.isoDate}`;
-            }
+            for (const monthlyRange of monthlyRanges) {
+                let siteQuery = `${companyName}`;
+                if (monthlyRange) {
+                    const startSgt = getSGTComponents(monthlyRange.start);
+                    const endSgt = getSGTComponents(monthlyRange.end);
+                    siteQuery += ` after:${startSgt.isoDate} before:${endSgt.isoDate}`;
+                }
+                siteQuery += ` (${newsSites.map(site => `site:${site}`).join(' OR ')})`;
+                executedQueries.push(siteQuery);
 
-            siteQuery += ` (${newsSites.map(site => `site:${site}`).join(' OR ')})`;
-
-            console.log(`[NewsGoogleSearchConnector] Trying Google for: ${siteQuery}`);
-
-            const searchResult = await this.fetchGoogleResults(page, siteQuery);
-            if (searchResult.challengeDetected) {
-                console.log(`[NewsGoogleSearchConnector] Google challenge detected. Cooling down and rotating browser context...`);
-                await page.close().catch(() => undefined);
-                await context.close().catch(() => undefined);
-                await this.sleep(15000 + Math.random() * 10000);
-                context = await this.createSteadyContext(browser);
-                page = await context.newPage();
-            } else if (searchResult.responseStatus === 429) {
-                console.log('[NewsGoogleSearchConnector] Rate limited, skipping Google...');
-            } else {
-                const siteResults = searchResult.results.map(item => ({ ...item, outlet: this.resolveOutlet(item.url, newsSites) }));
+                console.log(`[NewsGoogleSearchConnector] Trying Google for: ${siteQuery}`);
+                const searchResults = await this.fetchGoogleResults(page, siteQuery);
+                if (searchResults.challengeDetected) {
+                    console.log('[NewsGoogleSearchConnector] Google challenge detected. Cooling down and rotating browser context...');
+                    await page.close().catch(() => undefined);
+                    await context.close().catch(() => undefined);
+                    await this.sleep(15000 + Math.random() * 10000);
+                    context = await this.createSteadyContext(browser);
+                    page = await context.newPage();
+                    continue;
+                }
+                if (searchResults.responseStatus === 429) {
+                    console.log('[NewsGoogleSearchConnector] Rate limited, skipping Google for this month...');
+                    continue;
+                }
+                const siteResults = searchResults.results.map(item => ({ ...item, outlet: this.resolveOutlet(item.url, newsSites) }));
                 if (siteResults.length > 0) {
                     results.push(...siteResults);
                     console.log(`[NewsGoogleSearchConnector] Found ${siteResults.length} results from combined outlet query`);
@@ -85,8 +91,9 @@ export class NewsGoogleSearchConnector implements Connector {
             // Construct custom directory path
             let customDir = '';
             if (range) {
-                const sgt = getSGTComponents(range.start);
-                customDir = path.join(companyName, sgt.yyyymm);
+                const startSgt = getSGTComponents(range.start);
+                const endSgt = getSGTComponents(range.end);
+                customDir = path.join(companyName, `${startSgt.yyyymm}_${endSgt.yyyymm}`);
             } else {
                 customDir = companyName;
             }
@@ -116,7 +123,16 @@ export class NewsGoogleSearchConnector implements Connector {
                     metadata: {
                         company_name: companyName,
                         customDir: customDir,
-                        filename: 'data.csv'
+                        filename: 'data.csv',
+                        queryText: executedQueries.join(' || '),
+                        filterParams: {
+                            company_name: companyName,
+                            outlets: newsSites,
+                            range_start: range?.start.toISOString() ?? null,
+                            range_end: range?.end.toISOString() ?? null
+                        },
+                        retrievalUrl: 'https://www.google.com/search',
+                        pageNumber: 1
                     }
                 };
                 if (onDocument) {
@@ -138,7 +154,16 @@ export class NewsGoogleSearchConnector implements Connector {
                     metadata: {
                         company_name: companyName,
                         customDir: customDir,
-                        filename: 'screenshot.png'
+                        filename: 'screenshot.png',
+                        queryText: executedQueries.join(' || '),
+                        filterParams: {
+                            company_name: companyName,
+                            outlets: newsSites,
+                            range_start: range?.start.toISOString() ?? null,
+                            range_end: range?.end.toISOString() ?? null
+                        },
+                        retrievalUrl: 'https://www.google.com/search',
+                        pageNumber: 1
                     }
                 };
                 if (onDocument) {
@@ -162,10 +187,33 @@ export class NewsGoogleSearchConnector implements Connector {
     }
 
     private async fetchGoogleResults(page: Page, query: string): Promise<{ results: Array<{ title: string; url: string; snippet: string }>; responseStatus: number | null; challengeDetected: boolean; }> {
+        const aggregatedResults: Array<{ title: string; url: string; snippet: string }> = [];
+        let latestStatus: number | null = null;
+
+        for (let pageIndex = 0; pageIndex < this.maxGooglePages; pageIndex++) {
+            const pageStart = pageIndex * 10;
+            const pageResult = await this.fetchGoogleResultsPage(page, query, pageStart);
+            latestStatus = pageResult.responseStatus;
+            if (pageResult.challengeDetected) {
+                return { results: aggregatedResults, responseStatus: latestStatus, challengeDetected: true };
+            }
+            if (pageResult.responseStatus === 429) {
+                return { results: aggregatedResults, responseStatus: 429, challengeDetected: false };
+            }
+            if (pageResult.results.length === 0) {
+                break;
+            }
+            aggregatedResults.push(...pageResult.results);
+        }
+
+        return { results: aggregatedResults, responseStatus: latestStatus, challengeDetected: false };
+    }
+
+    private async fetchGoogleResultsPage(page: Page, query: string, start: number): Promise<{ results: Array<{ title: string; url: string; snippet: string }>; responseStatus: number | null; challengeDetected: boolean; }> {
         for (let attempt = 1; attempt <= this.maxSearchRetries; attempt++) {
             await this.sleep(this.randomBetween(1800, 4200));
             const host = this.googleHosts[Math.floor(Math.random() * this.googleHosts.length)];
-            const searchUrl = `${host}/search?q=${encodeURIComponent(query)}&hl=en&num=10&pws=0`;
+            const searchUrl = `${host}/search?q=${encodeURIComponent(query)}&hl=en&num=10&pws=0&start=${start}`;
             const response = await page.goto(searchUrl, { waitUntil: 'domcontentloaded', timeout: 45000 }).catch(() => null);
 
             await this.humanizePage(page);

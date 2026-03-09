@@ -2,11 +2,12 @@ import { chromium, Browser, Page } from 'playwright';
 import * as crypto from 'crypto';
 import * as path from 'path';
 import { Connector, IngestionRange, IngestionResult, RawDocument } from '../types';
-import { getSGTComponents } from '../utils';
+import { getSGTComponents, splitRangeByMonthInSgt } from '../utils';
 
 export class RedditSentimentConnector implements Connector {
     id = 'src-reddit-sentiment';
     toScreenshot = false;
+    private readonly maxGooglePages = 1;
 
     async pull(
         range?: IngestionRange,
@@ -19,12 +20,11 @@ export class RedditSentimentConnector implements Connector {
 
         console.log(`[RedditSentimentConnector] Pulling for ${companyName}`);
 
-        let customDir = '';
+        let customDir = companyName;
         if (range) {
-            const sgt = getSGTComponents(range.start);
-            customDir = path.join(sgt.yyyymm, companyName);
-        } else {
-            customDir = companyName;
+            const startSgt = getSGTComponents(range.start);
+            const endSgt = getSGTComponents(range.end);
+            customDir = path.join(companyName, `${startSgt.yyyymm}_${endSgt.yyyymm}`);
         }
 
         const browser: Browser = await chromium.launch({
@@ -42,37 +42,50 @@ export class RedditSentimentConnector implements Connector {
         const page: Page = await context.newPage();
 
         try {
-            // 1. Search Google for Reddit posts
-            let searchQuery = ` ${companyName}`;
+            const monthlyRanges = range ? splitRangeByMonthInSgt(range.start, range.end) : [undefined];
+            const postUrlSet = new Set<string>();
+            const executedQueries: string[] = [];
 
-            if (range) {
-                const startSgt = getSGTComponents(range.start);
-                const endSgt = getSGTComponents(range.end);
-                searchQuery += ` after:${startSgt.isoDate} before:${endSgt.isoDate}`;
+            for (const monthlyRange of monthlyRanges) {
+                let searchQuery = `${companyName} site:reddit.com/r/Singapore`;
+                if (monthlyRange) {
+                    const startSgt = getSGTComponents(monthlyRange.start);
+                    const endSgt = getSGTComponents(monthlyRange.end);
+                    searchQuery += ` after:${startSgt.isoDate} before:${endSgt.isoDate}`;
+                }
+                executedQueries.push(searchQuery);
+
+                console.log(`[RedditSentimentConnector] Searching Google: ${searchQuery}`);
+                for (let pageIndex = 0; pageIndex < this.maxGooglePages; pageIndex++) {
+                    const start = pageIndex * 10;
+                    const searchUrl = `https://www.google.com/search?q=${encodeURIComponent(searchQuery)}&hl=en&num=10&pws=0&start=${start}`;
+                    await page.goto(searchUrl, { waitUntil: 'domcontentloaded' });
+
+                    const pageUrls = await page.evaluate(() => {
+                        const links: string[] = [];
+                        document.querySelectorAll('a').forEach(el => {
+                            const href = el.getAttribute('href');
+                            if (href && (href.includes('reddit.com/r/') || href.includes('reddit.com/user/')) && href.includes('/comments/')) {
+                                const cleanUrl = href.split('?')[0].split('#')[0];
+                                if (!links.includes(cleanUrl)) {
+                                    links.push(cleanUrl);
+                                }
+                            }
+                        });
+                        return links;
+                    });
+
+                    if (pageUrls.length === 0) {
+                        break;
+                    }
+
+                    for (const url of pageUrls) {
+                        postUrlSet.add(url);
+                    }
+                }
             }
 
-            searchQuery += ` site:reddit.com/r/Singapore`;
-
-            const searchUrl = `https://www.google.com/search?q=${encodeURIComponent(searchQuery)}`;
-
-            console.log(`[RedditSentimentConnector] Searching Google: ${searchQuery}`);
-            await page.goto(searchUrl, { waitUntil: 'domcontentloaded' });
-
-            const postUrls = await page.evaluate(() => {
-                const links: string[] = [];
-                // More robust selection: any anchor that points to a reddit comment thread
-                document.querySelectorAll('a').forEach(el => {
-                    const href = el.getAttribute('href');
-                    if (href && (href.includes('reddit.com/r/') || href.includes('reddit.com/user/')) && href.includes('/comments/')) {
-                        // Clean up URL to prevent fragments/queries affecting JSON call
-                        const cleanUrl = href.split('?')[0].split('#')[0];
-                        if (!links.includes(cleanUrl)) {
-                            links.push(cleanUrl);
-                        }
-                    }
-                });
-                return links;
-            });
+            const postUrls = Array.from(postUrlSet);
 
             console.log(`[RedditSentimentConnector] Found ${postUrls.length} Reddit posts.`);
 
@@ -140,7 +153,16 @@ export class RedditSentimentConnector implements Connector {
                                     post_id: postId,
                                     post_title: postTitle,
                                     filename: `${safeTitle}_comments.csv`,
-                                    customDir: customDir
+                                    customDir: path.join(getSGTComponents(new Date(postData.created_utc * 1000)).yyyymm, customDir),
+                                    queryText: executedQueries.join(' || '),
+                                    filterParams: {
+                                        company_name: companyName,
+                                        range_start: range?.start.toISOString() ?? null,
+                                        range_end: range?.end.toISOString() ?? null,
+                                        site: 'reddit.com/r/Singapore'
+                                    },
+                                    retrievalUrl: jsonUrl,
+                                    pageNumber: 1
                                 }
                             };
 

@@ -5,12 +5,14 @@ import fs from 'fs';
 import path from 'path';
 import dotenv from 'dotenv';
 import { IngestionEngine } from './src/ingestion/engine';
+import { normalizeRangeToSgtDayBounds } from './src/ingestion/utils';
 import { DataGovSgConnector } from './src/ingestion/connectors/data-gov-sg';
 import { NewsGoogleSearchConnector } from './src/ingestion/connectors/news-google-search';
 import { LayoffsFyiConnector } from './src/ingestion/connectors/layoffs-fyi';
 import { EgazetteConnector } from './src/ingestion/connectors/egazette';
 import { AcraBulkSyncConnector, AcraLocalSearchConnector } from './src/ingestion/connectors/acra-bulk-sync';
 import { ListedCompanyAnnualReportsConnector } from './src/ingestion/connectors/listed-company-annual-reports';
+import { RedditSentimentConnector } from './src/ingestion/connectors/reddit-sentiment';
 
 dotenv.config({ path: path.resolve(__dirname, '../.env') });
 
@@ -26,6 +28,7 @@ ingestionEngine.registerConnector(new EgazetteConnector());
 ingestionEngine.registerConnector(new AcraBulkSyncConnector());
 ingestionEngine.registerConnector(new AcraLocalSearchConnector());
 ingestionEngine.registerConnector(new ListedCompanyAnnualReportsConnector());
+ingestionEngine.registerConnector(new RedditSentimentConnector());
 
 // Resolve paths relative to root directory
 const rootDir = path.resolve(__dirname, '..');
@@ -104,13 +107,120 @@ app.post('/api/v1/ingestion/backfill/news', async (req: Request, res: Response) 
     }
 
     try {
+        const normalizedRange = normalizeRangeToSgtDayBounds(new Date(rangeStart), new Date(rangeEnd));
         const result = await ingestionEngine.runBackfill(sourceId, {
-            start: new Date(rangeStart),
-            end: new Date(rangeEnd)
+            start: normalizedRange.start,
+            end: normalizedRange.end
         }, req.body);
         res.json(result);
     } catch (err: any) {
         res.status(500).json({ error: err.message });
+    }
+});
+
+app.post('/api/v1/ingestion/run', async (req: Request, res: Response) => {
+    const { runMode, companyName, uen, industry, rangeStart, rangeEnd, options } = req.body;
+    if (!runMode || !rangeStart || !rangeEnd) {
+        return res.status(400).json({ error: 'Missing runMode, rangeStart, or rangeEnd' });
+    }
+    if (runMode !== 'debug_on_demand' && runMode !== 'production') {
+        return res.status(400).json({ error: 'runMode must be debug_on_demand or production' });
+    }
+    if (runMode === 'debug_on_demand' && !companyName && !uen) {
+        return res.status(400).json({ error: 'debug_on_demand requires companyName or uen' });
+    }
+
+    try {
+        const normalizedRange = normalizeRangeToSgtDayBounds(new Date(rangeStart), new Date(rangeEnd));
+        const result = await ingestionEngine.runScopedIngestion({
+            runMode,
+            companyName,
+            uen,
+            industry,
+            range: {
+                start: normalizedRange.start,
+                end: normalizedRange.end
+            },
+            options
+        });
+        return res.json(result);
+    } catch (err: any) {
+        return res.status(500).json({ error: err.message });
+    }
+});
+
+app.get('/api/v1/ingestion/run/:runId', async (req: Request, res: Response) => {
+    const { runId } = req.params;
+    try {
+        const db = await open({ filename: dbPath, driver: sqlite3.Database });
+        const run = await db.get(
+            `SELECT * FROM ingestion_orchestration_run WHERE id = ?`,
+            runId
+        );
+        if (!run) {
+            await db.close();
+            return res.status(404).json({ error: 'Run not found' });
+        }
+
+        const items = await db.all(
+            `SELECT * FROM ingestion_orchestration_item
+             WHERE orchestration_run_id = ?
+             ORDER BY started_at ASC`,
+            runId
+        );
+        await db.close();
+        return res.json({ run, items });
+    } catch (err: any) {
+        return res.status(500).json({ error: err.message });
+    }
+});
+
+app.get('/api/v1/ingestion/runs', async (req: Request, res: Response) => {
+    const status = req.query.status as string | undefined;
+    const runMode = req.query.runMode as string | undefined;
+    const companyName = req.query.companyName as string | undefined;
+    const limitRaw = req.query.limit as string | undefined;
+    const limit = Math.max(1, Math.min(200, Number(limitRaw || 20)));
+
+    const whereParts: string[] = [];
+    const params: any[] = [];
+
+    if (status) {
+        whereParts.push('r.status = ?');
+        params.push(status);
+    }
+    if (runMode) {
+        whereParts.push('r.run_mode = ?');
+        params.push(runMode);
+    }
+    if (companyName) {
+        whereParts.push('r.company_name LIKE ?');
+        params.push(`%${companyName}%`);
+    }
+
+    const whereClause = whereParts.length > 0 ? `WHERE ${whereParts.join(' AND ')}` : '';
+
+    try {
+        const db = await open({ filename: dbPath, driver: sqlite3.Database });
+        const runs = await db.all(
+            `SELECT r.*,
+                    COUNT(i.id) AS connector_count,
+                    SUM(CASE WHEN i.status = 'success' THEN 1 ELSE 0 END) AS connectors_succeeded,
+                    SUM(CASE WHEN i.status = 'failed' THEN 1 ELSE 0 END) AS connectors_failed,
+                    SUM(CASE WHEN i.status = 'skipped' THEN 1 ELSE 0 END) AS connectors_skipped
+             FROM ingestion_orchestration_run r
+             LEFT JOIN ingestion_orchestration_item i ON i.orchestration_run_id = r.id
+             ${whereClause}
+             GROUP BY r.id
+             ORDER BY r.started_at DESC
+             LIMIT ?`,
+            ...params,
+            limit
+        );
+        await db.close();
+        return res.json({ runs, limit });
+    } catch (err: any) {
+        return res.status(500).json({ error: err.message });
     }
 });
 

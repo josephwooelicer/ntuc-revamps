@@ -3,6 +3,8 @@ export interface IngestionRange {
     end: Date;
 }
 
+export type IngestionRunMode = 'debug_on_demand' | 'production';
+
 export interface RawDocument {
     id: string; // hash of sourceId + externalId or URL
     sourceId: string;
@@ -41,4 +43,13 @@ export interface Source {
     reliabilityWeight: number;
     supportsBackfill: boolean;
     isActive: boolean;
+}
+
+export interface ScopedIngestionRequest {
+    runMode: IngestionRunMode;
+    range: IngestionRange;
+    companyName?: string;
+    uen?: string;
+    industry?: string;
+    options?: Record<string, any>;
 }
