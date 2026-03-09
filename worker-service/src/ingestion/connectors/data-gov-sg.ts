@@ -57,14 +57,21 @@ export class DataGovSgConnector implements Connector {
             endUnix = (Math.floor(range.end.getTime() / 1000) - OFFSET_SECONDS).toString();
         }
 
-        const formats = 'CSV|XLSX|PDF';
+        const formats = encodeURIComponent('CSV|XLSX|PDF');
         let baseUrl = `https://data.gov.sg/datasets?agencies=${agency}&formats=${formats}`;
         if (startUnix && endUnix) {
             baseUrl += `&coverage=${startUnix}%7C${endUnix}`;
         }
 
         const documents: RawDocument[] = [];
-        const browser = await chromium.launch({ headless: false });
+        const browser = await chromium.launch({
+            headless: true,
+            args: [
+                '--no-sandbox',
+                '--disable-setuid-sandbox',
+                '--disable-blink-features=AutomationControlled'
+            ]
+        });
 
         try {
             const context = await browser.newContext();
@@ -72,7 +79,12 @@ export class DataGovSgConnector implements Connector {
 
             console.log(`Navigating to ${baseUrl}`);
             await page.goto(baseUrl, { waitUntil: 'load', timeout: 60000 });
-            await page.waitForTimeout(3000);
+            // Wait for either results or "No datasets found" message
+            await Promise.race([
+                page.waitForSelector('button p[class*="prose-subhead"]', { timeout: 10000 }).catch(() => null),
+                page.waitForSelector(':has-text("No datasets found")', { timeout: 10000 }).catch(() => null)
+            ]);
+            await page.waitForTimeout(2000);
 
             // Click "Load more" until exhaustion
             let hasMore = true;
@@ -97,8 +109,8 @@ export class DataGovSgConnector implements Connector {
             await page.waitForTimeout(2000);
 
             // Extract the titles of datasets
-            // We use all headings and block text since DOM might obscure list cards
-            const allTitles = await page.locator('h1, h2, h3, h4, h5, h6, [role="heading"]').evaluateAll(elements => {
+            // Based on research, titles in the list are often in button p.prose-subhead-5 or specific prose classes
+            const allTitles = await page.locator('button p[class*="prose-subhead"], h1, h2, h3, h4, h5, h6, [role="heading"]').evaluateAll(elements => {
                 return elements.map(el => ((el as HTMLElement).innerText || '').trim()).filter(Boolean);
             });
 
@@ -162,9 +174,9 @@ export class DataGovSgConnector implements Connector {
                             newPage.click('button:has-text("Download")', { force: true })
                         ]);
 
-                        const path = await download.path();
-                        if (path) {
-                            content = await fs.promises.readFile(path);
+                        const downloadPath = await download.path();
+                        if (downloadPath) {
+                            content = await fs.promises.readFile(downloadPath);
                         }
                         metadata.filename = download.suggestedFilename();
                         console.log(`[DataGovSgConnector] Downloaded ${metadata.filename}`);

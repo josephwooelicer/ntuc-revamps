@@ -61,7 +61,14 @@ export class EgazetteConnector implements Connector {
         console.log(`[EgazetteConnector] Searching: ${searchUrl}`);
 
         const documents: RawDocument[] = [];
-        const browser = await chromium.launch({ headless: true });
+        const browser = await chromium.launch({
+            headless: true,
+            args: [
+                '--no-sandbox',
+                '--disable-setuid-sandbox',
+                '--disable-blink-features=AutomationControlled'
+            ]
+        });
 
         try {
             const context = await browser.newContext();

@@ -28,7 +28,7 @@ export class NewsGoogleSearchConnector implements Connector {
         const results: any[] = [];
 
         const browser: Browser = await chromium.launch({
-            headless: false,
+            headless: true,
             args: [
                 '--no-sandbox',
                 '--disable-setuid-sandbox',

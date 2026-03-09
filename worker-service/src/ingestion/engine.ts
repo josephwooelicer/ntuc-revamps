@@ -56,6 +56,7 @@ export class IngestionEngine {
             // Define immediate storage callbacks
             const onDocument = async (doc: any) => {
                 const localPath = await this.storage.saveRawDocument(sourceId, doc.id, doc.content, doc.metadata);
+                console.log(`[IngestionEngine] [${sourceId}] Saved document "${doc.title}" to ${localPath}`);
                 await db.run(
                     `INSERT OR REPLACE INTO raw_document (id, run_id, source_id, external_id, title, url, fetched_at, published_at, local_path)
                      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,

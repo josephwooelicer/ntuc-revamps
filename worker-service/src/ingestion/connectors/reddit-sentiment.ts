@@ -30,7 +30,7 @@ export class RedditSentimentConnector implements Connector {
         }
 
         const browser: Browser = await chromium.launch({
-            headless: false,
+            headless: true,
             args: [
                 '--no-sandbox',
                 '--disable-setuid-sandbox',
