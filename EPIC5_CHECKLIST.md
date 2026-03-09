@@ -19,6 +19,7 @@ Files:
 - [x] Connector rollout: `src-egazette`.
 - [x] Connector rollout: `src-annual-reports-listed`.
 - [x] Connector rollout: `src-reddit-sentiment`.
+- [x] Connector rollout: `src-data-gov-sg` (industry-level).
 
 Files:
 - `worker-service/src/processing/*` (new)
@@ -35,6 +36,7 @@ Files:
 - [x] Connector rollout: `src-egazette`.
 - [x] Connector rollout: `src-annual-reports-listed`.
 - [x] Connector rollout: `src-reddit-sentiment`.
+- [x] Connector rollout: `src-data-gov-sg` (industry-level evidence pointers).
 
 Files:
 - `worker-service/src/processing/*`

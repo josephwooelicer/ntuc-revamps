@@ -449,3 +449,131 @@ Return strict JSON:
         model: `${model}@${SHARED_MATRIX_VERSION}`
     };
 }
+
+export async function evaluateDataGovFileWithGemini(input: {
+    title: string;
+    url: string;
+    agency: string;
+    mimeType: string;
+    fileBytes: Buffer;
+}): Promise<EvalOutput & { impactedIndustries: string[]; reportMetadata: Record<string, unknown> }> {
+    const apiKey = process.env.GEMINI_API_KEY;
+    const model = process.env.GEMINI_MODEL || 'gemini-2.5-flash';
+    const industries = [
+        'Agriculture and Fishing',
+        'Mining and Quarrying',
+        'Manufacturing',
+        'Electricity, Gas, Steam and Air-Conditioning Supply',
+        'Water Supply; Sewerage, Waste Management and Remediation Activities',
+        'Construction',
+        'Wholesale and Retail Trade',
+        'Accommodation and Food Service Activities',
+        'Publishing, Broadcasting, and Content Production and Distribution Activities',
+        'Telecommunications, Computer Programming, Consultancy, Computing Infrastructure, and Other Information Service Activities',
+        'Financial and Insurance Activities',
+        'Real Estate Activities',
+        'Professional, Scientific and Technical Activities',
+        'Administrative and Support Service Activities',
+        'Public Administration and Defence',
+        'Education',
+        'Health and Social Services',
+        'Arts, Sports and Recreation',
+        'Other Service Activities'
+    ];
+
+    if (!apiKey) {
+        const fallback = fallbackEval({
+            eventType: 'industry_report',
+            signalCategory: 'industry_macro',
+            summary: `${input.title} (fallback evaluation)`,
+            groupKey: input.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '').slice(0, 80),
+            matrixScores: {
+                distress_signal: 1,
+                retrenchment_proximity: 1,
+                impact_scope: 2,
+                credibility: 4,
+                timeliness: 3,
+                relevance: 4,
+                positive_offset: 1
+            }
+        });
+        return {
+            ...fallback,
+            impactedIndustries: [],
+            reportMetadata: {
+                about: 'Unable to evaluate report details without GEMINI_API_KEY'
+            }
+        };
+    }
+
+    const prompt = `
+You are evaluating a Singapore data.gov.sg report as an INDUSTRY-LEVEL signal.
+Title: ${input.title}
+URL: ${input.url}
+Agency: ${input.agency}
+
+Choose impacted industries only from this list:
+${industries.map((i) => `- ${i}`).join('\n')}
+
+Task:
+1) Determine which industries are affected.
+2) Determine direction: negative, positive, or neutral.
+3) Summarize what the report is about.
+
+Return strict JSON only:
+{
+  "eventType": "industry_report",
+  "signalCategory": "industry_macro",
+  "label": "positive|neutral|negative|irrelevant",
+  "summary": "string max 240 chars",
+  "occurredAt": "ISO datetime or null",
+  "eventGroupKey": "short normalized key",
+  "confidence": 0..1,
+  "impactedIndustries": ["..."],
+  "reportMetadata": {
+    "about": "short description",
+    "key_metric": "optional",
+    "period": "optional"
+  },
+  "matrixScores": {
+    "distress_signal": 0..5,
+    "retrenchment_proximity": 0..5,
+    "impact_scope": 0..5,
+    "credibility": 0..5,
+    "timeliness": 0..5,
+    "relevance": 0..5,
+    "positive_offset": 0..5
+  },
+  "reasoning": "one short paragraph"
+}`;
+
+    const text = await callGeminiJson(model, apiKey, {
+        contents: [{
+            parts: [
+                { text: prompt },
+                { inlineData: { mimeType: input.mimeType, data: input.fileBytes.toString('base64') } }
+            ]
+        }],
+        generationConfig: { responseMimeType: 'application/json', temperature: 0.1 }
+    }, 60000);
+
+    const { parsed, matrixScores } = parseEvalResponse(text);
+    const impactedIndustries: string[] = Array.isArray(parsed?.impactedIndustries)
+        ? parsed.impactedIndustries.filter((v: unknown) => typeof v === 'string')
+        : [];
+    return {
+        eventType: 'industry_report',
+        signalCategory: 'industry_macro',
+        label: normalizeLabel(parsed?.label),
+        summary: parsed?.summary || input.title,
+        occurredAt: parsed?.occurredAt || null,
+        eventGroupKey: parsed?.eventGroupKey || input.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '').slice(0, 80),
+        confidence: Math.max(0, Math.min(1, Number(parsed?.confidence ?? 0.5))),
+        matrixScores,
+        finalScore: computeFinalScore(matrixScores),
+        reasoning: parsed?.reasoning || '',
+        model: `${model}@${SHARED_MATRIX_VERSION}`,
+        impactedIndustries,
+        reportMetadata: (parsed?.reportMetadata && typeof parsed.reportMetadata === 'object') ? parsed.reportMetadata : {}
+    };
+}

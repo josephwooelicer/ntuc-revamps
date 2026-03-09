@@ -8,6 +8,7 @@ import { parseNewsRows, readNewsCsv } from './news-parser';
 import { parseEgazettePdf } from './egazette-parser';
 import { parseAnnualReportRows, readAnnualReportCsv } from './annual-report-parser';
 import { parseRedditCommentSentiment, readRedditCommentsCsv } from './reddit-parser';
+import { parseDataGovDocument } from './data-gov-parser';
 
 type ProcessingRunMode = 'debug_on_demand' | 'production';
 
@@ -248,7 +249,8 @@ export class ProcessingEngine {
                         target.sourceId === 'src-news' ||
                         target.sourceId === 'src-egazette' ||
                         target.sourceId === 'src-annual-reports-listed' ||
-                        target.sourceId === 'src-reddit-sentiment'
+                        target.sourceId === 'src-reddit-sentiment' ||
+                        target.sourceId === 'src-data-gov-sg'
                     ) {
                         const orchestration = await db.get(
                             `SELECT company_name, uen
@@ -261,7 +263,8 @@ export class ProcessingEngine {
                         const explicitUen = orchestration?.uen || null;
                         const resolutionThreshold = await this.getEntityResolutionThreshold(db);
                         const entityResolution = await this.resolveEntityForNews(db, companyName, explicitUen);
-                        const shouldQueueReview = entityResolution.confidence < resolutionThreshold;
+                        const isIndustrySource = target.sourceId === 'src-data-gov-sg';
+                        const shouldQueueReview = !isIndustrySource && entityResolution.confidence < resolutionThreshold;
 
                         for (const doc of rawDocRows) {
                             try {
@@ -285,6 +288,13 @@ export class ProcessingEngine {
                                         comments: await readRedditCommentsCsv(doc.local_path)
                                     });
                                     signals = parsed ? [parsed] : [];
+                                } else if (target.sourceId === 'src-data-gov-sg') {
+                                    signals = [await parseDataGovDocument({
+                                        localPath: doc.local_path,
+                                        sourceUrl: doc.url || '',
+                                        title: doc.title || 'data.gov.sg report',
+                                        agency: String(doc.query_text || '')
+                                    })];
                                 }
                                 for (const signal of signals) {
                                     if (
@@ -318,8 +328,8 @@ export class ProcessingEngine {
 
                                     await db.run(
                                         `INSERT INTO processed_signal
-                                        (id, processing_run_id, processing_item_id, ingestion_run_id, source_id, raw_document_id, entity_name, uen, event_type, signal_category, occurred_at, summary, canonical_url, grouping_key, matrix_version, matrix_scores, evaluation_label, final_score, parser_confidence, parser_version, evaluator_model, evaluator_reasoning, metadata)
-                                        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+                                        (id, processing_run_id, processing_item_id, ingestion_run_id, source_id, raw_document_id, entity_name, uen, event_type, signal_category, occurred_at, summary, canonical_url, grouping_key, matrix_version, matrix_scores, evaluation_label, final_score, parser_confidence, parser_version, evaluator_model, evaluator_reasoning, metadata, signal_level, impacted_industries)
+                                        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
                                         [
                                             signalId,
                                             processingRunId,
@@ -327,8 +337,8 @@ export class ProcessingEngine {
                                             target.ingestionRunId,
                                             target.sourceId,
                                             doc.id,
-                                            entityResolution.entityName,
-                                            shouldQueueReview ? null : entityResolution.uen,
+                                            isIndustrySource ? null : entityResolution.entityName,
+                                            isIndustrySource ? null : (shouldQueueReview ? null : entityResolution.uen),
                                             signal.eventType,
                                             signal.signalCategory,
                                             signal.occurredAt,
@@ -343,7 +353,9 @@ export class ProcessingEngine {
                                             signal.parserVersion,
                                             signal.evaluatorModel,
                                             signal.evaluatorReasoning,
-                                            JSON.stringify(signal.metadata)
+                                            JSON.stringify(signal.metadata),
+                                            isIndustrySource ? 'industry' : 'company',
+                                            isIndustrySource ? JSON.stringify(signal.impactedIndustries || []) : null
                                         ]
                                     );
 
