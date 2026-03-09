@@ -42,7 +42,13 @@ export class EgazetteConnector implements Connector {
      * @param options Search options – see above.
      * @returns A promise resolving to the IngestionResult containing fetched gazette documents.
      */
-    async pull(range?: IngestionRange, cursor?: string, options?: Record<string, any>): Promise<IngestionResult> {
+    async pull(
+        range?: IngestionRange,
+        cursor?: string,
+        options?: Record<string, any>,
+        onDocument?: (doc: RawDocument) => Promise<void>,
+        onRecord?: (record: any) => Promise<void>
+    ): Promise<IngestionResult> {
         const query: string = options?.query || '';
         const month: number = options?.month ?? (range ? range.start.getUTCMonth() + 1 : new Date().getUTCMonth() + 1);
         const year: number = options?.year ?? (range ? range.start.getUTCFullYear() : new Date().getUTCFullYear());
@@ -92,7 +98,7 @@ export class EgazetteConnector implements Connector {
                     const filename = decodeURIComponent(path.basename(new URL(pdfUrl).pathname));
                     const docId = crypto.createHash('sha256').update(this.id + pdfUrl).digest('hex');
 
-                    documents.push({
+                    const doc: RawDocument = {
                         id: docId,
                         sourceId: this.id,
                         externalId: Buffer.from(pdfUrl).toString('base64').substring(0, 24),
@@ -108,14 +114,18 @@ export class EgazetteConnector implements Connector {
                             month: month.toString().padStart(2, '0'),
                             filename
                         }
-                    });
+                    };
+
+                    if (onDocument) {
+                        await onDocument(doc);
+                    }
+                    documents.push(doc);
 
                     console.log(`[EgazetteConnector] Downloaded: ${filename}`);
                 } catch (err: any) {
                     console.error(`[EgazetteConnector] Error downloading ${pdfUrl}: ${err.message}`);
                 }
             }
-
         } catch (err: any) {
             console.error(`[EgazetteConnector] Error: ${err.message}`);
         } finally {

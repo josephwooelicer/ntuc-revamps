@@ -8,7 +8,13 @@ export class RedditSentimentConnector implements Connector {
     id = 'src-reddit-sentiment';
     toScreenshot = false;
 
-    async pull(range?: IngestionRange, cursor?: string, options?: Record<string, any>): Promise<IngestionResult> {
+    async pull(
+        range?: IngestionRange,
+        cursor?: string,
+        options?: Record<string, any>,
+        onDocument?: (doc: RawDocument) => Promise<void>,
+        onRecord?: (record: any) => Promise<void>
+    ): Promise<IngestionResult> {
         const companyName = options?.company_name || '';
 
         console.log(`[RedditSentimentConnector] Pulling for ${companyName}`);
@@ -122,7 +128,7 @@ export class RedditSentimentConnector implements Connector {
                             const postId = postData.id;
                             const safeTitle = postTitle.replace(/[^a-z0-9]/gi, '_').toLowerCase().substring(0, 50);
 
-                            documents.push({
+                            const doc: RawDocument = {
                                 id: crypto.createHash('sha256').update(this.id + postId).digest('hex'),
                                 sourceId: this.id,
                                 externalId: postId,
@@ -138,7 +144,12 @@ export class RedditSentimentConnector implements Connector {
                                     filename: `${safeTitle}_comments.csv`,
                                     customDir: customDir
                                 }
-                            });
+                            };
+
+                            if (onDocument) {
+                                await onDocument(doc);
+                            }
+                            documents.push(doc);
                         }
                     }
                 } catch (e: any) {
@@ -151,7 +162,7 @@ export class RedditSentimentConnector implements Connector {
 
             // Add Screenshot Document if captured
             if (this.toScreenshot && screenshot) {
-                documents.push({
+                const screenshotDoc: RawDocument = {
                     id: crypto.createHash('sha256').update(this.id + 'screenshot' + customDir).digest('hex'),
                     sourceId: this.id,
                     externalId: 'search_results_screenshot',
@@ -164,7 +175,11 @@ export class RedditSentimentConnector implements Connector {
                         customDir: customDir,
                         filename: 'screenshot.png'
                     }
-                });
+                };
+                if (onDocument) {
+                    await onDocument(screenshotDoc);
+                }
+                documents.push(screenshotDoc);
             }
 
             await browser.close();

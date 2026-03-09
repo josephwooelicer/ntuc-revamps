@@ -7,7 +7,13 @@ export class NewsGoogleSearchConnector implements Connector {
     id = 'src-news';
     toScreenshot = false;
 
-    async pull(range?: IngestionRange, cursor?: string, options?: Record<string, any>): Promise<IngestionResult> {
+    async pull(
+        range?: IngestionRange,
+        cursor?: string,
+        options?: Record<string, any>,
+        onDocument?: (doc: RawDocument) => Promise<void>,
+        onRecord?: (record: any) => Promise<void>
+    ): Promise<IngestionResult> {
         const companyName = options?.company_name || '';
         const newsSite = options?.news_site || '';
 
@@ -135,7 +141,7 @@ export class NewsGoogleSearchConnector implements Connector {
             const documents: RawDocument[] = [];
 
             // 1. CSV Document
-            documents.push({
+            const csvDoc: RawDocument = {
                 id: crypto.createHash('sha256').update(this.id + 'csv' + customDir).digest('hex'),
                 sourceId: this.id,
                 externalId: 'search_results_csv',
@@ -149,11 +155,15 @@ export class NewsGoogleSearchConnector implements Connector {
                     customDir: customDir,
                     filename: 'data.csv'
                 }
-            });
+            };
+            if (onDocument) {
+                await onDocument(csvDoc);
+            }
+            documents.push(csvDoc);
 
             // 2. Screenshot Document
             if (this.toScreenshot) {
-                documents.push({
+                const screenshotDoc: RawDocument = {
                     id: crypto.createHash('sha256').update(this.id + 'screenshot' + customDir).digest('hex'),
                     sourceId: this.id,
                     externalId: 'search_results_screenshot',
@@ -167,7 +177,11 @@ export class NewsGoogleSearchConnector implements Connector {
                         customDir: customDir,
                         filename: 'screenshot.png'
                     }
-                });
+                };
+                if (onDocument) {
+                    await onDocument(screenshotDoc);
+                }
+                documents.push(screenshotDoc);
             }
 
             console.log(`[NewsGoogleSearchConnector] Found total ${results.length} results. Saved in: ${customDir}`);

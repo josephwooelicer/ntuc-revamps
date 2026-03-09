@@ -23,7 +23,13 @@ export interface IngestionResult {
 
 export interface Connector {
     id: string;
-    pull(range?: IngestionRange, cursor?: string, options?: Record<string, any>): Promise<IngestionResult>;
+    pull(
+        range?: IngestionRange,
+        cursor?: string,
+        options?: Record<string, any>,
+        onDocument?: (doc: RawDocument) => Promise<void>,
+        onRecord?: (record: any) => Promise<void>
+    ): Promise<IngestionResult>;
 }
 
 export interface Source {

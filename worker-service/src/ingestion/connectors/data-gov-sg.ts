@@ -20,7 +20,13 @@ export class DataGovSgConnector implements Connector {
      * @param options Additional options like 'agency', 'month', 'year'.
      * @returns A promise resolving to the IngestionResult containing downloaded documents.
      */
-    async pull(range?: IngestionRange, cursor?: string, options?: Record<string, any>): Promise<IngestionResult> {
+    async pull(
+        range?: IngestionRange,
+        cursor?: string,
+        options?: Record<string, any>,
+        onDocument?: (doc: RawDocument) => Promise<void>,
+        onRecord?: (record: any) => Promise<void>
+    ): Promise<IngestionResult> {
         console.log(`[DataGovSgConnector] Pulling data.gov.sg for options: ${JSON.stringify(options)}`);
 
         // If options contain month/year/agency
@@ -170,7 +176,7 @@ export class DataGovSgConnector implements Connector {
 
                 if (metadata.filename) {
                     const docId = crypto.createHash('sha256').update(this.id + title).digest('hex');
-                    documents.push({
+                    const doc: RawDocument = {
                         id: docId,
                         sourceId: this.id,
                         externalId: Buffer.from(title).toString('base64').substring(0, 16),
@@ -180,7 +186,12 @@ export class DataGovSgConnector implements Connector {
                         url: baseUrl, // use search URL as proxy
                         content: content,
                         metadata: metadata
-                    });
+                    };
+
+                    if (onDocument) {
+                        await onDocument(doc);
+                    }
+                    documents.push(doc);
                 } else {
                     console.log(`[DataGovSgConnector] Skipping dataset "${title}" as no file was downloaded.`);
                 }
