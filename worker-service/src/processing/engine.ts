@@ -5,6 +5,7 @@ import * as crypto from 'crypto';
 import { normalizeRangeToSgtDayBounds } from '../ingestion/utils';
 import { SHARED_MATRIX_VERSION } from './evaluation-matrix';
 import { parseNewsRows, readNewsCsv } from './news-parser';
+import { parseEgazettePdf } from './egazette-parser';
 
 type ProcessingRunMode = 'debug_on_demand' | 'production';
 
@@ -223,11 +224,11 @@ export class ProcessingEngine {
 
                 try {
                     const rawDocRows = await db.all(
-                        `SELECT id, local_path, source_id
+                        `SELECT id, local_path, source_id, url, title, query_text
                          FROM raw_document
                          WHERE run_id = ?`,
                         target.ingestionRunId
-                    ) as Array<{ id: string; local_path: string; source_id: string }>;
+                    ) as Array<{ id: string; local_path: string; source_id: string; url: string; title: string; query_text?: string }>;
                     const rawDocCount = rawDocRows.length;
                     const rawDocCountRow = { count: rawDocCount };
                     const rawRecordCountRow = await db.get(
@@ -241,14 +242,15 @@ export class ProcessingEngine {
                     let itemSignalsSkipped = 0;
                     let itemSignalsFailed = 0;
 
-                    if (target.sourceId === 'src-news') {
+                    if (target.sourceId === 'src-news' || target.sourceId === 'src-egazette') {
                         const orchestration = await db.get(
                             `SELECT company_name, uen
                              FROM ingestion_orchestration_run
                              WHERE id = ?`,
                             request.ingestionOrchestrationRunId || null
                         ) as { company_name?: string; uen?: string } | undefined;
-                        const companyName = orchestration?.company_name || 'unknown_company';
+                        const fallbackDocCompany = rawDocRows.find((d) => !!d.query_text)?.query_text || null;
+                        const companyName = orchestration?.company_name || fallbackDocCompany || 'unknown_company';
                         const explicitUen = orchestration?.uen || null;
                         const resolutionThreshold = await this.getEntityResolutionThreshold(db);
                         const entityResolution = await this.resolveEntityForNews(db, companyName, explicitUen);
@@ -256,8 +258,14 @@ export class ProcessingEngine {
 
                         for (const doc of rawDocRows) {
                             try {
-                                const rows = await readNewsCsv(doc.local_path);
-                                const signals = await parseNewsRows(companyName, rows);
+                                const signals = target.sourceId === 'src-news'
+                                    ? await parseNewsRows(companyName, await readNewsCsv(doc.local_path))
+                                    : [await parseEgazettePdf({
+                                        companyName,
+                                        localPath: doc.local_path,
+                                        sourceUrl: doc.url,
+                                        title: doc.title || 'eGazette Document'
+                                    })];
                                 for (const signal of signals) {
                                     if (signal.label === 'irrelevant') {
                                         itemSignalsSkipped++;

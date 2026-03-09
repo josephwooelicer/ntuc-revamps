@@ -317,6 +317,7 @@ export class IngestionEngine {
                         ...request.options,
                         company_name: request.companyName,
                         companyName: request.companyName,
+                        query: request.options?.query ?? request.companyName,
                         uen: request.uen,
                         industry: request.industry,
                         orchestration_run_id: orchestrationRunId

@@ -158,6 +158,14 @@ export class EgazetteConnector implements Connector {
                             customSubDir: path.join(companyFolder, yyyymm),
                             company: companyFolder,
                             query,
+                            queryText: query,
+                            filterParams: {
+                                query,
+                                year,
+                                month
+                            },
+                            retrievalUrl: resolvedUrl,
+                            pageNumber: 1,
                             year: year.toString(),
                             month: month.toString().padStart(2, '0'),
                             filename
